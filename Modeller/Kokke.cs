@@ -9,6 +9,6 @@ namespace Modeller
    public class Kokke: User
     {
 
-        public override string ToString() => $"{Navn} - {Email}";
+       
     }
 }

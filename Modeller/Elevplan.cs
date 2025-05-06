@@ -13,6 +13,9 @@ namespace Modeller
         public DateTime OprettetDato { get; set; } = DateTime.Now;
         public string Kommentar { get; set; } = string.Empty;
 
+        public DateTime StartDato { get; set; }
+
+        public DateTime SlutDato { get; set; }
         public List<Delmål> Delmål { get; set; } = new();
 
         public int ElevId { get; set; } // FK

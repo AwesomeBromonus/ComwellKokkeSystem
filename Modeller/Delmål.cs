@@ -15,7 +15,7 @@ namespace Modeller
         public DateTime Deadline { get; set; }
         public string Status { get; set; } = string.Empty;
         public string Kommentar { get; set; } = string.Empty;
-
+        public string Elevtur { get; set; }
         public int ElevplanId { get; set; }
     }
 }
