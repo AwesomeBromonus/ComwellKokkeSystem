@@ -1,0 +1,47 @@
+﻿@page "/rapport"
+
+<h3>Rapport</h3>
+<!-- Muligheder for at vælge mellem hoteller --> 
+<label>Hotel:</label>
+<select @bind="valgtHotel">
+    <option value="Alle">Alle</option>
+    <option value="Kongeborgh">Kongeborgh</option>
+    <option value="Holte">Holte</option>
+</select>
+
+<!-- Generer en rapport, ved hjælp af FilterData -->
+<button @onclick="FilterData">Generer Rapport</button>
+
+@foreach(var elev in elever) {}
+@code {
+
+    private List<ElevData> elever = new List<ElevData>();
+    // liste over elever (mock data) 
+    private string valgtAargang = "Alle";
+    private string valgtHotel = "Alle"; 
+    
+    // en klasse til at holde elevdata 
+    private class ElevData
+    {
+        // skal ind i modeller
+        public string ElevNavn { get; set; }
+        public string Hotel { get; set;  }
+        public int FuldforteDelmaal { get; set; }// vi skal ændre navnet 
+        public string Udflugt { get; set; }
+        public int Fremskridtprocent { get; set; }
+    }
+    
+    // kører når siden loader 
+    protected override async Task OnInitializedAsync() {
+        // mock data 
+         
+        elever.Add(new ElevData { ElevNavn = "Kasper Jensen", Hotel = "Kongeborgh", FuldforteDelmaal = 5, Udflugt = "Arla", Fremskridtprocent = 45 });
+    }
+
+    private void FilterData()
+    {
+        elever = elever.Where(elever => elever.Hotel == valgtHotel || valgtHotel == "Alle")
+            .ToList();
+    }
+
+}
