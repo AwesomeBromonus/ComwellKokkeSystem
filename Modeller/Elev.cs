@@ -11,5 +11,6 @@ namespace Modeller
         public Elevplan? Uddannelsesplan { get; set; }
 
         public int? UddannelsesplanId { get; set; } // FK hvis du bruger EF Core
+        public string Rolle { get; set; } = "Elev";
     }
 }

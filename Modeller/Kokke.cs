@@ -8,7 +8,7 @@ namespace Modeller
 {
    public class Kokke: User
     {
+        public string Rolle { get; set; } = "Kok";
 
-       
     }
 }

@@ -9,6 +9,6 @@ namespace Modeller;
 
 public class Admin : User
 {
-
+    public string Rolle { get; set; } = "Admin";
 
 }
