@@ -112,3 +112,13 @@ code {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
     text-align: start;
 }
+
+.nav-link.active {
+    background-color: #007fa3;
+    border-radius: 10px;
+    padding-left: 12px;
+}
+
+.sidebar {
+    background: linear-gradient(to bottom right, #003b4a, #002732);
+}

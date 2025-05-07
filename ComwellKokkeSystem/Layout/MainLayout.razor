@@ -1,16 +1,55 @@
 ﻿@inherits LayoutComponentBase
-<div class="page">
-    <div class="sidebar">
+@inject UserState UserState
+@inject NavigationManager NavManager
+@implements IDisposable
+
+<div class="d-flex">
+    <div>
         <NavMenu />
     </div>
 
-    <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+    <div class="flex-grow-1">
+        <!-- Topbar -->
+        <div class="d-flex justify-content-between align-items-center px-4 py-3 shadow-sm text-white"
+             style="background-color: #003b4a; border-bottom: 1px solid #004d5e;">
+            <h5 class="m-0 fw-semibold">ComwellKokkeSystem</h5>
+
+            @if (UserState.IsLoggedIn)
+            {
+                <div class="d-flex align-items-center gap-3">
+                    <span class="fw-semibold">
+                        <i class="bi bi-person-fill"></i> @UserState.Username (@UserState.Role)
+                    </span>
+                    <button class="btn btn-sm btn-outline-light" @onclick="Logout">Log ud</button>
+                </div>
+            }
+            else
+            {
+                <NavLink href="/login" class="btn btn-sm btn-light">Log ind</NavLink>
+            }
         </div>
 
-        <article class="content px-4">
+        <!-- Main content -->
+        <div class="p-4" style="background-color: #f8f9fa; min-height: 100vh;">
             @Body
-        </article>
-    </main>
+        </div>
+    </div>
 </div>
+
+@code {
+    private void Logout()
+    {
+        UserState.Logout();
+        NavManager.NavigateTo("/");
+    }
+
+    protected override void OnInitialized()
+    {
+        UserState.OnChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        UserState.OnChange -= StateHasChanged;
+    }
+}

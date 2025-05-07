@@ -1,32 +1,91 @@
-﻿@page "/login"
+﻿@page "/login" // Denne side tilgås på URL'en /login
+
+// Her importeres de nødvendige services og modeller
 @inject IAuthService AuthService
 @inject NavigationManager NavManager
+@inject UserState UserState
 @using Modeller
 
-<h3>Log ind</h3>
+<!-- Login-layoutet: centreret boks med felter -->
+<div class="d-flex justify-content-center align-items-center" style="min-height: 100vh; background-color: #f5f5f5;">
+    <div class="p-5 shadow" style="background-color: white; border-radius: 20px; width: 100%; max-width: 420px;">
+        <h2 class="text-center mb-4" style="color: #003b4a;">Log ind</h2>
 
-<EditForm Model="@login" OnValidSubmit="@HandleLogin">
-    <InputText @bind-Value="login.Username" placeholder="Brugernavn" class="form-control mb-2" />
-    <InputText @bind-Value="login.Password" type="password" placeholder="Adgangskode" class="form-control mb-2" />
-    <button type="submit" class="btn btn-primary">Login</button>
-</EditForm>
+        <!-- Loginformular der kalder HandleLogin ved submit -->
+        <EditForm Model="@login" OnValidSubmit="@HandleLogin">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
 
-@if (!string.IsNullOrEmpty(message))
-{
-    <p>@message</p>
-}
+            <!-- Brugernavn -->
+            <div class="form-group mb-3">
+                <label class="form-label">Brugernavn</label>
+                <InputText @bind-Value="login.Username" class="form-control form-control-lg rounded-pill" />
+            </div>
+
+            <!-- Adgangskode med toggle-funktion -->
+            <div class="form-group mb-3">
+                <label class="form-label">Adgangskode</label>
+                <div class="input-group">
+                    <InputText @bind-Value="login.Password" class="form-control form-control-lg rounded-start-pill"
+                               type="@passwordInputType" />
+                    <button class="btn btn-outline-secondary rounded-end-pill" type="button"
+                            @onclick="TogglePasswordVisibility">
+                        @(showPassword ? "Skjul" : "Vis")
+                    </button>
+                </div>
+            </div>
+
+            <!-- Login-knap -->
+            <button class="btn btn-lg btn-block w-100 text-white" style="background-color: #007fa3; border-radius: 50px;" type="submit">
+                Log ind
+            </button>
+        </EditForm>
+
+        <!-- Fejlbesked vises hvis login fejler -->
+        @if (!string.IsNullOrEmpty(message))
+        {
+            <div class="alert alert-danger mt-3">@message</div>
+        }
+
+        <!-- Link til registrering -->
+        <div class="text-center mt-3">
+            <p>Har du ikke en bruger? <a href="/register" class="text-decoration-none">Opret her</a></p>
+        </div>
+    </div>
+</div>
 
 @code {
-    private LoginModel login = new();
-    private string message = "";
+    private LoginModel login = new(); // Holder brugernavn og adgangskode
+    private string message = ""; // Besked til brugeren
+    private bool showPassword = false; // Om adgangskoden skal vises
 
+    // Ændrer typen på adgangskode-feltet
+    private string passwordInputType => showPassword ? "text" : "password";
+
+    private void TogglePasswordVisibility()
+    {
+        showPassword = !showPassword;
+    }
+
+    // Login-funktion kaldet når formularen submitter
     private async Task HandleLogin()
     {
+        message = "";
+
         var success = await AuthService.Login(login);
+
         if (success)
         {
-            message = "Login lykkedes!";
-            NavManager.NavigateTo("/");
+            // Hvis brugeren er admin, send til admin-side
+            if (UserState.Role?.ToLower() == "admin")
+            {
+                NavManager.NavigateTo("/administrator");
+            }
+            else
+            {
+                // Ellers send til forsiden (eller elev-sider)
+                NavManager.NavigateTo("/");
+            }
         }
         else
         {

@@ -7,22 +7,20 @@ namespace ComwellSystemAPI.Controllers
     [Route("api/[controller]")]
     public class UsersController : ControllerBase
     {
-        // Midlertidig liste til at simulere brugere (erstattes senere af database)
+        // Midlertidig brugerliste
         private static List<UserModel> users = new List<UserModel>();
 
         [HttpPost("register")]
         public IActionResult Register(RegisterModel model)
         {
-            // Tjek om brugernavn allerede findes
             if (users.Any(u => u.Username == model.Username))
                 return BadRequest("Brugernavn er allerede i brug");
 
-            // Opret ny bruger og tilføj til listen
             var user = new UserModel
             {
                 Id = users.Count + 1,
                 Username = model.Username,
-                Password = model.Password, // OBS: gemmes i klartekst (kun til test)
+                Password = model.Password, // OBS: Klartekst – kun til test
                 Role = model.Role
             };
 
@@ -33,14 +31,17 @@ namespace ComwellSystemAPI.Controllers
         [HttpPost("login")]
         public IActionResult Login(LoginModel model)
         {
-            // Tjek om bruger findes og kodeord matcher
             var user = users.FirstOrDefault(u => u.Username == model.Username && u.Password == model.Password);
-
             if (user == null)
                 return Unauthorized("Forkert brugernavn eller adgangskode");
 
-            // Returnér brugerens ID for at simulere login
-            return Ok(user.Id);
+            // 💥 Returner brugerdata som JSON
+            return Ok(new
+            {
+                user.Id,
+                user.Username,
+                user.Role
+            });
         }
     }
 }

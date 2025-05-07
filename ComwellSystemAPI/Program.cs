@@ -1,23 +1,45 @@
+﻿using Microsoft.OpenApi.Models;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
+// Tilføj services til containeren
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "ComwellSystemAPI", Version = "v1" });
+});
+
+// 💥 Tilføj CORS-politik
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowBlazorClient", policy =>
+    {
+        policy.WithOrigins("https://localhost:5295", "http://localhost:5295")
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
+
+
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// 💡 Swagger kun i Development
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "ComwellSystemAPI v1");
+    });
 }
 
-app.UseHttpsRedirection();
+// 💥 Aktiver CORS-politikken
+app.UseCors("AllowBlazorClient");
 
+app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
-
 app.Run();
