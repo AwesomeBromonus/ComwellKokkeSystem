@@ -1,0 +1,57 @@
+﻿@page "/opret-elevplan"
+@using Modeller
+@inject IElevplanService ElevplanService
+@inject NavigationManager Nav
+
+<h3>Opret Elevplan</h3>
+
+<EditForm Model="elevplan" OnValidSubmit="GemElevplan">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-3">
+        <label for="titel">Titel:</label>
+        <InputText id="titel" class="form-control" @bind-Value="elevplan.Titel" />
+    </div>
+
+    <div class="mb-3">
+        <label for="kommentar">Kommentar:</label>
+        <InputTextArea id="kommentar" class="form-control" @bind-Value="elevplan.Kommentar" />
+    </div>
+
+    <div class="mb-3">
+        <label for="startDato">Startdato:</label>
+        <InputDate id="startDato" class="form-control" @bind-Value="elevplan.StartDato" />
+    </div>
+
+    <div class="mb-3">
+        <label for="slutDato">Slutdato:</label>
+        <InputDate id="slutDato" class="form-control" @bind-Value="elevplan.SlutDato" />
+    </div>
+
+    <div class="mb-3">
+        <label for="elevId">Elev ID:</label>
+        <InputNumber id="elevId" class="form-control" @bind-Value="elevplan.ElevId" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Gem elevplan</button>
+</EditForm>
+
+@if (success)
+{
+    <div class="alert alert-success mt-3">
+        Elevplan oprettet!
+    </div>
+}
+
+@code {
+    private Elevplan elevplan = new();
+    private bool success = false;
+
+    private async Task GemElevplan()
+    {
+        await ElevplanService.AddElevplanAsync(elevplan);
+        success = true;
+        Nav.NavigateTo("/"); // Du kan ændre til fx "/elevplaner"
+    }
+}
