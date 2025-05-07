@@ -1,0 +1,36 @@
+﻿@page "/login"
+@inject IAuthService AuthService
+@inject NavigationManager NavManager
+@using Modeller
+
+<h3>Log ind</h3>
+
+<EditForm Model="@login" OnValidSubmit="@HandleLogin">
+    <InputText @bind-Value="login.Username" placeholder="Brugernavn" class="form-control mb-2" />
+    <InputText @bind-Value="login.Password" type="password" placeholder="Adgangskode" class="form-control mb-2" />
+    <button type="submit" class="btn btn-primary">Login</button>
+</EditForm>
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <p>@message</p>
+}
+
+@code {
+    private LoginModel login = new();
+    private string message = "";
+
+    private async Task HandleLogin()
+    {
+        var success = await AuthService.Login(login);
+        if (success)
+        {
+            message = "Login lykkedes!";
+            NavManager.NavigateTo("/");
+        }
+        else
+        {
+            message = "Login fejlede.";
+        }
+    }
+}
