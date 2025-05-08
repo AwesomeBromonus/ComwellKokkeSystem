@@ -1,0 +1,57 @@
+﻿@page "/elevplaner"
+@using Modeller
+@inject IElevplanService ElevplanService
+@inject NavigationManager Nav
+
+<h3>Elevplaner</h3>
+
+@if (elevplaner == null)
+{
+    <p><em>Indlæser...</em></p>
+}
+else if (elevplaner.Count == 0)
+{
+    <p>Der er ingen elevplaner endnu.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Titel</th>
+                <th>Start</th>
+                <th>Slut</th>
+                <th>Handling</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var plan in elevplaner)
+            {
+                <tr>
+                    <td>@plan.Id</td>
+                    <td>@plan.Titel</td>
+                    <td>@plan.StartDato.ToShortDateString()</td>
+                    <td>@plan.SlutDato.ToShortDateString()</td>
+                    <td>
+                        <button class="btn btn-primary btn-sm" @onclick="@(() => GåTilDelmål(plan.Id))">Vis delmål</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Modeller.Elevplan>? elevplaner;
+
+    protected override async Task OnInitializedAsync()
+    {
+        elevplaner = await ElevplanService.GetElevplanerAsync();
+    }
+
+    private void GåTilDelmål(int id)
+    {
+        Nav.NavigateTo($"/elevplan/{id}/delmål");
+    }
+}

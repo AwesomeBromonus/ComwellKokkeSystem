@@ -1,0 +1,38 @@
+﻿@page "/elevplan/{id}/delmål"
+@using Modeller
+@inject IElevplanService ElevplanService
+
+<h3>Delmål for elevplan @id</h3>
+
+@if (elevplan == null)
+{
+    <p><em>Indlæser...</em></p>
+}
+else if (elevplan.Delmål.Count == 0)
+{
+    <p>Der er ingen delmål for denne elevplan.</p>
+}
+else
+{
+    <ul class="list-group">
+        @foreach (var delmål in elevplan.Delmål)
+        {
+            <li class="list-group-item">
+                <strong>@delmål.Beskrivelse</strong> – @delmål.Status<br />
+                <em>Deadline: @delmål.Deadline.ToShortDateString()</em>
+            </li>
+        }
+    </ul>
+}
+
+@code {
+    [Parameter]
+    public int id { get; set; }
+
+    private Modeller.Elevplan? elevplan;
+
+    protected override async Task OnInitializedAsync()
+    {
+        elevplan = await ElevplanService.GetElevplanByIdAsync(id);
+    }
+}

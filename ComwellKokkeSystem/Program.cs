@@ -19,7 +19,7 @@ public class Program
         //  HTTP Client – API Base URL
         builder.Services.AddScoped(sp => new HttpClient
         {
-            BaseAddress = new Uri("https://localhost:7139")
+            BaseAddress = new Uri("https://localhost:7013")
         });
 
         //  Local Storage til state management
