@@ -18,3 +18,4 @@ public interface IElevplanService
     // Slet elevplan ud fra ID
     Task DeleteElevplanAsync(int id);
 }
+*/

@@ -36,7 +36,7 @@ public class ElevplanController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = plan.Id }, plan);
     }
 
-    // Opdaterer en eksisterende elevplan (baseret på ID)
+    // Opdaterer en eksisterende elevplan (baseret p� ID)
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, Elevplan plan)
     {
@@ -47,7 +47,7 @@ public class ElevplanController : ControllerBase
         return NoContent(); // Returnerer status 204 (No Content)
     }
 
-    // Sletter en elevplan baseret på ID
+    // Sletter en elevplan baseret p� ID
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
@@ -55,3 +55,4 @@ public class ElevplanController : ControllerBase
         return NoContent(); // Returnerer status 204 (No Content)
     }
 }
+*/
