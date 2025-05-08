@@ -55,4 +55,3 @@ public class ElevplanController : ControllerBase
         return NoContent(); // Returnerer status 204 (No Content)
     }
 }
-*/
