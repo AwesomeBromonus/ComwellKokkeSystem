@@ -1,3 +1,6 @@
+using ComwellSystemAPI.Interfaces;
+using ComwellSystemAPI.Repositories;
+
 public class Program
 {
     public static void Main(string[] args)
@@ -20,7 +23,9 @@ public class Program
 
 
         builder.Services.AddSingleton<IElevplan, ElevplanRepository>();
-       
+
+        builder.Services.AddSingleton<IPraktikperiode, PraktikperiodeRepository>();
+
 
         // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
         builder.Services.AddOpenApi();

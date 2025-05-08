@@ -4,6 +4,7 @@ using ComwellKokkeSystem;
 using Blazored.LocalStorage;
 
 using Service;
+using ComwellKokkeSystem.Service;
 
 
 public class Program
@@ -25,9 +26,12 @@ public class Program
         //  Local Storage til state management
         builder.Services.AddBlazoredLocalStorage();
 
+
         //  Services
         builder.Services.AddScoped<IElevplanService, ElevplanService>();
-        
+        builder.Services.AddScoped<IPraktikperiodeService, PraktikperiodeService>();
+
+
 
         await builder.Build().RunAsync();
     }

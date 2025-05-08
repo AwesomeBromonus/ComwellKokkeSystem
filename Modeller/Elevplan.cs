@@ -16,10 +16,8 @@ namespace Modeller
         public DateTime StartDato { get; set; }
 
         public DateTime SlutDato { get; set; }
-        public List<Delmål> Delmål { get; set; } = new();
-
-      
-      
+        public int PraktikperiodeId { get; set; } // Tilknytning til valgt praktikperiode
+        public List<Praktikperiode> Praktikperiode { get; set; } = new();
     }
 }
 
