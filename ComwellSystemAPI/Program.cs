@@ -7,10 +7,14 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "ComwellSystemAPI", Version = "v1" });
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "ComwellSystemAPI",
+        Version = "v1"
+    });
 });
 
-// 💥 Tilføj CORS-politik
+// CORS-politik for Blazor
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowBlazorClient", policy =>
@@ -21,11 +25,9 @@ builder.Services.AddCors(options =>
     });
 });
 
+var app = builder.Build();
 
-
-        var app = builder.Build();
-
-// 💡 Swagger kun i Development
+// Swagger kun i development
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -35,11 +37,11 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-// 💥 Aktiver CORS-politikken
+// Brug CORS
 app.UseCors("AllowBlazorClient");
 
 app.UseHttpsRedirection();
 app.UseAuthorization();
-
 app.MapControllers();
+
 app.Run();
