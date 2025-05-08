@@ -1,0 +1,107 @@
+﻿@page "/opretuser"
+@using ComwellElevplan.Models
+@using Modeller
+
+<!-- using ComwellElevplan.Models -->
+<div>
+    <label class="block text-sm font-medium text-gray-700">Navn:</label>
+    <input @bind="newUser.Navn" id="Indtast fulde navn" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+</div>
+
+<div>
+    <label class="block text-sm font-medium text-gray-700">Brugernavn:</label>
+    <input @bind="newUser.Brugernavn" placeholder="Indtast brugernavn" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+</div>
+
+<div>
+    <label class="block text-sm font-medium text-gray-700">Email:</label>
+    <input @bind="newUser.Email" placeholder="Indtast email" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+</div>
+
+<div>
+    <label class="block text-sm font-medium text-gray-700">Adgangskode:</label>
+    <input @bind="newUser.Adgangskode" type="password" placeholder="Indtast adgangskode" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+</div>
+
+<div>
+    <label class="block text-sm font-medium text-gray-700">Adresse:</label>
+    <input @bind="newUser.Adresse" placeholder="Indtast adresse" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+</div>
+
+<div>
+    <label class="block text-sm font-medium text-gray-700">Telefonnummer:</label>
+    <input @bind="newUser.Tlf" placeholder="Indtast Telefonnummer" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+</div>
+
+<div>
+    <label class="block text-sm font-medium text-gray-700">Start Dato:</label>
+    <input @bind="newUser.StartDato" placeholder="Indtast Dato" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+</div>
+
+<div>
+    <label class="block text-sm font-medium text-gray-700">Vælg Hotel:</label>
+    <select @bind="newUser.HotelId" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <option value="">Vælg hotel</option>
+        <option value="Kongeborgh">Kongeborgh</option>
+        <option value="Holte">Holte</option>
+    </select>
+</div>
+
+@if (valgtRolle == "kokkeelev")
+{
+    <div>
+        <label class="block text-sm font-medium text-gray-700">Uddannelsesplan:</label>
+        <textarea @bind="newUser.Uddannelsesplan" placeholder="Automatisk udfyldt fra plan" rows="4" cols="30" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+    </div>
+}
+
+<div class="flex justify-end space-x-4 mt-6">
+    <button @onclick="OpretBruger" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Opret Bruger</button>
+    <button @onclick="Annuller" class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600">Annuller</button>
+</div>
+
+
+@code {
+
+    private string valgtRolle = "";
+    private ElevData newUser = new ElevData();
+
+    protected override void OnInitialized()
+    {
+        // simulerer automatisk udfyldning for kokkeelec
+        if (valgtRolle == "kokkeelev")
+        {
+            newUser.Navn = "Elex xx";
+            newUser.Uddannelsesplan = "-1. praktikperiode: 52 uger \n-" +
+                                      "Bestil uniform \n- " +
+                                      "Udlever tøj og sikkerhedssko \n 2." +
+                                      "praktikperiode: 43 uger \n-" +
+                                      "Evaluring af første praktikperiode"; 
+            
+        }
+    }
+
+    private void OpretBruger()
+    {
+        if (string.IsNullOrEmpty(valgtRolle))
+        {
+            // Simulerer en fejlmeddelses (kan udvides til ui) 
+            Console.WriteLine("Vælg en rolle!");
+            return;
+        }
+        // her tilføjes logik til at gemme til mongoDB 
+        Console.WriteLine($"Opretter {newUser.Navn} som {valgtRolle}");
+        // nulstiller efter oprettelse
+        newUser = new ElevData();
+        valgtRolle = ""; 
+    }
+
+    private void Annuller()
+    {
+        newUser = new ElevData();
+        valgtRolle = ""; 
+    }
+}
+
+
+    

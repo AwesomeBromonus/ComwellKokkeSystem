@@ -1,0 +1,123 @@
+﻿@page "/skabelon"
+
+<h3 class="text-xl font-bold text-gray-800 mb-4 text-center">Uddannelsesplan Skabelon</h3> 
+<div class="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-md"> <div class="mb-4">
+        <select @bind="valgtPeriode" class="p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="1">Praktikperiode 1</option>
+            <option value="2">Praktikperiode 2</option> 
+            <option value="3">Praktikperiode 3</option> 
+            <option value="4">Praktikperiode 4</option>
+        </select>
+    </div> 
+    <div class="mb-4"> <button @onclick="ToggleUnderpunkter" class="flex items-center justify-between w-full p-2 bg-gray-100 rounded-md focus:outline-none">
+            <span>Praktikperiode @valgtPeriode - Enme @valgtPeriode</span> <span>@(visUnderpunkter ? "−" : "+")</span>
+        </button> 
+        @if (visUnderpunkter)
+        {
+            <table class="w-full text-left border-collapse mt-2"> <thead> <tr class="bg-gray-200">
+                    <th class="p-2 border">Underpunkt</th> <th class="p-2 border">Hvornår</th> 
+                    <th class="p-2 border">Ansvarlig</th> <th class="p-2 border">Status</th>
+                </tr> </thead> <tbody>
+              
+                @foreach (var punkt in underpunkter)
+                {
+                    <tr>
+                        <td class="p-2 border">@punkt.Beskrivelse</td>
+                        <td class="p-2 border">@punkt.Hvornar</td> <td class="p-2 border">@punkt.Ansvarlig</td>
+                        <td class="p-2 border"> <input type="checkbox" @bind="punkt.Udfort"/>
+                            <span class="@GetStatusColor(punkt.Udfort)">@GetStatusText(punkt.Udfort)</span> </td>
+                    </tr>
+                }
+                </tbody> 
+            </table> 
+            <button @onclick="TilfoejUnderpunkt" class="mt-2 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">+ Tilføj underpunkt</button>
+        } 
+    </div> 
+    <div
+        class="mt-4 text-center">
+        
+        <p class="text-gray-700">Fremgang: @fremgang% (@antalUdfort/@underpunkter.Count opgaver fuldført)</p>
+        
+        @if (fremgang == 100)
+        {
+            <button @onclick="FlytTilNæstePeriode" class="mt-2 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">Flyt til næste periode</button>
+        }
+    </div> </div>
+
+@code 
+    {
+    private string valgtPeriode = "1";
+    private bool visUnderpunkter = false;
+    private List<Underpunkt> underpunkter = new List<Underpunkt>();
+    private int antalUdfort = 0;
+    private int fremgang = 0;
+
+    private class Underpunkt
+    {
+        public string Beskrivelse { get; set; }
+        public string Hvornar { get; set; }
+        public string Ansvarlig { get; set; }
+        public bool Udfort { get; set; }
+    }
+
+    protected override void OnInitialized()
+    {
+        LoadUnderpunkter();
+    }
+
+    private void LoadUnderpunkter()
+    {
+        if (valgtPeriode == "1")
+        {
+            underpunkter = new List<Underpunkt>
+            {
+                new Underpunkt { Beskrivelse = "Velkommen til og introduktion til kollegaer", Hvornar = "Den første uge", Ansvarlig = "Nærmeste leder", Udfort = false },
+                new Underpunkt { Beskrivelse = "Udlever tøj og sikkerhedssko", Hvornar = "Den første uge", Ansvarlig = "Nærmeste leder", Udfort = false },
+                new Underpunkt { Beskrivelse = "Hvor er omklædning, personalekantine, toiletter?", Hvornar = "Den første uge", Ansvarlig = "Nærmeste leder", Udfort = false },
+                new Underpunkt { Beskrivelse = "Hvor er mit skab til personlige ejendele...", Hvornar = "Den første uge", Ansvarlig = "Nærmeste leder", Udfort = false },
+                new Underpunkt { Beskrivelse = "Hvor stempler jeg ind og ud - og hvordan?", Hvornar = "Den første uge", Ansvarlig = "Nærmeste leder", Udfort = false },
+                new Underpunkt { Beskrivelse = "Rundvisning på hotellet", Hvornar = "Den første uge", Ansvarlig = "Nærmeste leder", Udfort = false },
+                new Underpunkt { Beskrivelse = "Hvem er elevansvarlig og elevmentor...", Hvornar = "Den første uge", Ansvarlig = "Nærmeste leder", Udfort = false }
+            };
+        }
+        else
+        {
+            underpunkter = new List<Underpunkt>
+            {
+                new Underpunkt { Beskrivelse = "Eksempel opgave", Hvornar = "Ikke sat", Ansvarlig = "Ikke sat", Udfort = false }
+            };
+        }
+        OpdaterFremgang();
+    }
+
+    private void ToggleUnderpunkter()
+    {
+        visUnderpunkter = !visUnderpunkter;
+    }
+
+    private void TilfoejUnderpunkt()
+    {
+        underpunkter.Add(new Underpunkt { Beskrivelse = "Ny opgave", Hvornar = "Ikke sat", Ansvarlig = "Ikke sat", Udfort = false });
+        OpdaterFremgang();
+    }
+
+    private void OpdaterFremgang()
+    {
+        antalUdfort = underpunkter.Count(p => p.Udfort);
+        fremgang = underpunkter.Count > 0 ? (antalUdfort * 100) / underpunkter.Count : 0;
+    }
+
+    private void FlytTilNæstePeriode()
+    {
+        int periodeNummer = int.Parse(valgtPeriode);
+        if (periodeNummer < 4)
+        {
+            valgtPeriode = (periodeNummer + 1).ToString();
+            LoadUnderpunkter();
+            visUnderpunkter = false;
+        }
+    }
+
+    private string GetStatusColor(bool udfort) => udfort ? "text-green-600" : "text-gray-500";
+    private string GetStatusText(bool udfort) => udfort ? "Fuldført" : "Ikke fuldført";
+}

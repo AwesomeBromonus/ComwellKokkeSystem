@@ -1,6 +1,7 @@
 using Modeller;
 
 // IElevplanService.cs
+/*
 public interface IElevplanService
 {
 	Task<List<Elevplan>> GetElevplanerAsync();
@@ -35,3 +36,4 @@ public class ElevplanService : IElevplanService
 	public async Task DeleteElevplanAsync(int id) =>
 		await _http.DeleteAsync($"api/elevplan/{id}");
 }
+*/
