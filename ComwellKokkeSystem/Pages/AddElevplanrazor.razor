@@ -30,9 +30,26 @@
     </div>
 
     <div class="mb-3">
-        <label for="elevId">Elev ID:</label>
-        <InputNumber id="elevId" class="form-control" @bind-Value="elevplan.ElevId" />
+        <label for="praktikperiode">Praktikperiode:</label>
+        <InputSelect id="praktikperiode" class="form-control" @bind-Value="valgtPraktikperiode" @onchange="OpdaterDelmål">
+            <option disabled value="">-- Vælg periode --</option>
+            @foreach (var periode in praktikPerioder)
+            {
+                <option value="@periode">@periode</option>
+            }
+        </InputSelect>
     </div>
+
+    @if (elevplan.Delmål.Any())
+    {
+        <h5>Valgte delmål:</h5>
+        <ul>
+            @foreach (var d in elevplan.Delmål)
+            {
+                <li>@d.Beskrivelse (@d.Status)</li>
+            }
+        </ul>
+    }
 
     <button type="submit" class="btn btn-primary">Gem elevplan</button>
 </EditForm>
@@ -48,10 +65,44 @@
     private Modeller.Elevplan elevplan = new();
     private bool success = false;
 
+    private string valgtPraktikperiode = "";
+
+    private List<string> praktikPerioder = new()
+    {
+        "1. Praktikperiode",
+        "2. Praktikperiode",
+        "3. Praktikperiode"
+    };
+
     private async Task GemElevplan()
     {
         await ElevplanService.AddElevplanAsync(elevplan);
         success = true;
-        Nav.NavigateTo("/"); // Du kan ændre til fx "/elevplaner"
+        Nav.NavigateTo("/elevplaner");
+    }
+
+    private void OpdaterDelmål(ChangeEventArgs e)
+    {
+        valgtPraktikperiode = e.Value?.ToString() ?? "";
+
+        elevplan.Delmål = valgtPraktikperiode switch
+        {
+            "1. Praktikperiode" => new List<Delmål>
+            {
+                new() { Beskrivelse = "Skære grøntsager korrekt", Status = "Ikke startet" },
+                new() { Beskrivelse = "Anvende hygiejneprincipper", Status = "Ikke startet" }
+            },
+            "2. Praktikperiode" => new List<Delmål>
+            {
+                new() { Beskrivelse = "Tilberede fisk og skaldyr", Status = "Ikke startet" },
+                new() { Beskrivelse = "Planlægge menu", Status = "Ikke startet" }
+            },
+            "3. Praktikperiode" => new List<Delmål>
+            {
+                new() { Beskrivelse = "Lede et mindre køkkenhold", Status = "Ikke startet" },
+                new() { Beskrivelse = "Udarbejde egenkontrolprogram", Status = "Ikke startet" }
+            },
+            _ => new List<Delmål>()
+        };
     }
 }
