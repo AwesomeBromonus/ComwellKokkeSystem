@@ -1,0 +1,108 @@
+﻿@page "/opret-elevplan"
+@using Modeller
+@inject IElevplanService ElevplanService
+@inject NavigationManager Nav
+
+<h3>Opret Elevplan</h3>
+
+<EditForm Model="elevplan" OnValidSubmit="GemElevplan">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-3">
+        <label for="titel">Titel:</label>
+        <InputText id="titel" class="form-control" @bind-Value="elevplan.Titel" />
+    </div>
+
+    <div class="mb-3">
+        <label for="kommentar">Kommentar:</label>
+        <InputTextArea id="kommentar" class="form-control" @bind-Value="elevplan.Kommentar" />
+    </div>
+
+    <div class="mb-3">
+        <label for="startDato">Startdato:</label>
+        <InputDate id="startDato" class="form-control" @bind-Value="elevplan.StartDato" />
+    </div>
+
+    <div class="mb-3">
+        <label for="slutDato">Slutdato:</label>
+        <InputDate id="slutDato" class="form-control" @bind-Value="elevplan.SlutDato" />
+    </div>
+
+    <div class="mb-3">
+        <label for="praktikperiode">Praktikperiode:</label>
+        <InputSelect id="praktikperiode" class="form-control" @bind-Value="valgtPraktikperiode" @onchange="OpdaterDelmål">
+            <option disabled value="">-- Vælg periode --</option>
+            @foreach (var periode in praktikPerioder)
+            {
+                <option value="@periode">@periode</option>
+            }
+        </InputSelect>
+    </div>
+
+    @if (elevplan.Delmål.Any())
+    {
+        <h5>Valgte delmål:</h5>
+        <ul>
+            @foreach (var d in elevplan.Delmål)
+            {
+                <li>@d.Beskrivelse (@d.Status)</li>
+            }
+        </ul>
+    }
+
+    <button type="submit" class="btn btn-primary">Gem elevplan</button>
+</EditForm>
+
+@if (success)
+{
+    <div class="alert alert-success mt-3">
+        Elevplan oprettet!
+    </div>
+}
+
+@code {
+    private Modeller.Elevplan elevplan = new();
+    private bool success = false;
+
+    private string valgtPraktikperiode = "";
+
+    private List<string> praktikPerioder = new()
+    {
+        "1. Praktikperiode",
+        "2. Praktikperiode",
+        "3. Praktikperiode"
+    };
+
+    private async Task GemElevplan()
+    {
+        await ElevplanService.AddElevplanAsync(elevplan);
+        success = true;
+        Nav.NavigateTo("/elevplaner");
+    }
+
+    private void OpdaterDelmål(ChangeEventArgs e)
+    {
+        valgtPraktikperiode = e.Value?.ToString() ?? "";
+
+        elevplan.Delmål = valgtPraktikperiode switch
+        {
+            "1. Praktikperiode" => new List<Delmål>
+            {
+                new() { Beskrivelse = "Skære grøntsager korrekt", Status = "Ikke startet" },
+                new() { Beskrivelse = "Anvende hygiejneprincipper", Status = "Ikke startet" }
+            },
+            "2. Praktikperiode" => new List<Delmål>
+            {
+                new() { Beskrivelse = "Tilberede fisk og skaldyr", Status = "Ikke startet" },
+                new() { Beskrivelse = "Planlægge menu", Status = "Ikke startet" }
+            },
+            "3. Praktikperiode" => new List<Delmål>
+            {
+                new() { Beskrivelse = "Lede et mindre køkkenhold", Status = "Ikke startet" },
+                new() { Beskrivelse = "Udarbejde egenkontrolprogram", Status = "Ikke startet" }
+            },
+            _ => new List<Delmål>()
+        };
+    }
+}

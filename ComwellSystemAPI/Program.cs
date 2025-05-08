@@ -23,7 +23,7 @@ builder.Services.AddCors(options =>
 
 
 
-var app = builder.Build();
+        var app = builder.Build();
 
 // 💡 Swagger kun i Development
 if (app.Environment.IsDevelopment())

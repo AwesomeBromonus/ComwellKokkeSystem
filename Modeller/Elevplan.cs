@@ -18,7 +18,8 @@ namespace Modeller
         public DateTime SlutDato { get; set; }
         public List<Delmål> Delmål { get; set; } = new();
 
-        public int ElevId { get; set; } // FK
-        public Elev? Elev { get; set; } // Navigation
+      
+      
     }
 }
+
