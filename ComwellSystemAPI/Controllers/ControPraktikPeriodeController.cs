@@ -14,7 +14,7 @@ public class PraktikperiodeController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<Praktikperiode>>> GetAll() =>
+    public async Task<ActionResult<List<Modeller.Praktikperiode>>> GetAll() =>
         Ok(await _repo.GetAllAsync());
 
     [HttpGet("{id}")]
@@ -47,4 +47,15 @@ public class PraktikperiodeController : ControllerBase
         await _repo.DeleteAsync(id);
         return NoContent();
     }
+
+
+    [HttpPut("{praktikperiodeId}/delmål/{delmålId}")]
+    public async Task<IActionResult> UpdateDelmålStatus(int praktikperiodeId, int delmålId, [FromBody] string nyStatus)
+    {
+        await _repo.UpdateDelmålAsync(praktikperiodeId, delmålId, nyStatus);
+        return NoContent();
+    }
+
+
+
 }

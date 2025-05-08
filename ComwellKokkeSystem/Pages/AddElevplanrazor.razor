@@ -30,16 +30,7 @@
         <InputDate id="slutDato" class="form-control" @bind-Value="elevplan.SlutDato" />
     </div>
 
-    <div class="mb-3">
-        <label for="praktikperiode">Praktikperiode:</label>
-        <InputSelect class="form-control" @bind-Value="valgtPeriodeId" @onchange="HentPraktikperiode">
-            <option disabled value="">-- Vælg praktikperiode --</option>
-            @foreach (var p in praktikPerioder)
-            {
-                <option value="@p.Id">@p.Navn</option>
-            }
-        </InputSelect>
-    </div>
+   
 
     @if (valgtPeriode?.Delmål?.Any() == true)
     {

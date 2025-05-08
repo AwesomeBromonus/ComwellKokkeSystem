@@ -11,6 +11,9 @@ namespace ComwellSystemAPI.Interfaces
         Task AddAsync(Praktikperiode periode);
         Task UpdateAsync(Praktikperiode periode);
         Task DeleteAsync(int id);
+
+        Task UpdateDelmålAsync(int praktikperiodeId, int delmålId, string nyStatus);
+
     }
 
 }
