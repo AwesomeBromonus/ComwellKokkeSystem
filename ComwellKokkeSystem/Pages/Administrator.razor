@@ -1,0 +1,50 @@
+﻿@page "/administrator"              // Denne side findes på URL'en /administrator
+@inject NavigationManager NavManager // Gør det muligt at navigere brugeren til andre sider
+@inject UserState UserState          // Her henter vi information om den loggede ind bruger (navn, rolle osv.)
+
+<h3>Administratorpanel</h3>
+
+@if (!UserState.IsLoggedInChecked)
+{
+    // Hvis brugerstatus ikke er tjekket endnu, vises en besked
+    <p>⏳ Indlæser brugerstatus...</p>
+}
+else if (!UserState.IsLoggedIn)
+{
+    // Hvis brugeren slet ikke er logget ind, vises en advarsel
+    <p class="text-danger">🔒 Du skal være logget ind for at få adgang.</p>
+}
+else if (UserState.Role?.ToLower() != "admin")
+{
+    // Hvis man er logget ind, men ikke har rollen "admin", får man afslag
+    <div class="alert alert-danger mt-4">
+        <h5>🚫 Adgang nægtet</h5>
+        <p>Du har ikke de nødvendige rettigheder for at se denne side.</p>
+    </div>
+}
+else
+{
+    // Hvis man er logget ind og er admin, vises selve adminsiden
+    <div class="alert alert-success">
+        ✅ Velkommen, <strong>@UserState.Username</strong>! Du er logget ind som administrator.
+    </div>
+
+    <!-- Her kan du indsætte admin-indhold som brugerstyring, lister, statistik m.m. -->
+}
+
+@code {
+    protected override void OnInitialized()
+    {
+        // Denne metode kører lige når siden starter
+        // Hvis man ikke er logget ind, bliver man sendt til login-siden
+        if (!UserState.IsLoggedInChecked)
+        {
+            return; // Vi venter til brugerstatus er hentet
+        }
+
+        if (!UserState.IsLoggedIn)
+        {
+            NavManager.NavigateTo("/login"); // Gå til login-siden
+        }
+    }
+}

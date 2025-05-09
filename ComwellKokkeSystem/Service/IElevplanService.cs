@@ -1,4 +1,4 @@
-using Modeller;
+/*using Modeller;
 
 // Definerer de operationer, der kan udføres på elevplaner fra client-siden
 public interface IElevplanService
@@ -18,3 +18,5 @@ public interface IElevplanService
     // Slet elevplan ud fra ID
     Task DeleteElevplanAsync(int id);
 }
+
+*/

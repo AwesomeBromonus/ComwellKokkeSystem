@@ -17,11 +17,13 @@ public class Program
         builder.RootComponents.Add<App>("#app");
         builder.RootComponents.Add<HeadOutlet>("head::after");
 
-        //  HTTP Client – API Base URL
-        builder.Services.AddScoped(sp => new HttpClient
-        {
-            BaseAddress = new Uri("https://localhost:7013")
-        });
+
+builder.Services.AddSingleton<UserState>();
+
+builder.Services.AddScoped(sp => new HttpClient
+{
+    BaseAddress = new Uri("https://localhost:7139/") // <- din API-base
+});
 
         //  Local Storage til state management
         builder.Services.AddBlazoredLocalStorage();

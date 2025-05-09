@@ -1,65 +1,64 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">ComwellKokkeSystem</a>
-        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-    </div>
-</div>
+﻿@inject NavigationManager NavManager
+@inject UserState UserState
+@implements IDisposable
 
-<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
-    <nav class="nav flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+<div class="sidebar vh-100 shadow-sm" style="width: 250px; background: linear-gradient(180deg, #003b4a 0%, #002f3a 100%);">
+    <div class="px-4 py-3 border-bottom border-light">
+        <h5 class="m-0 text-white fw-semibold">ComwellKokkeSystem</h5>
+    </div>
+
+    <nav class="nav flex-column mt-3 px-3">
+        <NavLink class="nav-link text-white" href="" Match="NavLinkMatch.All">
+            🏠 Hjem
+        </NavLink>
+        <NavLink class="nav-link text-white" href="/counter">
+            ➕ Counter
+        </NavLink>
+        <NavLink class="nav-link text-white" href="/weather">
+            🌦️ Weather
+        </NavLink>
+        <NavLink class="nav-link text-white" href="/administrator">
+            🛠 Administrator
+        </NavLink>
+
+        @if (UserState.IsLoggedIn && UserState.Role?.ToLower() == "elev")
+        {
+            <NavLink class="nav-link text-white" href="/elevatorblik">
+                🎓 Elev Overblik
             </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
+        }
+
+        @if (!UserState.IsLoggedIn)
+        {
+            <NavLink class="nav-link text-white" href="/login">
+                🔐 Login
             </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
-            </NavLink>
-        </div>
-         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="opret-elevplan">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Opret elevplan
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="elevplaner">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Elevplan
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="rapport">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Rapport
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="user">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> User
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="skabelon">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Skabelon
-            </NavLink>
-        </div>
-        
+        }
+        else
+        {
+            <hr class="text-white my-3" />
+            <div class="text-white small mb-2">
+                Logget ind som <strong>@UserState.Username</strong> (@UserState.Role)
+            </div>
+            <button class="btn btn-sm btn-outline-light w-100" @onclick="Logout">Log ud</button>
+        }
     </nav>
 </div>
 
 @code {
-    private bool collapseNavMenu = true;
-
-    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
-
-    private void ToggleNavMenu()
+    protected override void OnInitialized()
     {
-        collapseNavMenu = !collapseNavMenu;
+        UserState.OnChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        UserState.OnChange -= StateHasChanged;
+    }
+
+    private void Logout()
+    {
+        UserState.Logout();
+        NavManager.NavigateTo("/");
     }
 }

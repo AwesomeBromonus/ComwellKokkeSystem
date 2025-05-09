@@ -1,4 +1,4 @@
-using ComwellSystemAPI.Interfaces;
+﻿using ComwellSystemAPI.Interfaces;
 using ComwellSystemAPI.Repositories;
 
 public class Program
@@ -7,19 +7,24 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        // Add services to the container.
+// Tilføj services til containeren
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "ComwellSystemAPI", Version = "v1" });
+});
 
-        builder.Services.AddControllers();
-        builder.Services.AddCors(options =>
-        {
-            options.AddPolicy("policy",
-                policy =>
-                {
-                    policy.AllowAnyOrigin();
-                    policy.AllowAnyMethod();
-                    policy.AllowAnyHeader();
-                });
-        });
+// 💥 Tilføj CORS-politik
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowBlazorClient", policy =>
+    {
+        policy.WithOrigins("https://localhost:5295", "http://localhost:5295")
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
 
 
         builder.Services.AddSingleton<IElevplan, ElevplanRepository>();
@@ -32,20 +37,21 @@ public class Program
 
         var app = builder.Build();
 
-        // Configure the HTTP request pipeline.
-        if (app.Environment.IsDevelopment())
-        {
-            app.MapOpenApi();
-        }
-
-        app.UseHttpsRedirection();
-        app.UseCors("policy");
-
-        app.UseAuthorization();
-
-
-        app.MapControllers();
-
-        app.Run();
-    }
+// 💡 Swagger kun i Development
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "ComwellSystemAPI v1");
+    });
 }
+
+// 💥 Aktiver CORS-politikken
+app.UseCors("AllowBlazorClient");
+
+app.UseHttpsRedirection();
+app.UseAuthorization();
+
+app.MapControllers();
+app.Run();

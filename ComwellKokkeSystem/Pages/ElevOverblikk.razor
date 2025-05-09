@@ -1,0 +1,31 @@
+﻿@page "/elevatorblik"               // Siden kan åbnes via /elevatorblik
+@inject NavigationManager NavManager
+@inject UserState UserState
+
+@code {
+    protected override void OnInitialized()
+    {
+        // Hvis man ikke er logget ind, sendes man til login
+        if (!UserState.IsLoggedIn)
+        {
+            NavManager.NavigateTo("/login");
+        }
+        // Hvis brugeren ikke har rollen "elev", sendes de til forsiden
+        else if (UserState.Role?.ToLower() != "elev")
+        {
+            NavManager.NavigateTo("/");
+        }
+    }
+}
+
+<!-- Alt herunder vises kun hvis brugeren er logget ind som elev -->
+
+<div class="container mt-5">
+    <div class="text-center">
+        <h2 class="mb-3">🎓 Elev Overblik</h2>
+        <h5 class="text-muted">Hej <strong>@UserState.Username</strong>, her er dit kommende overblik:</h5>
+    </div>
+
+
+            </div>
+  

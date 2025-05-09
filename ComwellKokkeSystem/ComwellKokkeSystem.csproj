@@ -1,10 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
-  <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net9.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<!-- Fjern evt. forkert WASM ops�tning -->
+	</PropertyGroup>
 
   <ItemGroup>
     <Content Remove="Pages\DelmålOversigt.razor" />
@@ -16,8 +17,8 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="9.0.2" PrivateAssets="all" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Modeller\Modeller.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Modeller\Modeller.csproj" />
+	</ItemGroup>
 
 </Project>
