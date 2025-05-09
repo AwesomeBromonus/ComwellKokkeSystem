@@ -20,7 +20,6 @@ public class Program
 builder.Services.AddSingleton<UserState>();
         builder.Services.AddScoped<IElevplanService, ElevplanService>();
 
-
         builder.Services.AddScoped(sp => new HttpClient
 {
     BaseAddress = new Uri("https://localhost:7139/") // <- din API-base
