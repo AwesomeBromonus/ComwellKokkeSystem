@@ -1,46 +1,51 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Modeller;
+using ComwellSystemAPI.Repositories;
 
 namespace ComwellSystemAPI.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/[Controller]")]
     public class UsersController : ControllerBase
     {
-        // Midlertidig brugerliste
-        private static List<UserModel> users = new List<UserModel>();
+        private readonly UserRepositoryMongodb _userRepo;
+
+        public UsersController()
+        {
+            _userRepo = new UserRepositoryMongodb();
+        }
 
         [HttpPost("register")]
-        public IActionResult Register(RegisterModel model)
+        public async Task<IActionResult> Register([FromBody] RegisterModel model)
         {
-            if (users.Any(u => u.Username == model.Username))
-                return BadRequest("Brugernavn er allerede i brug");
+            var existing = await _userRepo.GetByUsernameAsync(model.Username);
+            if (existing != null)
+                return Conflict("Brugernavn findes allerede");
 
             var user = new UserModel
             {
-                Id = users.Count + 1,
                 Username = model.Username,
-                Password = model.Password, // OBS: Klartekst – kun til test
+                Password = model.Password,
                 Role = model.Role
             };
 
-            users.Add(user);
-            return Ok();
+            await _userRepo.AddAsync(user);
+            return Ok("Bruger oprettet");
         }
 
         [HttpPost("login")]
-        public IActionResult Login(LoginModel model)
+        public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
-            var user = users.FirstOrDefault(u => u.Username == model.Username && u.Password == model.Password);
-            if (user == null)
-                return Unauthorized("Forkert brugernavn eller adgangskode");
+            var isValid = await _userRepo.ValidateLogin(model.Username, model.Password);
+            if (!isValid)
+                return Unauthorized("Login fejlede");
 
-            // 💥 Returner brugerdata som JSON
-            return Ok(new
+            var user = await _userRepo.GetByUsernameAsync(model.Username);
+            return Ok(new LoginResponse
             {
-                user.Id,
-                user.Username,
-                user.Role
+                Id = user.Id,
+                Username = user.Username,
+                Role = user.Role
             });
         }
     }
