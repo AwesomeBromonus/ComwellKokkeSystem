@@ -1,47 +1,51 @@
-﻿using Microsoft.OpenApi.Models;
+﻿using ComwellSystemAPI.Interfaces;
+using ComwellSystemAPI.Repositories;
 
-var builder = WebApplication.CreateBuilder(args);
-
-// Tilføj services til containeren
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
+public class Program
 {
-    c.SwaggerDoc("v1", new OpenApiInfo
+    public static void Main(string[] args)
     {
-        Title = "ComwellSystemAPI",
-        Version = "v1"
-    });
-});
+        var builder = WebApplication.CreateBuilder(args);
 
-// CORS-politik for Blazor
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowBlazorClient", policy =>
-    {
-        policy.WithOrigins("https://localhost:5295", "http://localhost:5295")
-              .AllowAnyMethod()
-              .AllowAnyHeader();
-    });
-});
+        // Add services to the container.
 
-var app = builder.Build();
+        builder.Services.AddControllers();
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("policy",
+                policy =>
+                {
+                    policy.AllowAnyOrigin();
+                    policy.AllowAnyMethod();
+                    policy.AllowAnyHeader();
+                });
+        });
 
-// Swagger kun i development
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "ComwellSystemAPI v1");
-    });
+
+        builder.Services.AddSingleton<IElevplan, ElevplanRepository>();
+
+        builder.Services.AddSingleton<IPraktikperiode, PraktikperiodeRepository>();
+
+
+        // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+        builder.Services.AddOpenApi();
+
+        var app = builder.Build();
+
+        // Configure the HTTP request pipeline.
+        if (app.Environment.IsDevelopment())
+        {
+            app.MapOpenApi();
+        }
+
+        app.UseHttpsRedirection();
+        app.UseCors("policy");
+
+        app.UseAuthorization();
+
+
+        app.MapControllers();
+
+        app.Run();
+    }
 }
-
-// Brug CORS
-app.UseCors("AllowBlazorClient");
-
-app.UseHttpsRedirection();
-app.UseAuthorization();
-app.MapControllers();
-
-app.Run();

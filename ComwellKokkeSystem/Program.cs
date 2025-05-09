@@ -4,6 +4,7 @@ using ComwellKokkeSystem;
 using Blazored.LocalStorage;
 
 using Service;
+using ComwellKokkeSystem.Service;
 
 
 public class Program
@@ -17,15 +18,24 @@ public class Program
         builder.RootComponents.Add<HeadOutlet>("head::after");
 
 
-builder.Services.AddSingleton<UserState>();
-        builder.Services.AddScoped<IElevplanService, ElevplanService>();
 
-        builder.Services.AddScoped(sp => new HttpClient
+
+builder.Services.AddScoped(sp => new HttpClient
 {
-    BaseAddress = new Uri("https://localhost:7139/") // <- din API-base
+    BaseAddress = new Uri("https://localhost:7013/") // <- din API-base
 });
 
-builder.Services.AddScoped<IAuthService, AuthService>();
+        //  Local Storage til state management
+        builder.Services.AddBlazoredLocalStorage();
+
+
+        //  Services
+        builder.Services.AddScoped<IElevplanService, ElevplanService>();
+        builder.Services.AddScoped<IPraktikperiodeService, PraktikperiodeService>();
+        builder.Services.AddScoped<IAuthService, AuthService>();
+        builder.Services.AddSingleton<UserState>();
+
+
 
         await builder.Build().RunAsync();
     }

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
 	<PropertyGroup>
 		<TargetFramework>net9.0</TargetFramework>
@@ -6,6 +6,10 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<!-- Fjern evt. forkert WASM ops�tning -->
 	</PropertyGroup>
+
+  <ItemGroup>
+    <Content Remove="Pages\DelmålOversigt.razor" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
