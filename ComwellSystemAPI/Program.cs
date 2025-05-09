@@ -25,6 +25,7 @@ public class Program
         builder.Services.AddSingleton<IElevplan, ElevplanRepository>();
 
         builder.Services.AddSingleton<IPraktikperiode, PraktikperiodeRepository>();
+        builder.Services.AddSingleton<IUserRepository,UserRepositoryMongodb>();
 
 
         // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi

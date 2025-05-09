@@ -5,7 +5,7 @@ using ComwellSystemAPI.Repositories;
 namespace ComwellSystemAPI.Controllers
 {
     [ApiController]
-    [Route("api/user")]
+    [Route("api/[Controller]")]
     public class UsersController : ControllerBase
     {
         private readonly UserRepositoryMongodb _userRepo;

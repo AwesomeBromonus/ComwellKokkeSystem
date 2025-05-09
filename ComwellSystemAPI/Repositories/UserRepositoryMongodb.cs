@@ -3,7 +3,7 @@ using Modeller;
 
 namespace ComwellSystemAPI.Repositories
 {
-    public class UserRepositoryMongodb
+    public class UserRepositoryMongodb: IUserRepository
     {
         private readonly IMongoCollection<UserModel> _userCollection;
 

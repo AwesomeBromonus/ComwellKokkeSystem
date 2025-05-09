@@ -14,12 +14,12 @@ public class ElevplanController : ControllerBase
 
     // Henter alle elevplaner fra databasen
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Elevplan>>> GetAll() =>
+    public async Task<ActionResult<IEnumerable<Modeller.Elevplan>>> GetAll() =>
         Ok(await _repo.GetAllAsync());
 
     // Henter en enkelt elevplan ud fra ID
     [HttpGet("{id}")]
-    public async Task<ActionResult<Elevplan>> GetById(int id)
+    public async Task<ActionResult<Modeller.Elevplan>> GetById(int id)
     {
         var plan = await _repo.GetByIdAsync(id);
         return plan == null ? NotFound() : Ok(plan);
@@ -27,7 +27,7 @@ public class ElevplanController : ControllerBase
 
     // Opretter en ny elevplan i databasen
     [HttpPost]
-    public async Task<IActionResult> Create(Elevplan plan)
+    public async Task<IActionResult> Create(Modeller.Elevplan plan)
     {
         await _repo.AddAsync(plan);
 
@@ -37,7 +37,7 @@ public class ElevplanController : ControllerBase
 
     // Opdaterer en eksisterende elevplan (baseret p� ID)
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, Elevplan plan)
+    public async Task<IActionResult> Update(int id, Modeller.Elevplan plan)
     {
         // Sikrer at ID i URL og objekt matcher
         if (id != plan.Id) return BadRequest("ID i URL og objekt matcher ikke.");
