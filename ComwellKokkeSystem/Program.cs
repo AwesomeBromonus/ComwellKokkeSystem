@@ -22,7 +22,7 @@ builder.Services.AddSingleton<UserState>();
 
 builder.Services.AddScoped(sp => new HttpClient
 {
-    BaseAddress = new Uri("https://localhost:7139/") // <- din API-base
+    BaseAddress = new Uri("https://localhost:7013/") // <- din API-base
 });
 
         //  Local Storage til state management
