@@ -7,16 +7,18 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-      
-        // 💥 Tilføj CORS-politik
+        // Add services to the container.
+
+        builder.Services.AddControllers();
         builder.Services.AddCors(options =>
         {
-            options.AddPolicy("AllowBlazorClient", policy =>
-            {
-                policy.WithOrigins("https://localhost:5295", "http://localhost:5295")
-                      .AllowAnyMethod()
-                      .AllowAnyHeader();
-            });
+            options.AddPolicy("policy",
+                policy =>
+                {
+                    policy.AllowAnyOrigin();
+                    policy.AllowAnyMethod();
+                    policy.AllowAnyHeader();
+                });
         });
 
 
@@ -30,23 +32,20 @@ public class Program
 
         var app = builder.Build();
 
-        // 💡 Swagger kun i Development
+        // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())
         {
-            app.UseSwagger();
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "ComwellSystemAPI v1");
-            });
+            app.MapOpenApi();
         }
 
-        // 💥 Aktiver CORS-politikken
-        app.UseCors("AllowBlazorClient");
-
         app.UseHttpsRedirection();
+        app.UseCors("policy");
+
         app.UseAuthorization();
 
+
         app.MapControllers();
+
         app.Run();
     }
 }
