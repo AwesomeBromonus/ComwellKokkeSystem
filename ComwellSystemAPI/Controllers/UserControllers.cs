@@ -4,7 +4,7 @@ using Modeller;
 namespace ComwellSystemAPI.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/user")]
     public class UsersController : ControllerBase
     {
         // Midlertidig brugerliste
