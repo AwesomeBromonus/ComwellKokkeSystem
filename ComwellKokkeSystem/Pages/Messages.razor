@@ -6,21 +6,25 @@
     @foreach (var message in messages)
     {
         <div class="flex @((message.StartsWith("You:")) ? "justify-end" : "justify-start")">
-            <div class="px-4 py-2 rounded-lg max-w-xs text-white @(message.StartsWith("You:") ? "bg-blue-500" : "bg-gray-500")">
+            <div class="px-4 py-2 rounded-lg max-w-xs text-black
+                        @(message.StartsWith("You:") ? "bg-blue-300" : "bg-gray-300")
+                        text-sm break-words">
                 @message
             </div>
         </div>
     }
 </div>
 
-<div class="flex mt-2 space-x-2">
+<div class="flex mt-4 items-center space-x-2">
     <input @bind="newMessage" placeholder="Skriv din besked..."
-           class="flex-grow px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+           class="flex-grow px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
     <button @onclick="SendMessage"
-            class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+            class="px-4 py-2 bg-blue-700 text-white font-semibold rounded-md
+                   hover:bg-blue-800 transition duration-300 shadow-md">
         Send
     </button>
 </div>
+
 
 @code {
     private List<string> messages = new();
