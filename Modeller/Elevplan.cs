@@ -9,6 +9,8 @@ namespace Modeller
     public class Elevplan
     {
         public int Id { get; set; }
+        public int ElevId { get; set; }
+
         public string Titel { get; set; } = string.Empty;
         public DateTime OprettetDato { get; set; } = DateTime.Now;
         public string Kommentar { get; set; } = string.Empty;
