@@ -3,7 +3,7 @@ using Modeller;
 
 namespace ComwellSystemAPI.Repositories
 {
-    public class UserRepositoryMongodb: IUserRepository
+    public class UserRepositoryMongodb : IUserRepository
     {
         private readonly IMongoCollection<UserModel> _userCollection;
 
@@ -14,7 +14,6 @@ namespace ComwellSystemAPI.Repositories
             var database = client.GetDatabase("Comwell");
             _userCollection = database.GetCollection<UserModel>("Brugere");
         }
-
 
         public async Task<UserModel?> GetByUsernameAsync(string username)
         {

@@ -5,7 +5,7 @@ using ComwellSystemAPI.Repositories;
 namespace ComwellSystemAPI.Controllers
 {
     [ApiController]
-    [Route("api/[Controller]")]
+    [Route("api/[controller]")]
     public class UsersController : ControllerBase
     {
         private readonly UserRepositoryMongodb _userRepo;
@@ -18,6 +18,9 @@ namespace ComwellSystemAPI.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterModel model)
         {
+            if (string.IsNullOrWhiteSpace(model.Username) || string.IsNullOrWhiteSpace(model.Password))
+                return BadRequest("Brugernavn og adgangskode skal udfyldes");
+
             var existing = await _userRepo.GetByUsernameAsync(model.Username);
             if (existing != null)
                 return Conflict("Brugernavn findes allerede");
@@ -36,11 +39,10 @@ namespace ComwellSystemAPI.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
-            var isValid = await _userRepo.ValidateLogin(model.Username, model.Password);
-            if (!isValid)
+            var user = await _userRepo.GetByUsernameAsync(model.Username);
+            if (user == null || user.Password != model.Password)
                 return Unauthorized("Login fejlede");
 
-            var user = await _userRepo.GetByUsernameAsync(model.Username);
             return Ok(new LoginResponse
             {
                 Id = user.Id,

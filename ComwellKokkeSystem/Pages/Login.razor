@@ -1,65 +1,59 @@
-﻿@page "/login" // Denne side tilgås på URL'en /login
+﻿@page "/login"
 
-// Her importeres de nødvendige services og modeller
 @inject IAuthService AuthService
 @inject NavigationManager NavManager
 @inject UserState UserState
 @using Modeller
 
-<!-- Login-layoutet: centreret boks med felter -->
-<div class="d-flex justify-content-center align-items-center" style="min-height: 100vh; background-color: #f5f5f5;">
-    <div class="p-5 shadow" style="background-color: white; border-radius: 20px; width: 100%; max-width: 420px;">
-        <h2 class="text-center mb-4" style="color: #003b4a;">Log ind</h2>
+<div class="flex items-center justify-center min-h-screen bg-gray-100">
+    <div class="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl">
+        <h2 class="text-3xl font-bold text-center text-cyan-800 mb-6">Log ind</h2>
 
-        <!-- Loginformular der kalder HandleLogin ved submit -->
         <EditForm Model="@login" OnValidSubmit="@HandleLogin">
             <DataAnnotationsValidator />
-            <ValidationSummary />
+            <ValidationSummary class="text-red-600 mb-4" />
 
-            <!-- Brugernavn -->
-            <div class="form-group mb-3">
-                <label class="form-label">Brugernavn</label>
-                <InputText @bind-Value="login.Username" class="form-control form-control-lg rounded-pill" />
+            <div class="space-y-4">
+                <label class="block">
+                    <span class="text-sm font-medium text-gray-700">Brugernavn</span>
+                    <InputText class="w-full mt-1 px-4 py-2 border border-gray-300 rounded-xl" @bind-Value="login.Username" />
+                </label>
+
+                <label class="block">
+                    <span class="text-sm font-medium text-gray-700">Adgangskode</span>
+                    <div class="relative">
+                        <InputText class="w-full px-4 py-2 border border-gray-300 rounded-xl pr-16"
+                                   type="@passwordInputType" @bind-Value="login.Password" />
+                        <button type="button"
+                                class="absolute top-1/2 right-3 transform -translate-y-1/2 text-sm text-cyan-700 hover:underline"
+                                @onclick="TogglePasswordVisibility">
+                            @(showPassword ? "Skjul" : "Vis")
+                        </button>
+                    </div>
+                </label>
             </div>
 
-            <!-- Adgangskode med toggle-funktion -->
-            <div class="form-group mb-3">
-                <label class="form-label">Adgangskode</label>
-                <div class="input-group">
-                    <InputText @bind-Value="login.Password" class="form-control form-control-lg rounded-start-pill"
-                               type="@passwordInputType" />
-                    <button class="btn btn-outline-secondary rounded-end-pill" type="button"
-                            @onclick="TogglePasswordVisibility">
-                        @(showPassword ? "Skjul" : "Vis")
-                    </button>
-                </div>
-            </div>
-
-            <!-- Login-knap -->
-            <button class="btn btn-lg btn-block w-100 text-white" style="background-color: #007fa3; border-radius: 50px;" type="submit">
+            <button type="submit" class="mt-6 w-full py-3 bg-cyan-700 hover:bg-cyan-800 text-white font-semibold rounded-xl transition duration-300">
                 Log ind
             </button>
         </EditForm>
 
-        <!-- Fejlbesked vises hvis login fejler -->
         @if (!string.IsNullOrEmpty(message))
         {
-            <div class="alert alert-danger mt-3">@message</div>
+            <div class="mt-4 text-center text-red-600 font-medium">@message</div>
         }
 
-        <!-- Link til registrering -->
-        <div class="text-center mt-3">
-            <p>Har du ikke en bruger? <a href="/register" class="text-decoration-none">Opret her</a></p>
+        <div class="text-center mt-4">
+            <p class="text-sm">Har du ikke en bruger? <a href="/register" class="text-cyan-700 hover:underline">Opret her</a></p>
         </div>
     </div>
 </div>
 
 @code {
-    private LoginModel login = new(); // Holder brugernavn og adgangskode
-    private string message = ""; // Besked til brugeren
-    private bool showPassword = false; // Om adgangskoden skal vises
+    private LoginModel login = new();
+    private string message = "";
+    private bool showPassword = false;
 
-    // Ændrer typen på adgangskode-feltet
     private string passwordInputType => showPassword ? "text" : "password";
 
     private void TogglePasswordVisibility()
@@ -67,7 +61,6 @@
         showPassword = !showPassword;
     }
 
-    // Login-funktion kaldet når formularen submitter
     private async Task HandleLogin()
     {
         message = "";
@@ -76,16 +69,10 @@
 
         if (success)
         {
-            // Hvis brugeren er admin, send til admin-side
             if (UserState.Role?.ToLower() == "admin")
-            {
                 NavManager.NavigateTo("/administrator");
-            }
             else
-            {
-                // Ellers send til forsiden (eller elev-sider)
                 NavManager.NavigateTo("/");
-            }
         }
         else
         {
