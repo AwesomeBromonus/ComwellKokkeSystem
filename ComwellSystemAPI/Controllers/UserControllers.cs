@@ -17,7 +17,7 @@ namespace ComwellSystemAPI.Controllers
 
         // POST: api/users/register
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterModel model)
+        public async Task<IActionResult> Register([FromBody] UserModel model)
         {
             if (string.IsNullOrWhiteSpace(model.Username) || string.IsNullOrWhiteSpace(model.Password))
                 return BadRequest("Brugernavn og adgangskode skal udfyldes");
@@ -26,15 +26,11 @@ namespace ComwellSystemAPI.Controllers
             if (existing != null)
                 return Conflict("Brugernavn findes allerede");
 
-            var bruger = new Bruger
-            {
-                Username = model.Username,
-                Password = model.Password,
-                Role = model.Role,
-                StartDato = DateTime.Now
-            };
+            // Automatisk dato hvis ikke sat
+            if (model.StartDato == default)
+                model.StartDato = DateTime.UtcNow;
 
-            await _userRepo.AddAsync(bruger);
+            await _userRepo.AddAsync(model);
             return Ok("Bruger oprettet");
         }
 
@@ -74,5 +70,14 @@ namespace ComwellSystemAPI.Controllers
             await _userRepo.DeleteAsync(id);
             return Ok("Bruger slettet");
         }
+
+        // GET: api/users/all
+        [HttpGet("all")]
+        public async Task<IActionResult> GetAllUsers()
+        {
+            var allUsers = await _userRepo.GetAllAsync();
+            return Ok(allUsers);
+        }
+
     }
 }

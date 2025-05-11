@@ -31,11 +31,12 @@ public class AuthService : IAuthService
         return false;
     }
 
-    public async Task<bool> Register(UserModel user)  // 🔁 Ændret til UserModel
+    public async Task<bool> Register(UserModel user)
     {
         var response = await _http.PostAsJsonAsync("api/users/register", user);
         return response.IsSuccessStatusCode;
     }
+
 
     public Task Logout()
     {

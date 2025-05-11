@@ -19,9 +19,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Layout\NavMenu.razor.css" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="9.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="9.0.2" PrivateAssets="all" />
+    <PackageReference Include="MudBlazor" Version="5.2.0" />
   </ItemGroup>
 
 	<ItemGroup>

@@ -1,107 +1,102 @@
 ﻿@page "/opretuser"
-@using ComwellElevplan.Models
+@inject IAuthService AuthService
+@inject NavigationManager NavManager
 @using Modeller
 
-<!-- using ComwellElevplan.Models -->
-<div>
-    <label class="block text-sm font-medium text-gray-700">Navn:</label>
-    <input @bind="newUser.Navn" id="Indtast fulde navn" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
-</div>
+<div class="d-flex justify-content-center align-items-center" style="min-height: 100vh; background-color: #f5f5f5;">
+    <div class="p-5 shadow" style="background-color: white; border-radius: 20px; width: 100%; max-width: 600px;">
+        <h2 class="text-center mb-4" style="color: #003b4a;">Opret ny bruger</h2>
 
-<div>
-    <label class="block text-sm font-medium text-gray-700">Brugernavn:</label>
-    <input @bind="newUser.Brugernavn" placeholder="Indtast brugernavn" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
-</div>
+        <EditForm Model="@newUser" OnValidSubmit="HandleRegister">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
 
-<div>
-    <label class="block text-sm font-medium text-gray-700">Email:</label>
-    <input @bind="newUser.Email" placeholder="Indtast email" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
-</div>
+            <div class="form-group mb-3">
+                <label>Brugernavn</label>
+                <InputText class="form-control rounded-pill" @bind-Value="newUser.Username" />
+            </div>
 
-<div>
-    <label class="block text-sm font-medium text-gray-700">Adgangskode:</label>
-    <input @bind="newUser.Adgangskode" type="password" placeholder="Indtast adgangskode" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
-</div>
+            <div class="form-group mb-3">
+                <label>Adgangskode</label>
+                <InputText type="password" class="form-control rounded-pill" @bind-Value="newUser.Password" />
+            </div>
 
-<div>
-    <label class="block text-sm font-medium text-gray-700">Adresse:</label>
-    <input @bind="newUser.Adresse" placeholder="Indtast adresse" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
-</div>
+            <div class="form-group mb-3">
+                <label>Navn</label>
+                <InputText class="form-control rounded-pill" @bind-Value="newUser.Navn" />
+            </div>
 
-<div>
-    <label class="block text-sm font-medium text-gray-700">Telefonnummer:</label>
-    <input @bind="newUser.Tlf" placeholder="Indtast Telefonnummer" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
-</div>
+            <div class="form-group mb-3">
+                <label>Email</label>
+                <InputText class="form-control rounded-pill" @bind-Value="newUser.Email" />
+            </div>
 
-<div>
-    <label class="block text-sm font-medium text-gray-700">Start Dato:</label>
-    <input @bind="newUser.StartDato" placeholder="Indtast Dato" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
-</div>
+            <div class="form-group mb-3">
+                <label>Telefonnummer</label>
+                <InputText class="form-control rounded-pill" @bind-Value="newUser.Tlf" />
+            </div>
 
-<div>
-    <label class="block text-sm font-medium text-gray-700">Vælg Hotel:</label>
-    <select @bind="newUser.HotelId" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-        <option value="">Vælg hotel</option>
-        <option value="Kongeborgh">Kongeborgh</option>
-        <option value="Holte">Holte</option>
-    </select>
-</div>
+            <div class="form-group mb-3">
+                <label>Adresse</label>
+                <InputText class="form-control rounded-pill" @bind-Value="newUser.Adresse" />
+            </div>
 
-@if (valgtRolle == "kokkeelev")
-{
-    <div>
-        <label class="block text-sm font-medium text-gray-700">Uddannelsesplan:</label>
-        <textarea @bind="newUser.Uddannelsesplan" placeholder="Automatisk udfyldt fra plan" rows="4" cols="30" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+            <div class="form-group mb-3">
+                <label>Startdato</label>
+                <InputDate class="form-control rounded-pill" @bind-Value="newUser.StartDato" />
+            </div>
+
+            <div class="form-group mb-3">
+                <label>Hotel</label>
+                <InputSelect class="form-control rounded-pill" @bind-Value="newUser.HotelId">
+                    <option value="0">Vælg hotel</option>
+                    <option value="1">Kongeborgh</option>
+                    <option value="2">Holte</option>
+                </InputSelect>
+            </div>
+
+            <div class="form-group mb-4">
+                <label>Rolle</label>
+                <InputSelect class="form-control rounded-pill" @bind-Value="newUser.Role">
+                    <option value="elev">Elev</option>
+                    <option value="kok">Kok</option>
+                    <option value="HR">HR</option>
+                    <option value="admin">Admin</option>
+                </InputSelect>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">Opret Bruger</button>
+        </EditForm>
+
+        @if (!string.IsNullOrEmpty(message))
+        {
+            <div class="alert @(registerSuccess ? "alert-success" : "alert-danger") mt-3">
+                @message
+            </div>
+        }
     </div>
-}
-
-<div class="flex justify-end space-x-4 mt-6">
-    <button @onclick="OpretBruger" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Opret Bruger</button>
-    <button @onclick="Annuller" class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600">Annuller</button>
 </div>
-
 
 @code {
+    private UserModel newUser = new();
+    private string message = "";
+    private bool registerSuccess = false;
 
-    private string valgtRolle = "";
-    private ElevData newUser = new ElevData();
-
-    protected override void OnInitialized()
+    private async Task HandleRegister()
     {
-        // simulerer automatisk udfyldning for kokkeelec
-        if (valgtRolle == "kokkeelev")
+        var success = await AuthService.Register(newUser);
+
+        registerSuccess = success;
+
+        if (success)
         {
-            newUser.Navn = "Elex xx";
-            newUser.Uddannelsesplan = "-1. praktikperiode: 52 uger \n-" +
-                                      "Bestil uniform \n- " +
-                                      "Udlever tøj og sikkerhedssko \n 2." +
-                                      "praktikperiode: 43 uger \n-" +
-                                      "Evaluring af første praktikperiode"; 
-            
+            message = "Bruger oprettet!";
+            await Task.Delay(1500);
+            NavManager.NavigateTo("/administrator");
         }
-    }
-
-    private void OpretBruger()
-    {
-        if (string.IsNullOrEmpty(valgtRolle))
+        else
         {
-            // Simulerer en fejlmeddelses (kan udvides til ui) 
-            Console.WriteLine("Vælg en rolle!");
-            return;
+            message = "Noget gik galt – brugeren blev ikke oprettet.";
         }
-        // her tilføjes logik til at gemme til mongoDB 
-        Console.WriteLine($"Opretter {newUser.Navn} som {valgtRolle}");
-        // nulstiller efter oprettelse
-        newUser = new ElevData();
-        valgtRolle = ""; 
-    }
-
-    private void Annuller()
-    {
-        newUser = new ElevData();
-        valgtRolle = ""; 
     }
 }
-
-
-    
