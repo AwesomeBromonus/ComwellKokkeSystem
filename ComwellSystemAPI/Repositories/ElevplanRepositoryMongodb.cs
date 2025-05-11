@@ -23,7 +23,15 @@ public class ElevplanRepository : IElevplan
     public async Task<Elevplan?> GetByIdAsync(int id)
     {
         return await _elevplanCollection.Find(p => p.Id == id).FirstOrDefaultAsync();
+
     }
+
+    // Hent alle elevplaner for en specifik elev
+    public async Task<List<Elevplan>> GetByElevIdAsync(int elevId)
+    {
+        return await _elevplanCollection.Find(p => p.ElevId == elevId).ToListAsync();
+    }
+
 
     // Opret ny plan med manuelt tildelt ID (næste ledige heltal)
     public async Task AddAsync(Elevplan plan)

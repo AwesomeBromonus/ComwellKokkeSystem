@@ -5,17 +5,17 @@ using System.Text;
 using System.Threading.Tasks;
 namespace Modeller
 {
-   public class Delmål
+    public class Delmål
     {
-     
         public int Id { get; set; }
-        public string Beskrivelse { get; set; } = string.Empty;
-        public string Ansvarlig { get; set; } = string.Empty;
-        public string Igangsætter { get; set; } = string.Empty;
+        public int PraktikperiodeId { get; set; }  // Reference til praktikperiode
+        public string Beskrivelse { get; set; } = "";
+        public string Ansvarlig { get; set; } = "";
+        public string Igangsætter { get; set; } = "";
         public DateTime Deadline { get; set; }
-        public string Status { get; set; }
-        public string Kommentar { get; set; } = string.Empty;
-        public string Elevtur { get; set; }
-        public int ElevplanId { get; set; }
+        public string Status { get; set; } = ""; // Fx "Fuldført" eller "Ikke fuldført"
+        public string Kommentar { get; set; } = "";
+        public string Elevtur { get; set; } = "";
     }
+
 }

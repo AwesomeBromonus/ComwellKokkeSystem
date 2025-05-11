@@ -1,5 +1,5 @@
 ﻿using System.Net.Http.Json;
-using Modeller; // Indeholder LoginModel, UserModel og LoginResponse
+using Modeller;
 
 public class AuthService : IAuthService
 {
@@ -16,15 +16,16 @@ public class AuthService : IAuthService
     {
         var response = await _http.PostAsJsonAsync("api/users/login", login);
 
-        if (!response.IsSuccessStatusCode)
-            return false;
-
-        var result = await response.Content.ReadFromJsonAsync<LoginResponse>();
-
-        if (result != null)
+        if (response.IsSuccessStatusCode)
         {
-            _userState.SetUser(result.Username, result.Role);
-            return true;
+            var result = await response.Content.ReadFromJsonAsync<LoginResponse>();
+
+            if (result != null)
+            {
+                // Gem ID også!
+                _userState.SetUser(result.Username, result.Role, result.Id);
+                return true;
+            }
         }
 
         return false;
@@ -40,5 +41,17 @@ public class AuthService : IAuthService
     {
         _userState.Logout();
         return Task.CompletedTask;
+    }
+
+    // Returnerer brugerens ID
+    public Task<int?> GetCurrentUserIdAsync()
+    {
+        return Task.FromResult(_userState.Id);
+    }
+
+    // Returnerer brugerens rolle
+    public Task<string?> GetCurrentUserRoleAsync()
+    {
+        return Task.FromResult(_userState.Role);
     }
 }

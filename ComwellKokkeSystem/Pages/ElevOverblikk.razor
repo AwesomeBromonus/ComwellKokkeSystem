@@ -1,31 +1,47 @@
-﻿@page "/elevatorblik"               // Siden kan åbnes via /elevatorblik
-@inject NavigationManager NavManager
-@inject UserState UserState
+﻿@page "/admin/elever"
+@using Modeller
+@inject HttpClient Http
 
-@code {
-    protected override void OnInitialized()
-    {
-        // Hvis man ikke er logget ind, sendes man til login
-        if (!UserState.IsLoggedIn)
-        {
-            NavManager.NavigateTo("/login");
-        }
-        // Hvis brugeren ikke har rollen "elev", sendes de til forsiden
-        else if (UserState.Role?.ToLower() != "elev")
-        {
-            NavManager.NavigateTo("/");
-        }
-    }
+<h3 class="text-xl font-bold mb-4">Elevoversigt</h3>
+
+@if (elever == null)
+{
+    <p>Indlæser elever...</p>
+}
+else if (!elever.Any())
+{
+    <p>Ingen elever fundet.</p>
+}
+else
+{
+    <table class="table table-striped w-full">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Brugernavn</th>
+                <th>Email</th>
+                <th>Startdato</th>
+                <th>Rolle</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var elev in elever)
+            {
+                <tr>
+                    <td>@elev.Id</td>
+                    <td>@elev.Username</td>
+                    <td>@elev.Role</td>
+                </tr>
+            }
+        </tbody>
+    </table>
 }
 
-<!-- Alt herunder vises kun hvis brugeren er logget ind som elev -->
+@code {
+    private List<Modeller.UserModel>? elever;
 
-<div class="container mt-5">
-    <div class="text-center">
-        <h2 class="mb-3">🎓 Elev Overblik</h2>
-        <h5 class="text-muted">Hej <strong>@UserState.Username</strong>, her er dit kommende overblik:</h5>
-    </div>
-
-
-            </div>
-  
+    protected override async Task OnInitializedAsync()
+    {
+        elever = await Http.GetFromJsonAsync<List<Modeller.UserModel>>("api/users/elevs");
+    }
+}
