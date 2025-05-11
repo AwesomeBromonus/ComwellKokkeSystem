@@ -26,6 +26,9 @@ namespace ComwellSystemAPI.Controllers
             if (existing != null)
                 return Conflict("Brugernavn findes allerede");
 
+            // Trim og standardiser rolle
+            model.Role = model.Role?.Trim().ToLower();
+
             // Automatisk dato hvis ikke sat
             if (model.StartDato == default)
                 model.StartDato = DateTime.UtcNow;
@@ -33,6 +36,7 @@ namespace ComwellSystemAPI.Controllers
             await _userRepo.AddAsync(model);
             return Ok("Bruger oprettet");
         }
+
 
         // POST: api/users/login
         [HttpPost("login")]

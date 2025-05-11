@@ -15,26 +15,20 @@ namespace ComwellSystemAPI.Repositories
             _userCollection = database.GetCollection<UserModel>("Brugere");
         }
 
-        public async Task<UserModel?> GetByUsernameAsync(string username)
-        {
-            return await _userCollection.Find(u => u.Username == username).FirstOrDefaultAsync();
-        }
-
         public async Task AddAsync(UserModel user)
         {
             user.Id = await GetNextIdAsync();
             await _userCollection.InsertOneAsync(user);
         }
 
-        public async Task<bool> ValidateLogin(string username, string password)
-        {
-            var user = await GetByUsernameAsync(username);
-            return user != null && user.Password == password;
-        }
-
         public async Task<List<UserModel>> GetAllAsync()
         {
             return await _userCollection.Find(_ => true).ToListAsync();
+        }
+
+        public async Task<UserModel?> GetByUsernameAsync(string username)
+        {
+            return await _userCollection.Find(u => u.Username == username).FirstOrDefaultAsync();
         }
 
         public async Task<UserModel?> GetByIdAsync(int id)
@@ -47,11 +41,16 @@ namespace ComwellSystemAPI.Repositories
             await _userCollection.DeleteOneAsync(u => u.Id == id);
         }
 
+        public async Task<bool> ValidateLogin(string username, string password)
+        {
+            var user = await GetByUsernameAsync(username);
+            return user != null && user.Password == password;
+        }
+
         private async Task<int> GetNextIdAsync()
         {
-            var sort = Builders<UserModel>.Sort.Descending(u => u.Id);
-            var last = await _userCollection.Find(_ => true).Sort(sort).Limit(1).FirstOrDefaultAsync();
-            return last == null ? 1 : last.Id + 1;
+            var allUsers = await _userCollection.Find(_ => true).ToListAsync();
+            return allUsers.Count == 0 ? 1 : allUsers.Max(u => u.Id) + 1;
         }
     }
 }
