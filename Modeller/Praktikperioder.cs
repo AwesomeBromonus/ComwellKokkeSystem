@@ -8,10 +8,12 @@ namespace Modeller
 {
     public class Praktikperiode
     {
-    public int Id { get; set; } // fx 1, 2, 3
-    public string Navn { get; set; } = string.Empty;
-    public List<Delmål> Delmål { get; set; } = new();
-    
-
+        public int Id { get; set; }
+        public string Navn { get; set; } = "";
+        public DateTime StartDato { get; set; }
+        public DateTime SlutDato { get; set; }
+        public int ElevId { get; set; }
+        public string Status { get; set; } = ""; // fx "Aktiv", "Ikke startet"
     }
+
 }

@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Modeller
 {
-   public class Kokke: Bruger
+    public class Hoteller
     {
-        public string Rolle { get; set; } = "Kok";
-
+        public int Id { get; set; }
+        public string Navn { get; set; } = "";
     }
 }

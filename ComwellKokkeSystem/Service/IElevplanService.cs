@@ -1,13 +1,15 @@
 using Modeller;
 
-// Definerer de operationer, der kan udføres på elevplaner fra client-siden
 public interface IElevplanService
 {
-    // Hent alle elevplaner
+    // Hent alle elevplaner (typisk til admin)
     Task<List<Elevplan>> GetElevplanerAsync();
 
     // Hent én specifik elevplan ud fra ID
     Task<Elevplan?> GetElevplanByIdAsync(int id);
+
+    // Hent elevplaner for en bestemt elev
+    Task<List<Elevplan>> GetElevplanerForElevAsync(int elevId);
 
     // Tilføj ny elevplan
     Task AddElevplanAsync(Elevplan plan);
@@ -18,4 +20,3 @@ public interface IElevplanService
     // Slet elevplan ud fra ID
     Task DeleteElevplanAsync(int id);
 }
-
