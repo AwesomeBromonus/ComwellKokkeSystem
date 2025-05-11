@@ -1,11 +1,11 @@
 ﻿using Modeller;
 
-namespace ComwellSystemAPI.Repositories
+public interface IUserRepository
 {
-    public interface IUserRepository
-    {
-        Task<UserModel?> GetByUsernameAsync(string username);
-        Task AddAsync(UserModel user);
-        Task<bool> ValidateLogin(string username, string password);
-    }
+    Task<Bruger?> GetByUsernameAsync(string username);
+    Task<Bruger?> GetByIdAsync(int id);
+    Task AddAsync(Bruger bruger);
+    Task<bool> ValidateLogin(string username, string password);
+    Task<List<Bruger>> GetAllAsync();
+    Task DeleteAsync(int id);
 }

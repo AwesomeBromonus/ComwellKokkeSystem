@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Modeller;
 
-public class Admin : User
+public class Admin : Bruger
 {
     public string Rolle { get; set; } = "Admin";
 

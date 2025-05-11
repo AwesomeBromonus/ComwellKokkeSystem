@@ -25,6 +25,16 @@ public class ElevplanController : ControllerBase
         return plan == null ? NotFound() : Ok(plan);
     }
 
+
+    // ✅ NYT ENDPOINT: Hent elevplaner for en specifik elev
+    [HttpGet("elev/{elevId}")]
+    public async Task<ActionResult<List<Modeller.Elevplan>>> GetByElevId(int elevId)
+    {
+        var planer = await _repo.GetByElevIdAsync(elevId);
+        if (planer == null || !planer.Any()) return NotFound("Ingen elevplaner fundet for denne elev.");
+        return Ok(planer);
+    }
+
     // Opretter en ny elevplan i databasen
     [HttpPost]
     public async Task<IActionResult> Create(Modeller.Elevplan plan)

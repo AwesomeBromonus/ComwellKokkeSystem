@@ -1,11 +1,10 @@
 ﻿using System.Net.Http.Json;
-using Modeller; // Indeholder LoginModel, RegisterModel og LoginResponse
+using Modeller;
 
-// AuthService implementerer IAuthService (interface)
 public class AuthService : IAuthService
 {
-    private readonly HttpClient _http;        // Bruger vi til at kalde API'en
-    private readonly UserState _userState;    // Holder styr på hvem der er logget ind
+    private readonly HttpClient _http;
+    private readonly UserState _userState;
 
     public AuthService(HttpClient http, UserState userState)
     {
@@ -16,23 +15,20 @@ public class AuthService : IAuthService
     // Kaldes når brugeren forsøger at logge ind
     public async Task<bool> Login(LoginModel login)
     {
-        // Sender login-oplysninger som JSON til API
         var response = await _http.PostAsJsonAsync("api/users/login", login);
 
         if (response.IsSuccessStatusCode)
         {
-            // Hvis login lykkes, læser vi svar-data (brugernavn og rolle)
             var result = await response.Content.ReadFromJsonAsync<LoginResponse>();
 
             if (result != null)
             {
-                // Vi gemmer brugerens oplysninger i UserState (global hukommelse)
-                _userState.SetUser(result.Username, result.Role);
+                // Gem ID også!
+                _userState.SetUser(result.Username, result.Role, result.Id);
                 return true;
             }
         }
 
-        // Hvis noget fejler, returneres false
         return false;
     }
 
@@ -46,7 +42,19 @@ public class AuthService : IAuthService
     // Kaldes når brugeren logger ud
     public Task Logout()
     {
-        _userState.Logout(); // Vi nulstiller brugeren
+        _userState.Logout();
         return Task.CompletedTask;
+    }
+
+    // Returnerer brugerens ID
+    public Task<int?> GetCurrentUserIdAsync()
+    {
+        return Task.FromResult(_userState.Id);
+    }
+
+    // Returnerer brugerens rolle
+    public Task<string?> GetCurrentUserRoleAsync()
+    {
+        return Task.FromResult(_userState.Role);
     }
 }
