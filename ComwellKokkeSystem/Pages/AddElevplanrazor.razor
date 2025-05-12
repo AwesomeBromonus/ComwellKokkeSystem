@@ -36,7 +36,16 @@ else
             <InputDate class="form-control" @bind-Value="elevplan.SlutDato" />
         </div>
 
-        
+        <div class="mb-3">
+            <label>Vælg praktikperiode:</label>
+            <InputSelect class="form-control" @bind-Value="valgtPraktikperiodeId">
+                <option value="0" disabled>-- Vælg praktikperiode --</option>
+                @foreach (var p in praktikPerioder)
+                {
+                    <option value="@p.Id">@p.Navn (@p.StartDato.ToShortDateString() - @p.SlutDato.ToShortDateString())</option>
+                }
+            </InputSelect>
+        </div>
 
         <div class="mb-3">
             <label>Vælg bruger som skal have elevplanen:</label>
@@ -96,8 +105,6 @@ else
         praktikPerioder = await PraktikService.GetAllAsync();
         brugere = await Http.GetFromJsonAsync<List<UserModel>>("api/users/all");
     }
-
-   
 
     private async Task GemElevplan()
     {
