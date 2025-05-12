@@ -36,16 +36,7 @@ else
             <InputDate class="form-control" @bind-Value="elevplan.SlutDato" />
         </div>
 
-        <div class="mb-3">
-            <label>Vælg praktikperiode:</label>
-            <select class="form-select" @onchange="HentDelmaalForPeriode">
-                <option value="">-- Vælg praktikperiode --</option>
-                @foreach (var p in praktikPerioder)
-                {
-                    <option value="@p.Id">@p.Navn</option>
-                }
-            </select>
-        </div>
+        
 
         <div class="mb-3">
             <label>Vælg bruger som skal have elevplanen:</label>
@@ -106,14 +97,7 @@ else
         brugere = await Http.GetFromJsonAsync<List<UserModel>>("api/users/all");
     }
 
-    private async Task HentDelmaalForPeriode(ChangeEventArgs e)
-    {
-        if (int.TryParse(e.Value?.ToString(), out int id))
-        {
-            valgtPraktikperiodeId = id;
-            delmaalListe = await DelmaalService.GetByPraktikperiodeIdAsync(id);
-        }
-    }
+   
 
     private async Task GemElevplan()
     {

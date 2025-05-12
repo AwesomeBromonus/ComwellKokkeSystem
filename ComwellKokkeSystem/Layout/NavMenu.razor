@@ -19,12 +19,9 @@
         <NavLink class="nav-link text-white" href="/administrator">
             🛠 Administrator
         </NavLink>
-
-        <NavLink class="nav-link text-white" href="elevplaner">
-            📘 Elevplaner
+        <NavLink class="nav-link text-white" href="/messages">
+            🛠 Chat
         </NavLink>
-
-    
 
         @if (UserState.IsLoggedIn && UserState.Role?.ToLower() == "elev")
         {
