@@ -7,8 +7,15 @@
 		<!-- Fjern evt. forkert WASM ops�tning -->
 	</PropertyGroup>
 
+	<ItemGroup>
+	  <Compile Remove="Pages\DelmålOversigt.cs" />
+	</ItemGroup>
+
   <ItemGroup>
+    <Content Remove="Pages\Counter.razor" />
+    <Content Remove="Pages\DelmplOversigt.razor" />
     <Content Remove="Pages\DelmålOversigt.razor" />
+    <Content Remove="Pages\Weather.razor" />
   </ItemGroup>
 
   <ItemGroup>

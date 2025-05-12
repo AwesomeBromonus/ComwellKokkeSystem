@@ -2,89 +2,86 @@
 @using Modeller
 @inject IElevplanService ElevplanService
 @inject IPraktikperiodeService PraktikService
+@inject IDelmaalService DelmaalService
+@inject IAuthService AuthService
 @inject NavigationManager Nav
 
 <h3>Opret Elevplan</h3>
 
-<EditForm Model="elevplan" OnValidSubmit="GemElevplan">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
-
-    <div class="mb-3">
-        <label for="titel">Titel:</label>
-        <InputText id="titel" class="form-control" @bind-Value="elevplan.Titel" />
-    </div>
-
-    <div class="mb-3">
-        <label for="kommentar">Kommentar:</label>
-        <InputTextArea id="kommentar" class="form-control" @bind-Value="elevplan.Kommentar" />
-    </div>
-
-    <div class="mb-3">
-        <label for="startDato">Startdato:</label>
-        <InputDate id="startDato" class="form-control" @bind-Value="elevplan.StartDato" />
-    </div>
-
-    <div class="mb-3">
-        <label for="slutDato">Slutdato:</label>
-        <InputDate id="slutDato" class="form-control" @bind-Value="elevplan.SlutDato" />
-    </div>
-
-   
-
-    @if (valgtPeriode?.Delmål?.Any() == true)
-    {
-        <h5>Delmål for valgt praktikperiode:</h5>
-        <ul>
-            @foreach (var d in valgtPeriode.Delmål)
-            {
-                <li>@d.Beskrivelse (@d.Status)</li>
-            }
-        </ul>
-    }
-    else if (valgtPeriodeId != 0)
-    {
-        <p class="text-danger">Ingen delmål fundet for den valgte praktikperiode.</p>
-    }
-
-    <button type="submit" class="btn btn-primary mt-3">Gem elevplan</button>
-</EditForm>
-
-@if (success)
+@if (!erTilladt)
 {
-    <div class="alert alert-success mt-3">
-        Elevplan oprettet!
+    <div class="alert alert-danger mt-3">
+        Adgang nægtet – kun administratorer kan oprette elevplaner.
     </div>
+}
+else
+{
+    <EditForm Model="elevplan" OnValidSubmit="GemElevplan">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="mb-3">
+            <label>Kommentar:</label>
+            <InputTextArea class="form-control" @bind-Value="elevplan.Kommentar" />
+        </div>
+
+        <div class="mb-3">
+            <label>Startdato:</label>
+            <InputDate class="form-control" @bind-Value="elevplan.StartDato" />
+        </div>
+
+        <div class="mb-3">
+            <label>Slutdato:</label>
+            <InputDate class="form-control" @bind-Value="elevplan.SlutDato" />
+        </div>
+
+        
+
+        <button class="btn btn-primary mt-3" type="submit">Gem elevplan</button>
+    </EditForm>
+
+    @if (success)
+    {
+        <div class="alert alert-success mt-3">Elevplan oprettet!</div>
+    }
 }
 
 @code {
     private Modeller.Elevplan elevplan = new();
-    private bool success = false;
-
     private List<Modeller.Praktikperiode> praktikPerioder = new();
-    private Modeller.Praktikperiode? valgtPeriode;
-    private int valgtPeriodeId;
+    private List<Modeller.Delmål> delmaalListe = new();
+    private int valgtPraktikperiodeId = 0;
+    private bool success = false;
+    private bool erTilladt = false;
 
     protected override async Task OnInitializedAsync()
     {
+        var rolle = await AuthService.GetCurrentUserRoleAsync();
+        if (rolle != "admin")
+        {
+            erTilladt = false;
+            Nav.NavigateTo("/elevplaner", true);
+            return;
+        }
+
+        erTilladt = true;
         praktikPerioder = await PraktikService.GetAllAsync();
     }
 
-    private async Task HentPraktikperiode(ChangeEventArgs e)
-    {
-        if (int.TryParse(e.Value?.ToString(), out int id))
-        {
-            valgtPeriodeId = id;
-            valgtPeriode = await PraktikService.GetByIdAsync(id);
-        }
-    }
+   
 
     private async Task GemElevplan()
     {
-        if (valgtPeriodeId == 0)
+        if (valgtPraktikperiodeId == 0)
             return;
 
-        elevplan.PraktikperiodeId = valgtPeriodeId;
+        var brugerId = await AuthService.GetCurrentUserIdAsync();
+        if (brugerId is null)
+            return;
+
+        elevplan.ElevId = brugerId.Value;
+        elevplan.PraktikperiodeIds = new List<int> { valgtPraktikperiodeId };
+        elevplan.OprettetDato = DateTime.Now;
 
         await ElevplanService.AddElevplanAsync(elevplan);
         success = true;

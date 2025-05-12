@@ -18,7 +18,7 @@ public class Program
         builder.RootComponents.Add<HeadOutlet>("head::after");
 
 
-
+builder.Services.AddSingleton<UserState>();
 
 builder.Services.AddScoped(sp => new HttpClient
 {
@@ -33,6 +33,7 @@ builder.Services.AddScoped(sp => new HttpClient
         builder.Services.AddScoped<IElevplanService, ElevplanService>();
         builder.Services.AddScoped<IPraktikperiodeService, PraktikperiodeService>();
         builder.Services.AddScoped<IAuthService, AuthService>();
+        builder.Services.AddScoped<IDelmaalService, DelmaalService>();
         builder.Services.AddSingleton<UserState>();
 
 
