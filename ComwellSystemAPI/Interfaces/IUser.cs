@@ -2,10 +2,10 @@
 
 public interface IUserRepository
 {
-    Task<Bruger?> GetByUsernameAsync(string username);
-    Task<Bruger?> GetByIdAsync(int id);
-    Task AddAsync(Bruger bruger);
+    Task<UserModel?> GetByUsernameAsync(string username);
+    Task<UserModel?> GetByIdAsync(int id);
+    Task AddAsync(UserModel user);
     Task<bool> ValidateLogin(string username, string password);
-    Task<List<Bruger>> GetAllAsync();
+    Task<List<UserModel>> GetAllAsync();
     Task DeleteAsync(int id);
 }

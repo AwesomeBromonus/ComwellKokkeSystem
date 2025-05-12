@@ -4,10 +4,12 @@
 @implements IDisposable
 
 <div class="d-flex">
+    <!-- Sidebar -->
     <div>
         <NavMenu />
     </div>
 
+    <!-- Hovedindhold -->
     <div class="flex-grow-1">
         <!-- Topbar -->
         <div class="d-flex justify-content-between align-items-center px-4 py-3 shadow-sm text-white"
@@ -29,8 +31,8 @@
             }
         </div>
 
-        <!-- Main content -->
-        <div class="p-4" style="background-color: #f8f9fa; min-height: 100vh;">
+        <!-- Sideindhold med mørk baggrund -->
+        <div class="p-4 dark-admin-bg">
             @Body
         </div>
     </div>
