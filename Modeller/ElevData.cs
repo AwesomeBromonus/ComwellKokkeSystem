@@ -10,5 +10,5 @@ public class ElevData { public string Navn { get; set; }
     public string HotelId { get; set; } 
     public string Uddannelsesplan { get; set; } 
     public DateTime StartDato { get; set; }
-
+    
 }

@@ -3,15 +3,13 @@
 
 @inject IAuthService AuthService
 @inject NavigationManager NavManager
-@inject UserState UserState
 @using Modeller
 
-<!-- Login-layoutet: centreret boks med felter -->
+<!-- Login-layout i samme stil som register -->
 <div class="d-flex justify-content-center align-items-center" style="min-height: 100vh; background-color: #f5f5f5;">
-    <div class="p-5 shadow" style="background-color: white; border-radius: 20px; width: 100%; max-width: 420px;">
+    <div class="p-5 shadow" style="background-color: white; border-radius: 20px; width: 100%; max-width: 480px;">
         <h2 class="text-center mb-4" style="color: #003b4a;">Log ind</h2>
 
-        <!-- Loginformular der kalder HandleLogin ved submit -->
         <EditForm Model="@login" OnValidSubmit="@HandleLogin">
             <DataAnnotationsValidator />
             <ValidationSummary />
@@ -19,77 +17,56 @@
             <!-- Brugernavn -->
             <div class="form-group mb-3">
                 <label class="form-label">Brugernavn</label>
-                <InputText @bind-Value="login.Username" class="form-control form-control-lg rounded-pill" />
+                <InputText class="form-control form-control-lg rounded-pill" @bind-Value="login.Username" />
+                <ValidationMessage For="@(() => login.Username)" />
             </div>
 
-            <!-- Adgangskode med toggle-funktion -->
-            <div class="form-group mb-3">
+            <!-- Adgangskode -->
+            <div class="form-group mb-4">
                 <label class="form-label">Adgangskode</label>
-                <div class="input-group">
-                    <InputText @bind-Value="login.Password" class="form-control form-control-lg rounded-start-pill"
-                               type="@passwordInputType" />
-                    <button class="btn btn-outline-secondary rounded-end-pill" type="button"
-                            @onclick="TogglePasswordVisibility">
-                        @(showPassword ? "Skjul" : "Vis")
-                    </button>
-                </div>
+                <InputText type="password" class="form-control form-control-lg rounded-pill" @bind-Value="login.Password" />
+                <ValidationMessage For="@(() => login.Password)" />
             </div>
 
-            <!-- Login-knap -->
-            <button class="btn btn-lg btn-block w-100 text-white" style="background-color: #007fa3; border-radius: 50px;" type="submit">
-                Log ind
+            <!-- Submit-knap -->
+            <button type="submit" class="btn btn-lg w-100 text-white"
+                    style="background-color: #007fa3; border-radius: 50px;" disabled="@isLoading">
+                @(isLoading ? "Logger ind..." : "Log ind")
             </button>
         </EditForm>
 
-        <!-- Fejlbesked vises hvis login fejler -->
         @if (!string.IsNullOrEmpty(message))
         {
             <div class="alert alert-danger mt-3">@message</div>
         }
 
-        <!-- Link til registrering -->
-        <div class="text-center mt-3">
-            <p>Har du ikke en bruger? <a href="/register" class="text-decoration-none">Opret her</a></p>
+        <!-- Info-tekst -->
+        <div class="text-center mt-4 text-muted" style="font-size: 0.95rem;">
+            <p>❓ Har du problemer med at logge ind? Kontakt administrator eller HR-afdelingen.</p>
         </div>
     </div>
 </div>
 
 @code {
-    private LoginModel login = new(); // Holder brugernavn og adgangskode
-    private string message = ""; // Besked til brugeren
-    private bool showPassword = false; // Om adgangskoden skal vises
+    private LoginModel login = new();
+    private string message = "";
+    private bool isLoading = false;
 
-    // Ændrer typen på adgangskode-feltet
-    private string passwordInputType => showPassword ? "text" : "password";
-
-    private void TogglePasswordVisibility()
-    {
-        showPassword = !showPassword;
-    }
-
-    // Login-funktion kaldet når formularen submitter
     private async Task HandleLogin()
     {
+        isLoading = true;
         message = "";
 
         var success = await AuthService.Login(login);
-
         if (success)
         {
-            // Hvis brugeren er admin, send til admin-side
-            if (UserState.Role?.ToLower() == "admin")
-            {
-                NavManager.NavigateTo("/administrator");
-            }
-            else
-            {
-                // Ellers send til forsiden (eller elev-sider)
-                NavManager.NavigateTo("/");
-            }
+            NavManager.NavigateTo("/");
         }
         else
         {
-            message = "Login fejlede.";
+            message = "Forkert brugernavn eller adgangskode.";
         }
+
+        isLoading = false;
     }
 }
