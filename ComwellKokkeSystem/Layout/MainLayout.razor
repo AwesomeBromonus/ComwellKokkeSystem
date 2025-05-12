@@ -31,7 +31,7 @@
             }
         </div>
 
-        <!-- Sideindhold med mørk baggrund -->
+        <!-- Sideindhold -->
         <div class="p-4 dark-admin-bg">
             @Body
         </div>
@@ -39,9 +39,28 @@
 </div>
 
 @code {
-    private void Logout()
+    private bool initialized = false;
+
+    private async Task InitializeUser()
     {
-        UserState.Logout();
+        if (!initialized)
+        {
+            initialized = true;
+            await UserState.InitializeAsync();
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await InitializeUser();
+        }
+    }
+
+    private async void Logout()
+    {
+        await UserState.LogoutAsync();
         NavManager.NavigateTo("/");
     }
 

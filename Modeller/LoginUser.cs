@@ -1,7 +1,11 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
 
+
+
 namespace Modeller
 {
+    [BsonIgnoreExtraElements]
+
     public class UserModel
     {
         [BsonId]

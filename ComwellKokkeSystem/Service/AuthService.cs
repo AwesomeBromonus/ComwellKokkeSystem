@@ -1,5 +1,5 @@
-﻿using System.Net.Http.Json;
-using Modeller;
+﻿using Modeller;
+using System.Net.Http.Json;
 
 public class AuthService : IAuthService
 {
@@ -22,8 +22,7 @@ public class AuthService : IAuthService
 
             if (result != null)
             {
-                // Gem ID også!
-                _userState.SetUser(result.Username, result.Role, result.Id);
+                await _userState.SetUserAsync(result.Username, result.Role, result.Id);
                 return true;
             }
         }
@@ -37,22 +36,11 @@ public class AuthService : IAuthService
         return response.IsSuccessStatusCode;
     }
 
-
-    public Task Logout()
+    public async Task Logout()
     {
-        _userState.Logout();
-        return Task.CompletedTask;
+        await _userState.LogoutAsync();
     }
 
-    // Returnerer brugerens ID
-    public Task<int?> GetCurrentUserIdAsync()
-    {
-        return Task.FromResult(_userState.Id);
-    }
-
-    // Returnerer brugerens rolle
-    public Task<string?> GetCurrentUserRoleAsync()
-    {
-        return Task.FromResult(_userState.Role);
-    }
+    public Task<int?> GetCurrentUserIdAsync() => Task.FromResult(_userState.Id);
+    public Task<string?> GetCurrentUserRoleAsync() => Task.FromResult(_userState.Role);
 }

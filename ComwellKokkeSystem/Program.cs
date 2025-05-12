@@ -15,7 +15,8 @@ public class Program
         builder.RootComponents.Add<App>("#app");
         builder.RootComponents.Add<HeadOutlet>("head::after");
 
-        builder.Services.AddSingleton<UserState>();
+        builder.Services.AddScoped<UserState>();
+
 
         builder.Services.AddScoped(sp => new HttpClient
         {

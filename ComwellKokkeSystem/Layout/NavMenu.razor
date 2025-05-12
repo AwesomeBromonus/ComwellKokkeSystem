@@ -26,24 +26,24 @@
 
         @if (UserState.IsLoggedIn && UserState.Role?.ToLower() == "elev")
         {
-                <NavLink class="nav-link text-white" href="/elevatorblik">
-                    🎓 Elev Overblik
-                </NavLink>
+            <NavLink class="nav-link text-white" href="/elevatorblik">
+                🎓 Elev Overblik
+            </NavLink>
         }
 
         @if (!UserState.IsLoggedIn)
         {
-                <NavLink class="nav-link text-white" href="/login">
-                    🔐 Log ind
-                </NavLink>
+            <NavLink class="nav-link text-white" href="/login">
+                🔐 Log ind
+            </NavLink>
         }
         else
         {
-                <hr class="text-white my-3" />
-                <div class="text-white small mb-2">
-                    Logget ind som <strong>@UserState.Username</strong> (@UserState.Role)
-                </div>
-                <button class="btn btn-sm btn-outline-light w-100" @onclick="Logout">Log ud</button>
+            <hr class="text-white my-3" />
+            <div class="text-white small mb-2">
+                Logget ind som <strong>@UserState.Username</strong> (@UserState.Role)
+            </div>
+            <button class="btn btn-sm btn-outline-light w-100" @onclick="LogoutAsync">Log ud</button>
         }
     </nav>
 </div>
@@ -59,9 +59,9 @@
         UserState.OnChange -= StateHasChanged;
     }
 
-    private void Logout()
+    private async Task LogoutAsync()
     {
-        UserState.Logout();
+        await UserState.LogoutAsync(); // Denne skal findes i UserState.cs
         NavManager.NavigateTo("/");
     }
 }
