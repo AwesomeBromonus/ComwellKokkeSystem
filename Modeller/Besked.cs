@@ -11,7 +11,6 @@ namespace Modeller
           public class Besked
         {
             [BsonId]
-            [BsonRepresentation(BsonType.ObjectId)]
             public int Id { get; set; }  // Unik ID for beskeden
 
             public int AfsenderId { get; set; }  // ID på den bruger, der sender beskeden
