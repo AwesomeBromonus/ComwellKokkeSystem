@@ -12,7 +12,6 @@ public class AuthService : IAuthService
         _userState = userState;
     }
 
-    // Kaldes når brugeren forsøger at logge ind
     public async Task<bool> Login(LoginModel login)
     {
         var response = await _http.PostAsJsonAsync("api/users/login", login);
@@ -32,14 +31,13 @@ public class AuthService : IAuthService
         return false;
     }
 
-    // Kaldes når en ny bruger registreres
-    public async Task<bool> Register(RegisterModel user)
+    public async Task<bool> Register(UserModel user)
     {
         var response = await _http.PostAsJsonAsync("api/users/register", user);
         return response.IsSuccessStatusCode;
     }
 
-    // Kaldes når brugeren logger ud
+
     public Task Logout()
     {
         _userState.Logout();

@@ -1,50 +1,142 @@
-﻿@page "/administrator"              // Denne side findes på URL'en /administrator
-@inject NavigationManager NavManager // Gør det muligt at navigere brugeren til andre sider
-@inject UserState UserState          // Her henter vi information om den loggede ind bruger (navn, rolle osv.)
+﻿@page "/administrator"
+@inject HttpClient Http
+@inject NavigationManager NavManager
+@inject UserState UserState
+@using Modeller
 
-<h3>Administratorpanel</h3>
+<div class="container mt-4">
+    <h3 class="mb-3">📊 Administratorpanel</h3>
 
-@if (!UserState.IsLoggedInChecked)
-{
-    // Hvis brugerstatus ikke er tjekket endnu, vises en besked
-    <p>⏳ Indlæser brugerstatus...</p>
-}
-else if (!UserState.IsLoggedIn)
-{
-    // Hvis brugeren slet ikke er logget ind, vises en advarsel
-    <p class="text-danger">🔒 Du skal være logget ind for at få adgang.</p>
-}
-else if (UserState.Role?.ToLower() != "admin")
-{
-    // Hvis man er logget ind, men ikke har rollen "admin", får man afslag
-    <div class="alert alert-danger mt-4">
-        <h5>🚫 Adgang nægtet</h5>
-        <p>Du har ikke de nødvendige rettigheder for at se denne side.</p>
-    </div>
-}
-else
-{
-    // Hvis man er logget ind og er admin, vises selve adminsiden
-    <div class="alert alert-success">
-        ✅ Velkommen, <strong>@UserState.Username</strong>! Du er logget ind som administrator.
-    </div>
-
-    <!-- Her kan du indsætte admin-indhold som brugerstyring, lister, statistik m.m. -->
-}
-
-@code {
-    protected override void OnInitialized()
+    @if (!UserState.IsLoggedInChecked)
     {
-        // Denne metode kører lige når siden starter
-        // Hvis man ikke er logget ind, bliver man sendt til login-siden
-        if (!UserState.IsLoggedInChecked)
-        {
-            return; // Vi venter til brugerstatus er hentet
-        }
+        <p>⏳ Indlæser brugerstatus...</p>
+    }
+    else if (!UserState.IsLoggedIn)
+    {
+        <div class="alert alert-warning">🔒 Du skal være logget ind for at se denne side.</div>
+    }
+    else if (UserState.Role?.ToLower() != "admin")
+    {
+        <div class="alert alert-danger">🚫 Adgang nægtet – kun administratorer har adgang til denne side.</div>
+    }
+    else
+    {
+        <div class="alert alert-success">
+            ✅ Velkommen, <strong>@UserState.Username</strong>! Du er logget ind som administrator.
+        </div>
 
-        if (!UserState.IsLoggedIn)
+        <div class="row mt-4 mb-4">
+            <div class="col-md-6">
+                <p class="fw-semibold">🔧 Administrative funktioner:</p>
+                <div class="d-grid gap-3">
+                    <button class="btn btn-primary btn-lg shadow" @onclick='() => NavManager.NavigateTo("/opretuser")'>
+                        <i class="bi bi-person-plus-fill"></i> Opret bruger
+                    </button>
+                    <button class="btn btn-success btn-lg shadow" @onclick='() => NavManager.NavigateTo("/opret-elevplan")'>
+                        <i class="bi bi-journal-plus"></i> Opret elevplan
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <p class="fw-semibold">📈 Brugertællere:</p>
+                <div class="d-flex flex-wrap gap-2">
+                    <span class="badge bg-secondary">👤 Alle: @brugere.Count</span>
+                    <span class="badge bg-success">🧑‍🎓 Elever: @brugere.Count(x => x.Role?.ToLower() == "elev")</span>
+                    <span class="badge bg-warning text-dark">👨‍🍳 Kokke: @brugere.Count(x => x.Role?.ToLower() == "kok")</span>
+                    <span class="badge bg-danger">🛡️ Admins: @brugere.Count(x => x.Role?.ToLower() == "admin")</span>
+                    <span class="badge bg-info text-dark">🧾 HR: @brugere.Count(x => x.Role?.ToLower() == "hr")</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <InputText class="form-control" placeholder="🔍 Søg efter brugernavn..." @bind="søgeord" />
+        </div>
+
+        <div class="row">
+            @foreach (var b in brugere.Where(b => string.IsNullOrWhiteSpace(søgeord) || b.Username.Contains(søgeord, StringComparison.OrdinalIgnoreCase)))
+            {
+                <div class="col-md-6 col-lg-4">
+                    <div class="card user-card mb-3 shadow-sm" @onclick="() => VisDetaljer(b)" style="cursor:pointer;">
+                        <div class="card-body">
+                            <h5 class="card-title">@b.Navn</h5>
+                            <p class="card-text text-muted mb-1">@b.Username</p>
+                            <span class="badge @GetRoleColor(b.Role)">🧷 @b.Role</span>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        @if (valgtBruger != null)
         {
-            NavManager.NavigateTo("/login"); // Gå til login-siden
+            <div class="modal show fade d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">👤 Brugerinfo: @valgtBruger.Username</h5>
+                            <button type="button" class="btn-close" @onclick="LukDetaljer"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p><strong>Navn:</strong> @valgtBruger.Navn</p>
+                            <p><strong>Email:</strong> @valgtBruger.Email</p>
+                            <p><strong>Telefon:</strong> @valgtBruger.Tlf</p>
+                            <p><strong>Adresse:</strong> @valgtBruger.Adresse</p>
+                            <p><strong>Hotel ID:</strong> @valgtBruger.HotelId</p>
+                            <p><strong>Startdato:</strong> @valgtBruger.StartDato.ToShortDateString()</p>
+                            <p><strong>Rolle:</strong> <span class="badge @GetRoleColor(valgtBruger.Role)">@valgtBruger.Role</span></p>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-secondary" @onclick="LukDetaljer">Luk</button>
+                            <button class="btn btn-danger" @onclick="SletBrugerAsync">Slet</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         }
     }
+</div>
+
+@code {
+    private List<UserModel> brugere = new();
+    private UserModel? valgtBruger;
+    private string søgeord = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            brugere = await Http.GetFromJsonAsync<List<UserModel>>("api/users/all");
+        }
+        catch
+        {
+            brugere = new List<UserModel>();
+        }
+    }
+
+    void VisDetaljer(UserModel bruger) => valgtBruger = bruger;
+
+    void LukDetaljer() => valgtBruger = null;
+
+    private async Task SletBrugerAsync()
+    {
+        if (valgtBruger != null)
+        {
+            var response = await Http.DeleteAsync($"api/users/{valgtBruger.Id}");
+            if (response.IsSuccessStatusCode)
+            {
+                brugere.Remove(valgtBruger);
+                valgtBruger = null;
+            }
+        }
+    }
+
+    private string GetRoleColor(string role) => role?.ToLower() switch
+    {
+        "admin" => "bg-danger",
+        "elev" => "bg-success",
+        "kok" => "bg-warning text-dark",
+        "hr" => "bg-info text-dark",
+        _ => "bg-secondary"
+    };
 }
