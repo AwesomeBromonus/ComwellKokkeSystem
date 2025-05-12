@@ -7,8 +7,9 @@ using System.Threading.Tasks;
 
 namespace Modeller;
 
-public class Admin : Bruger
+public class Admin :gfg
 {
     public string Rolle { get; set; } = "Admin";
 
 }
+fv
