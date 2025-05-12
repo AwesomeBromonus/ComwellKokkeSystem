@@ -15,6 +15,8 @@
     <Content Remove="Pages\Counter.razor" />
     <Content Remove="Pages\DelmplOversigt.razor" />
     <Content Remove="Pages\DelmålOversigt.razor" />
+    <Content Remove="Pages\Rapportside.razor" />
+    <Content Remove="Pages\Skabelon.razor" />
     <Content Remove="Pages\Weather.razor" />
   </ItemGroup>
 

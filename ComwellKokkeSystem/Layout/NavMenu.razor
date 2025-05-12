@@ -12,7 +12,7 @@
             🏠 Hjem
         </NavLink>
 
-        <NavLink class="nav-link text-white" href="/admin/elever">
+        <NavLink class="nav-link text-white" href="/">
             🌦️ Elever
         </NavLink>
 
@@ -27,8 +27,11 @@
         @if (UserState.IsLoggedIn && UserState.Role?.ToLower() == "elev")
         {
                 <NavLink class="nav-link text-white" href="/elevatorblik">
-                    🎓 Elev Overblik
+                    🎓 Min Elevplan
                 </NavLink>
+                 <NavLink class="nav-link text-white" href="/elevatorblik">
+                🎓 Læring
+                 </NavLink>
         }
 
         @if (!UserState.IsLoggedIn)
