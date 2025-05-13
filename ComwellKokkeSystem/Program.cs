@@ -30,6 +30,7 @@ public class Program
         builder.Services.AddScoped<IAuthService, AuthService>();
         builder.Services.AddScoped<IDelmaalService, DelmaalService>();
 
+
   
 
         await builder.Build().RunAsync();

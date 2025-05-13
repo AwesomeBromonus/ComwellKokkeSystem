@@ -27,6 +27,7 @@ public class Program
         builder.Services.AddSingleton<IPraktikperiode, PraktikperiodeRepository>();
         builder.Services.AddSingleton<IUserRepository,UserRepositoryMongodb>();
         builder.Services.AddSingleton<IDelmål, DelmålRepository>();
+        builder.Services.AddSingleton<IBesked, BeskedRepositoryMongoDB>();
 
 
 

@@ -53,5 +53,15 @@ public class BeskedRepositoryMongoDB : IBesked
         var lastMessage = await _beskedCollection.Find(_ => true).Sort(sort).Limit(1).FirstOrDefaultAsync();
         return lastMessage == null ? 1 : lastMessage.Id + 1;
     }
+
+    // Henter beskeder baseret på brugerens ID (afsender eller modtager)
+    public async Task<List<Besked>> GetByUserIdAsync(int userId)
+    {
+        var filter = Builders<Besked>.Filter.Or(
+            Builders<Besked>.Filter.Eq(b => b.AfsenderId, userId),
+            Builders<Besked>.Filter.Eq(b => b.ModtagerId, userId)
+        );
+        return await _beskedCollection.Find(filter).ToListAsync();
+    }
 }
 

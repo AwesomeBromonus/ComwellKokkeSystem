@@ -20,6 +20,21 @@ public class BeskederController : ControllerBase
     }
 
     // Henter en specifik besked fra databasen
+    [HttpGet("user/{userId}")]
+    public async Task<ActionResult<IEnumerable<Modeller.Besked>>> GetByUserId(int userId)
+    {
+        try
+        {
+            var beskeder = await _repo.GetByUserIdAsync(userId);
+            if (beskeder == null || !beskeder.Any())
+                return NotFound($"Ingen beskeder fundet for bruger med ID {userId}.");
+            return Ok(beskeder);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Fejl ved hentning af brugerbeskeder: {ex.Message}");
+        }
+    }
     [HttpGet("{id}")]
     public async Task<ActionResult<Modeller.Besked>> GetById(int id)
     {
