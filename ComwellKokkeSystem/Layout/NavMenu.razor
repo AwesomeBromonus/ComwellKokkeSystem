@@ -21,6 +21,12 @@
             💬 Chat
         </NavLink>
 
+
+
+        <NavLink class="nav-link text-white" href="/a">
+            💬 Rapport
+        </NavLink>
+
         @if (UserState.IsLoggedIn && UserState.Role?.ToLower() == "elev")
         {
             <NavLink class="nav-link text-white" href="/elevatorblik">
