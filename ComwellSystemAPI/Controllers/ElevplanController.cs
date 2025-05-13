@@ -1,4 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
+using Modeller;
+using ComwellSystemAPI.Interfaces;
 
 [ApiController]
 [Route("api/elevplan")] // API-endpoint bliver: /api/elevplan
@@ -63,6 +66,18 @@ public class ElevplanController : ControllerBase
         await _repo.DeleteAsync(id);
         return NoContent(); // Returnerer status 204 (No Content)
     }
+
+    [HttpGet("byuser/{userId}")]
+    public async Task<IActionResult> GetLatestElevplanByUserId(int userId)
+    {
+        var planer = await _repo.GetByElevIdAsync(userId);
+        var nyeste = planer?.OrderByDescending(p => p.OprettetDato).FirstOrDefault();
+
+        return nyeste == null ? NotFound("Ingen elevplan fundet for brugeren.") : Ok(nyeste);
+    }
+
+
+
 }
 
 

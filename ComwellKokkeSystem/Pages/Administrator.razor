@@ -50,7 +50,7 @@
         </div>
 
         <div class="mb-3">
-            <InputText class="form-control" placeholder="🔍 Søg efter brugernavn..." @bind="søgeord" />
+            <input class="form-control" placeholder="🔍 Søg efter brugernavn..." @bind="søgeord" />
         </div>
 
         <div class="row">
@@ -89,6 +89,14 @@
                         <div class="modal-footer">
                             <button class="btn btn-secondary" @onclick="LukDetaljer">Luk</button>
                             <button class="btn btn-danger" @onclick="SletBrugerAsync">Slet</button>
+
+                            @if (valgtBruger.Role?.ToLower() == "elev" && valgtBruger.ElevplanId > 0)
+                            {
+                                <button class="btn btn-info" @onclick="() => SeElevplan(valgtBruger.ElevplanId.Value)">
+                                    Se elevplan
+                                </button>
+                            }
+
                         </div>
                     </div>
                 </div>
@@ -98,8 +106,8 @@
 </div>
 
 @code {
-    private List<UserModel> brugere = new();
-    private UserModel? valgtBruger;
+    private List<Modeller.UserModel> brugere = new();
+    private Modeller.UserModel? valgtBruger;
     private string søgeord = "";
 
     protected override async Task OnInitializedAsync()
@@ -131,6 +139,12 @@
         }
     }
 
+    private void SeElevplan(int elevplanId)
+    {
+        NavManager.NavigateTo($"/delmaal/{elevplanId}");
+    }
+
+    // kan laves i css
     private string GetRoleColor(string role) => role?.ToLower() switch
     {
         "admin" => "bg-danger",

@@ -4,11 +4,15 @@
 @inject IElevplanService ElevplanService
 @inject NavigationManager Nav
 
-<h3 class="text-xl font-bold mb-4">Delmål for Elevplan @elevplanId</h3>
+<h3 class="text-xl font-bold mb-4">📘 Delmål for elevplan ID: @elevplanId</h3>
 
-@if (praktikperiodeIds == null)
+@if (isLoading)
 {
-    <p>Indlæser praktikperioder...</p>
+    <p>⏳ Indlæser praktikperioder...</p>
+}
+else if (praktikperiodeIds == null || !praktikperiodeIds.Any())
+{
+    <div class="alert alert-warning">Ingen praktikperioder fundet for denne elevplan.</div>
 }
 else
 {
@@ -46,11 +50,13 @@ else
         }
         else
         {
-            <p>Ingen delmål fundet for praktikperiode @valgtPraktikId.</p>
+            <div class="alert alert-info">
+                Ingen delmål fundet for praktikperiode @valgtPraktikId.
+            </div>
         }
     }
 
-    <button class="btn btn-secondary mt-4" @onclick="Tilbage">Tilbage</button>
+    <button class="btn btn-secondary mt-4" @onclick="Tilbage">🔙 Tilbage</button>
 }
 
 @code {
@@ -59,11 +65,20 @@ else
     private List<int>? praktikperiodeIds;
     private List<Modeller.Delmål>? delmaalListe;
     private int valgtPraktikId = 0;
+    private bool isLoading = true;
 
     protected override async Task OnInitializedAsync()
     {
-        var plan = await ElevplanService.GetElevplanByIdAsync(elevplanId);
-        praktikperiodeIds = plan?.PraktikperiodeIds ?? new();
+        try
+        {
+            var plan = await ElevplanService.GetElevplanByIdAsync(elevplanId);
+            praktikperiodeIds = plan?.PraktikperiodeIds ?? new();
+        }
+        catch
+        {
+            praktikperiodeIds = null;
+        }
+        isLoading = false;
     }
 
     private async Task VisDelmaal(int praktikperiodeId)
@@ -82,6 +97,6 @@ else
 
     private void Tilbage()
     {
-        Nav.NavigateTo("/elevplaner");
+        Nav.NavigateTo("/administrator");
     }
 }
