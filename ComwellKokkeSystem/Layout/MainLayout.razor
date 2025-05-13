@@ -12,24 +12,7 @@
     <!-- Hovedindhold -->
     <div class="flex-grow-1">
         <!-- Topbar -->
-        <div class="d-flex justify-content-between align-items-center px-4 py-3 shadow-sm text-white"
-             style="background-color: #003b4a; border-bottom: 1px solid #004d5e;">
-            <h5 class="m-0 fw-semibold">ComwellKokkeSystem</h5>
-
-            @if (UserState.IsLoggedIn)
-            {
-                <div class="d-flex align-items-center gap-3">
-                    <span class="fw-semibold">
-                        <i class="bi bi-person-fill"></i> @UserState.Username (@UserState.Role)
-                    </span>
-                    <button class="btn btn-sm btn-outline-light" @onclick="Logout">Log ud</button>
-                </div>
-            }
-            else
-            {
-                <NavLink href="/login" class="btn btn-sm btn-light">Log ind</NavLink>
-            }
-        </div>
+       
 
         <!-- Sideindhold -->
         <div class="p-4 dark-admin-bg">
