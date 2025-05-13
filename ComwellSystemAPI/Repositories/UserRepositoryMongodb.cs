@@ -58,6 +58,12 @@ namespace ComwellSystemAPI.Repositories
             var update = Builders<UserModel>.Update.Set(u => u.ElevplanId, bruger.ElevplanId);
             await _userCollection.UpdateOneAsync(filter, update);
         }
+        public async Task AssignElevplanToUserAsync(int userId, int elevplanId)
+        {
+            var filter = Builders<UserModel>.Filter.Eq(u => u.Id, userId);
+            var update = Builders<UserModel>.Update.Set(u => u.ElevplanId, elevplanId);
+            await _userCollection.UpdateOneAsync(filter, update);
+        }
 
     }
 }

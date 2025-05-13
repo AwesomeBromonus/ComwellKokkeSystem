@@ -1,55 +1,44 @@
 ﻿using ComwellSystemAPI.Interfaces;
 using ComwellSystemAPI.Repositories;
 
-public class Program
+var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container.
+builder.Services.AddControllers();
+
+// CORS – Allow Blazor frontend
+builder.Services.AddCors(options =>
 {
-    public static void Main(string[] args)
+    options.AddPolicy("AllowBlazor", policy =>
     {
-        var builder = WebApplication.CreateBuilder(args);
+        policy
+            .WithOrigins("https://localhost:7139") // Din Blazor frontend-port
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
 
-        // Add services to the container.
+// Repositories
+builder.Services.AddSingleton<IElevplan, ElevplanRepository>();
+builder.Services.AddSingleton<IPraktikperiode, PraktikperiodeRepository>();
+builder.Services.AddSingleton<IUserRepository, UserRepositoryMongodb>();
+builder.Services.AddSingleton<IDelmål, DelmålRepository>();
+builder.Services.AddSingleton<IBesked, BeskedRepositoryMongoDB>();
 
-        builder.Services.AddControllers();
-        builder.Services.AddCors(options =>
-        {
-            options.AddPolicy("policy",
-                policy =>
-                {
-                    policy.AllowAnyOrigin();
-                    policy.AllowAnyMethod();
-                    policy.AllowAnyHeader();
-                });
-        });
+builder.Services.AddOpenApi();
 
+var app = builder.Build();
 
-        builder.Services.AddSingleton<IElevplan, ElevplanRepository>();
-
-        builder.Services.AddSingleton<IPraktikperiode, PraktikperiodeRepository>();
-        builder.Services.AddSingleton<IUserRepository,UserRepositoryMongodb>();
-        builder.Services.AddSingleton<IDelmål, DelmålRepository>();
-        builder.Services.AddSingleton<IBesked, BeskedRepositoryMongoDB>();
-
-
-
-        // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-        builder.Services.AddOpenApi();
-
-        var app = builder.Build();
-
-        // Configure the HTTP request pipeline.
-        if (app.Environment.IsDevelopment())
-        {
-            app.MapOpenApi();
-        }
-
-        app.UseHttpsRedirection();
-        app.UseCors("policy");
-
-        app.UseAuthorization();
-
-
-        app.MapControllers();
-
-        app.Run();
-    }
+// Configure the HTTP request pipeline
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
 }
+
+app.UseHttpsRedirection();
+app.UseCors("AllowBlazor"); // 🚨 skal være før MapControllers
+app.UseAuthorization();
+
+app.MapControllers();
+
+app.Run();

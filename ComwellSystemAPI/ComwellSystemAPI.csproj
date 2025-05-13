@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
 	<PropertyGroup>
 		<TargetFramework>net9.0</TargetFramework>
@@ -6,6 +6,10 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<UserSecretsId>575b9cd1-884c-455c-ad48-4e31cf3cf233</UserSecretsId>
 	</PropertyGroup>
+
+	<ItemGroup>
+	  <Compile Remove="Controllers\ElevplanController-LAPTOP-5IP130V6.cs" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.2" />

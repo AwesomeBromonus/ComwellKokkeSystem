@@ -40,23 +40,18 @@ public class ElevplanController : ControllerBase
 
     // Opretter en ny elevplan i databasen
     [HttpPost]
-    public async Task<IActionResult> Create(Modeller.Elevplan plan)
+    public async Task<IActionResult> CreateElevplan([FromBody] Elevplan elevplan)
     {
-        await _repo.AddAsync(plan);
-
-        // Returnerer status 201 (Created) med henvisning til den nye ressource
-        return CreatedAtAction(nameof(GetById), new { id = plan.Id }, plan);
+        await _repo.AddAsync(elevplan);
+        return Ok(elevplan); // returnér oprettet plan med ID
     }
 
-    // Opdaterer en eksisterende elevplan (baseret p� ID)
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, Modeller.Elevplan plan)
+    public async Task<IActionResult> UpdateElevplan(int id, [FromBody] Elevplan elevplan)
     {
-        // Sikrer at ID i URL og objekt matcher
-        if (id != plan.Id) return BadRequest("ID i URL og objekt matcher ikke.");
-
-        await _repo.UpdateAsync(plan);
-        return NoContent(); // Returnerer status 204 (No Content)
+        if (elevplan.Id != id) return BadRequest("ID mismatch");
+        await _repo.UpdateAsync(elevplan);
+        return Ok();
     }
 
     // Sletter en elevplan baseret p� ID
