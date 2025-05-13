@@ -2,50 +2,88 @@
 @inject UserState UserState
 @implements IDisposable
 
-<div class="sidebar vh-100 shadow-sm" style="width: 250px; background: linear-gradient(180deg, #003b4a 0%, #002f3a 100%);">
-    <div class="px-4 py-3 border-bottom border-light">
-        <h5 class="m-0 text-white fw-semibold">ComwellKokkeSystem</h5>
-    </div>
+@if (UserState.IsLoggedIn)
+{
+    <div class="sidebar vh-100 shadow-sm d-flex flex-column justify-content-between"
+         style="width: 250px; background: linear-gradient(180deg, #003b4a 0%, #002f3a 100%);">
 
-    <nav class="nav flex-column mt-3 px-3">
-        <NavLink class="nav-link text-white" href="/" Match="NavLinkMatch.All">
-            🏠 Hjem
-        </NavLink>
+        <!-- Logo / Top -->
+        <div>
+            <div class="px-4 py-3 border-bottom border-light">
+                <h5 class="m-0 text-white fw-semibold">Comwell</h5>
+            </div>
 
-        @if (UserState.IsLoggedIn && UserState.Role?.ToLower() == "admin")
-        {
-            <NavLink class="nav-link text-white" href="/administrator">
-                🛠 Administrator
-            </NavLink>
-        }
+            <!-- Navigation -->
+            <nav class="nav flex-column mt-3 px-3">
+                <ul class="nav flex-column gap-2">
+                    <li class="nav-item">
+                        @if (UserState.Role?.ToLower() == "admin")
+                        {
+                            <NavLink class="nav-link text-white" href="/administrator">
+                                🏠 Hjem
+                            </NavLink>
+                        }
+                        else if (UserState.Role?.ToLower() == "elev")
+                        {
+                            <NavLink class="nav-link text-white" href="/elevatorblik">
+                                🏠 Hjem
+                            </NavLink>
+                        }
+                    </li>
 
-        <NavLink class="nav-link text-white" href="/messages">
-            💬 Chat
-        </NavLink>
+                    <li class="nav-item">
+                        <NavLink class="nav-link text-white" href="/messages">
+                            💬 Chat
+                        </NavLink>
+                    </li>
 
-        @if (UserState.IsLoggedIn && UserState.Role?.ToLower() == "elev")
-        {
-            <NavLink class="nav-link text-white" href="/mitoverblik">
-                🎓 Mit Overblik
-            </NavLink>
-        }
+                    <li class="nav-item">
+                        <NavLink class="nav-link text-white" href="/laering">
+                            📚 Læring
+                        </NavLink>
+                    </li>
 
-        @if (!UserState.IsLoggedIn)
-        {
-            <NavLink class="nav-link text-white" href="/login">
-                🔐 Log ind
-            </NavLink>
-        }
-        else
-        {
+                    @if (UserState.Role?.ToLower() == "elev")
+                    {
+                        <li class="nav-item">
+                            <NavLink class="nav-link text-white" href="/mine-elevplaner">
+                                🗂️ Elevplan
+                            </NavLink>
+                        </li>
+                    }
+
+                    @if (UserState.Role?.ToLower() == "admin")
+                    {
+                        <li class="nav-item">
+                            <NavLink class="nav-link text-white" href="/a">
+                                📊 Rapport
+                            </NavLink>
+                        </li>
+                    }
+                </ul>
+
+            </nav>
+        </div>
+
+        <!-- Footer -->
+        <div class="px-3 pb-3">
             <hr class="text-white my-3" />
             <div class="text-white small mb-2">
                 Logget ind som <strong>@UserState.Username</strong> (@UserState.Role)
             </div>
             <button class="btn btn-sm btn-outline-light w-100" @onclick="LogoutAsync">Log ud</button>
-        }
-    </nav>
-</div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="sidebar vh-100 d-flex flex-column justify-content-center align-items-center text-white"
+         style="width: 250px; background: linear-gradient(180deg, #003b4a 0%, #002f3a 100%);">
+        <NavLink class="btn btn-light" href="/login">
+            🔐 Log ind
+        </NavLink>
+    </div>
+}
 
 @code {
     protected override void OnInitialized()
