@@ -17,4 +17,5 @@ public interface IBeskedService
 
     // Slet besked ud fra ID
     Task DeleteBeskedAsync(int id);
+    Task<List<Besked>> GetByUserIdAsync(int userId);
 }
