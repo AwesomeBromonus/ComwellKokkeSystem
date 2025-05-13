@@ -2,10 +2,11 @@
 
 public interface IUserRepository
 {
+    Task AddAsync(UserModel user);
+    Task<List<UserModel>> GetAllAsync();
     Task<UserModel?> GetByUsernameAsync(string username);
     Task<UserModel?> GetByIdAsync(int id);
-    Task AddAsync(UserModel user);
-    Task<bool> ValidateLogin(string username, string password);
-    Task<List<UserModel>> GetAllAsync();
     Task DeleteAsync(int id);
+    Task<bool> ValidateLogin(string username, string password);
+    Task UpdateUserAsync(UserModel bruger); // 👈 nødvendig til ElevplanId
 }

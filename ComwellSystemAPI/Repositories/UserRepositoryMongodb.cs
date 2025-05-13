@@ -52,5 +52,12 @@ namespace ComwellSystemAPI.Repositories
             var allUsers = await _userCollection.Find(_ => true).ToListAsync();
             return allUsers.Count == 0 ? 1 : allUsers.Max(u => u.Id) + 1;
         }
+        public async Task UpdateUserAsync(UserModel bruger)
+        {
+            var filter = Builders<UserModel>.Filter.Eq(u => u.Id, bruger.Id);
+            var update = Builders<UserModel>.Update.Set(u => u.ElevplanId, bruger.ElevplanId);
+            await _userCollection.UpdateOneAsync(filter, update);
+        }
+
     }
 }

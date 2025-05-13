@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Modeller
 {
-    public class Elev : Bruger
+    public class Elev : UserModel
     {
         public Elevplan? Uddannelsesplan { get; set; }
 

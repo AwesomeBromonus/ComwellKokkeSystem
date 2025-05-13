@@ -19,7 +19,8 @@ namespace Modeller
 
         public int HotelId { get; set; }
         public DateTime StartDato { get; set; } = DateTime.UtcNow;
-        public int? UddannelsesplanId { get; set; }
+        public int? ElevplanId { get; set; }
+
     }
 
     public class LoginModel

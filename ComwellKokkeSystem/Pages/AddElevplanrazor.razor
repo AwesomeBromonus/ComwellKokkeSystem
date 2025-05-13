@@ -12,7 +12,7 @@
 @if (!erTilladt)
 {
     <div class="alert alert-danger mt-3">
-        Adgang nægtet – kun administratorer kan oprette elevplaner.
+        ❌ Adgang nægtet – kun administratorer kan oprette elevplaner.
     </div>
 }
 else
@@ -36,17 +36,16 @@ else
             <InputDate class="form-control" @bind-Value="elevplan.SlutDato" />
         </div>
 
-        
-
         <div class="mb-3">
-            <label>Vælg bruger som skal have elevplanen:</label>
+            <label>Vælg bruger (kun elever uden elevplan):</label>
             @if (brugere.Count == 0)
             {
                 <p class="text-muted">Ingen brugere fundet.</p>
             }
             else
             {
-                @foreach (var b in brugere)
+                @foreach (var b in brugere.Where(b => b.Role?.ToLower() == "elev" && (b.ElevplanId == null || b.ElevplanId == 0)))
+
                 {
                     <div class="card p-3 mb-2 shadow-sm"
                          style="cursor: pointer; border: @(valgtElevId == b.Id ? "2px solid #198754" : "1px solid #ccc")"
@@ -57,6 +56,11 @@ else
                                 <small>@b.Username – @b.Role</small>
                             </div>
                             <span class="badge bg-primary">ID: @b.Id</span>
+
+                            @if (valgtElevId == b.Id)
+                            {
+                                <span class="badge bg-success ms-2">✔️ Valgt</span>
+                            }
                         </div>
                     </div>
                 }
@@ -64,28 +68,32 @@ else
         </div>
 
         <button class="btn btn-primary mt-3" type="submit">Gem elevplan</button>
-    </EditForm>
 
-    @if (success)
-    {
-        <div class="alert alert-success mt-3">Elevplan oprettet!</div>
-    }
+        @if (!string.IsNullOrEmpty(fejlbesked))
+        {
+            <div class="alert alert-danger mt-3">@fejlbesked</div>
+        }
+
+        @if (success)
+        {
+            <div class="alert alert-success mt-3">✅ Elevplan oprettet og tildelt!</div>
+        }
+    </EditForm>
 }
 
 @code {
     private Modeller.Elevplan elevplan = new();
     private List<Modeller.Praktikperiode> praktikPerioder = new();
-    private List<Modeller.Delmål> delmaalListe = new();
-    private List<UserModel> brugere = new();
+    private List<Modeller.UserModel> brugere = new();
     private int valgtElevId = 0;
-    private int valgtPraktikperiodeId = 0;
     private bool success = false;
     private bool erTilladt = false;
+    private string? fejlbesked = null;
 
     protected override async Task OnInitializedAsync()
     {
         var rolle = await AuthService.GetCurrentUserRoleAsync();
-        if (rolle != "admin")
+        if (rolle?.ToLower() != "admin")
         {
             erTilladt = false;
             Nav.NavigateTo("/elevplaner", true);
@@ -93,22 +101,46 @@ else
         }
 
         erTilladt = true;
-        praktikPerioder = await PraktikService.GetAllAsync();
-        brugere = await Http.GetFromJsonAsync<List<UserModel>>("api/users/all");
-    }
 
-   
+        praktikPerioder = await PraktikService.GetAllAsync();
+        brugere = await Http.GetFromJsonAsync<List<Modeller.UserModel>>("api/users/all");
+    }
 
     private async Task GemElevplan()
     {
-        if (valgtPraktikperiodeId == 0 || valgtElevId == 0)
+        fejlbesked = null;
+
+        if (valgtElevId == 0)
+        {
+            fejlbesked = "Du skal vælge en elev.";
             return;
+        }
 
         elevplan.ElevId = valgtElevId;
-        elevplan.PraktikperiodeIds = new List<int> { valgtPraktikperiodeId };
         elevplan.OprettetDato = DateTime.Now;
+        elevplan.PraktikperiodeIds = new List<int> { 1, 2, 3 };
 
-        await ElevplanService.AddElevplanAsync(elevplan);
+        var response = await Http.PostAsJsonAsync("api/elevplan", elevplan);
+        if (!response.IsSuccessStatusCode)
+        {
+            fejlbesked = "Kunne ikke oprette elevplan.";
+            return;
+        }
+
+        var oprettetPlan = await response.Content.ReadFromJsonAsync<Modeller.Elevplan>();
+        if (oprettetPlan == null)
+        {
+            fejlbesked = "Fejl ved indlæsning af oprettet plan.";
+            return;
+        }
+
+        var assignResponse = await Http.PutAsJsonAsync($"api/users/{valgtElevId}/assign-elevplan", new { ElevplanId = oprettetPlan.Id });
+        if (!assignResponse.IsSuccessStatusCode)
+        {
+            fejlbesked = "Planen blev oprettet, men kunne ikke tildeles brugeren.";
+            return;
+        }
+
         success = true;
         Nav.NavigateTo("/elevplaner");
     }

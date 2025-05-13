@@ -1,11 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Modeller;
 using ComwellSystemAPI.Repositories;
+using System.Text.Json;
 
 namespace ComwellSystemAPI.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/users")]
     public class UsersController : ControllerBase
     {
         private readonly IUserRepository _userRepo;
@@ -54,14 +55,7 @@ namespace ComwellSystemAPI.Controllers
             });
         }
 
-        // GET: api/users/elevs
-        [HttpGet("elevs")]
-        public async Task<IActionResult> GetAllElevs()
-        {
-            var allUsers = await _userRepo.GetAllAsync();
-            var elevs = allUsers.Where(u => u.Role == "elev").ToList();
-            return Ok(elevs);
-        }
+      
 
         // DELETE: api/users/{id}
         [HttpDelete("{id}")]
@@ -82,6 +76,26 @@ namespace ComwellSystemAPI.Controllers
             var allUsers = await _userRepo.GetAllAsync();
             return Ok(allUsers);
         }
+
+        [HttpPut("{id}/assign-elevplan")]
+        public async Task<IActionResult> AssignElevplan(int id, [FromBody] JsonElement body)
+        {
+            if (!body.TryGetProperty("elevplanId", out var elevplanIdProp))
+                return BadRequest("ElevplanId mangler.");
+
+            var elevplanId = elevplanIdProp.GetInt32();
+
+            var bruger = await _userRepo.GetByIdAsync(id);
+            if (bruger == null) return NotFound("Bruger ikke fundet.");
+
+            bruger.ElevplanId = elevplanId;
+            await _userRepo.UpdateUserAsync(bruger);
+
+            return Ok();
+        }
+
+
+
 
     }
 }

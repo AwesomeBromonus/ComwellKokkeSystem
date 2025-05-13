@@ -1,11 +1,14 @@
 using Modeller;
 
-public interface IElevplan
+namespace ComwellSystemAPI.Interfaces
 {
-    Task<List<Elevplan>> GetAllAsync();
-    Task<Elevplan?> GetByIdAsync(int id);
-    Task<List<Elevplan>> GetByElevIdAsync(int elevId); // <- den nye metode
-    Task AddAsync(Elevplan plan);
-    Task UpdateAsync(Elevplan plan);
-    Task DeleteAsync(int id);
+    public interface IElevplan
+    {
+        Task<List<Elevplan>> GetAllAsync();
+        Task<Elevplan?> GetByIdAsync(int id);
+        Task<List<Elevplan>> GetByElevIdAsync(int elevId);
+        Task AddAsync(Elevplan elevplan);
+        Task UpdateAsync(Elevplan elevplan);
+        Task DeleteAsync(int id);
+    }
 }
