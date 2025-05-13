@@ -28,5 +28,12 @@ public class DelmaalController : ControllerBase
         await _repo.UpdateDelmaalAsync(delmaal);
         return Ok();
     }
+    [HttpGet("elevplan/{elevplanId}/praktikperiode/{praktikperiodeId}")]
+    public async Task<IActionResult> GetByElevplanIdAndPraktikperiodeId(int elevplanId, int praktikperiodeId)
+    {
+        var result = await _repo.GetByElevplanIdAndPraktikperiodeIdAsync(elevplanId, praktikperiodeId);
+        return Ok(result);
+    }
+
 
 }

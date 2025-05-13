@@ -22,5 +22,15 @@ public class DelmålRepository : IDelmål
         var filter = Builders<Delmål>.Filter.Eq(d => d.Id, delmaal.Id);
         await _collection.ReplaceOneAsync(filter, delmaal);
     }
+    public async Task<List<Modeller.Delmål>> GetByElevplanIdAndPraktikperiodeIdAsync(int elevplanId, int praktikperiodeId)
+    {
+        var filter = Builders<Modeller.Delmål>.Filter.And(
+            Builders<Modeller.Delmål>.Filter.Eq(d => d.ElevplanId, elevplanId),
+            Builders<Modeller.Delmål>.Filter.Eq(d => d.PraktikperiodeId, praktikperiodeId)
+        );
+
+        return await _collection.Find(filter).ToListAsync();
+    }
+
 
 }

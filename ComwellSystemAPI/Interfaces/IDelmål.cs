@@ -6,8 +6,11 @@ namespace ComwellSystemAPI.Interfaces
     {
         Task<List<Delmål>> GetByPraktikperiodeIdAsync(int praktikperiodeId);
         Task UpdateDelmaalAsync(Delmål delmaal);
+        Task<List<Delmål>> GetByElevplanIdAndPraktikperiodeIdAsync(int elevplanId, int praktikperiodeId);
+
 
     }
+
 
 
 }

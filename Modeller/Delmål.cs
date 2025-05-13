@@ -16,6 +16,8 @@ namespace Modeller
         public string Status { get; set; } = ""; // Fx "Fuldført" eller "Ikke fuldført"
         public string Kommentar { get; set; } = "";
         public string Elevtur { get; set; } = "";
+        public int ElevplanId { get; set; }
+
     }
 
 }
