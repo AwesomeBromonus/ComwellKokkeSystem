@@ -22,11 +22,16 @@
             💬 Chat
         </NavLink>
 
+        <NavLink class="nav-link text-white" href="/">
+            💬 Generer rapport
+        </NavLink>
+
         @if (UserState.IsLoggedIn && UserState.Role?.ToLower() == "elev")
         {
                 <NavLink class="nav-link text-white" href="/elevatorblik">
                     🎓 Min Elevplan
                 </NavLink>
+
                  <NavLink class="nav-link text-white" href="/elevatorblik">
                 🎓 Læring
                  </NavLink>
