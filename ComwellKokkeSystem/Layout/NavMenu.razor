@@ -16,11 +16,10 @@
             <!-- Navigation -->
             <nav class="nav flex-column mt-3 px-3">
                 <ul class="nav flex-column gap-2">
-
                     <li class="nav-item">
                         @if (UserState.Role?.ToLower() == "admin")
                         {
-                            <NavLink class="nav-link text-white" href="/administrator" >
+                            <NavLink class="nav-link text-white" href="/administrator">
                                 🏠 Hjem
                             </NavLink>
                         }
@@ -38,6 +37,21 @@
                         </NavLink>
                     </li>
 
+                    <li class="nav-item">
+                        <NavLink class="nav-link text-white" href="/laering">
+                            📚 Læring
+                        </NavLink>
+                    </li>
+
+                    @if (UserState.Role?.ToLower() == "elev")
+                    {
+                        <li class="nav-item">
+                            <NavLink class="nav-link text-white" href="/mine-elevplaner">
+                                🗂️ Elevplan
+                            </NavLink>
+                        </li>
+                    }
+
                     @if (UserState.Role?.ToLower() == "admin")
                     {
                         <li class="nav-item">
@@ -47,6 +61,7 @@
                         </li>
                     }
                 </ul>
+
             </nav>
         </div>
 
