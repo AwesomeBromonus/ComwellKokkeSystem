@@ -1,5 +1,5 @@
-﻿using System.Net.Http.Json;
-using Modeller;
+﻿using Modeller;
+using System.Net.Http.Json;
 
 public class AuthService : IAuthService
 {
@@ -22,13 +22,21 @@ public class AuthService : IAuthService
 
             if (result != null)
             {
-                // Gem ID også!
-                _userState.SetUser(result.Username, result.Role, result.Id);
+                // Fallback hvis HotelId eller ElevplanId mangler
+                int? hotelId = result.HotelId.HasValue ? result.HotelId : null;
+                int? elevplanId = result.ElevplanId.HasValue ? result.ElevplanId : null;
+
+                await _userState.SetUserAsync(result.Username, result.Role, result.Id, hotelId, elevplanId);
                 return true;
             }
         }
 
         return false;
+    }
+
+    public async Task<UserModel?> GetUserByUsername(string username)
+    {
+        return await _http.GetFromJsonAsync<UserModel>($"api/users/{username}");
     }
 
     public async Task<bool> Register(UserModel user)
@@ -37,22 +45,11 @@ public class AuthService : IAuthService
         return response.IsSuccessStatusCode;
     }
 
+    public Task<int?> GetCurrentUserIdAsync() => Task.FromResult(_userState.Id);
+    public Task<string?> GetCurrentUserRoleAsync() => Task.FromResult(_userState.Role);
 
-    public Task Logout()
+    public async Task Logout()
     {
-        _userState.Logout();
-        return Task.CompletedTask;
-    }
-
-    // Returnerer brugerens ID
-    public Task<int?> GetCurrentUserIdAsync()
-    {
-        return Task.FromResult(_userState.Id);
-    }
-
-    // Returnerer brugerens rolle
-    public Task<string?> GetCurrentUserRoleAsync()
-    {
-        return Task.FromResult(_userState.Role);
+        await _userState.LogoutAsync();
     }
 }

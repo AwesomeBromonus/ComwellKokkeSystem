@@ -1,20 +1,47 @@
 ﻿using Modeller;
+using System.Net.Http.Json;
 
-// Definerer de operationer, der kan udføres på beskeder fra client-siden
-public interface IBeskedService
+public class BeskedService : IBeskedService
 {
-    // Hent alle beskeder
-    Task<List<Besked>> GetBeskederAsync();
+    private readonly HttpClient _httpClient;
 
-    // Hent én specifik besked ud fra ID
-    Task<Besked?> GetBeskedByIdAsync(int id);
+    public BeskedService(HttpClient httpClient)
+    {
+        _httpClient = httpClient;
+    }
+
+    // Hent alle beskeder
+    public async Task<List<Besked>> GetBeskederAsync()
+    {
+        return await _httpClient.GetFromJsonAsync<List<Besked>>("api/besked");
+    }
+
+    // Hent en specifik besked ud fra ID
+    public async Task<Besked?> GetBeskedByIdAsync(int id)
+    {
+        return await _httpClient.GetFromJsonAsync<Besked>($"api/besked/{id}");
+    }
 
     // Tilføj ny besked
-    Task AddBeskedAsync(Besked besked);
+    public async Task AddBeskedAsync(Besked besked)
+    {
+        await _httpClient.PostAsJsonAsync("api/besked", besked);
+    }
 
     // Opdater eksisterende besked
-    Task UpdateBeskedAsync(Besked besked);
+    public async Task UpdateBeskedAsync(Besked besked)
+    {
+        await _httpClient.PutAsJsonAsync($"api/besked/{besked.Id}", besked);
+    }
 
     // Slet besked ud fra ID
-    Task DeleteBeskedAsync(int id);
+    public async Task DeleteBeskedAsync(int id)
+    {
+        await _httpClient.DeleteAsync($"api/besked/{id}");
+    }
+    // Henter alle beskeder for en bestemt bruger
+    public async Task<List<Besked>> GetByUserIdAsync(int userId)
+    {
+        return await _httpClient.GetFromJsonAsync<List<Besked>>($"api/besked/user/{userId}");
+    }
 }

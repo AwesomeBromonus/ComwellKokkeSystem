@@ -1,41 +1,70 @@
 ﻿@page "/messages"
+@using Modeller
+@inject IBeskedService beskedService
+@inject UserState userState
 
-<h3 class="text-2xl font-bold mb-4">Chat</h3>
+<h3 class="text-2xl font-bold mb-4">Beskeder for @userState.Username</h3>
 
-<div class="flex flex-col space-y-2 p-4 border rounded-md bg-gray-100 h-80 overflow-y-auto">
-    @foreach (var message in messages)
-    {
-        <div class="flex @((message.StartsWith("You:")) ? "justify-end" : "justify-start")">
-            <div class="px-4 py-2 rounded-lg max-w-xs text-black
-                        @(message.StartsWith("You:") ? "bg-blue-300" : "bg-gray-300")
-                        text-sm break-words">
-                @message
-            </div>
-        </div>
-    }
-</div>
+@if (!userState.Id.HasValue)
+{
+    <p>Du skal være logget ind for at se beskeder.</p>
+}
+else
+{
+    <div class="border rounded p-4 bg-gray-100 h-64 overflow-y-auto mb-4">
+        @if (messages.Count == 0)
+        {
+            <p>Ingen beskeder fundet.</p>
+        }
+        else
+        {
+            @foreach (var besked in messages)
+            {
+                <div class="mb-2">
+                    <div class="font-semibold">
+                        @(besked.AfsenderId == userState.Id ? "Du" : $"Bruger {besked.AfsenderId}")
+                    </div>
+                    <div>@besked.Indhold</div>
+                    <div class="text-sm text-gray-500">@besked.Tidsstempel.ToLocalTime().ToString("g")</div>
+                </div>
+            }
+        }
+    </div>
 
-<div class="flex mt-4 items-center space-x-2">
-    <input @bind="newMessage" placeholder="Skriv din besked..."
-           class="flex-grow px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
-    <button @onclick="SendMessage"
-            class="px-4 py-2 bg-blue-700 text-white font-semibold rounded-md
-                   hover:bg-blue-800 transition duration-300 shadow-md">
-        Send
-    </button>
-</div>
-
+    <div class="flex gap-2">
+        <input class="flex-grow border rounded p-2" placeholder="Skriv besked..." @bind="newMessage" />
+        <button class="bg-blue-600 text-white px-4 py-2 rounded" @onclick="SendMessage">Send</button>
+    </div>
+}
 
 @code {
-    private List<string> messages = new();
-    private string newMessage;
+    private List<Besked> messages = new();
+    private string newMessage = "";
 
-    private void SendMessage()
+    protected override async Task OnInitializedAsync()
     {
-        if (!string.IsNullOrWhiteSpace(newMessage))
+        if (userState.Id.HasValue)
         {
-            messages.Add("You: " + newMessage);
-            newMessage = string.Empty;
+            messages = await beskedService.GetByUserIdAsync(userState.Id.Value);
+        }
+    }
+
+    private async Task SendMessage()
+    {
+        if (!string.IsNullOrWhiteSpace(newMessage) && userState.Id.HasValue)
+        {
+            var besked = new Besked
+                {
+                    AfsenderId = userState.Id.Value,
+                    ModtagerId = 2, // TODO: Skift til dynamisk modtager
+                    Indhold = newMessage,
+                    Tidsstempel = DateTime.Now,
+                    ErGruppeBesked = false
+                };
+
+            await beskedService.AddBeskedAsync(besked);
+            messages.Add(besked);
+            newMessage = "";
         }
     }
 }

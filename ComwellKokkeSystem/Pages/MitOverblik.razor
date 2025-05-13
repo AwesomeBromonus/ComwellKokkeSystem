@@ -1,0 +1,122 @@
+﻿@page "/mitoverblik"
+@inject NavigationManager NavManager
+@inject UserState UserState
+@inject HttpClient Http
+
+<h3 class="mb-4">🎓 Mit Elev Overblik</h3>
+
+@if (!UserState.IsLoggedInChecked)
+{
+    <p>⏳ Indlæser brugerstatus...</p>
+}
+else if (!UserState.IsLoggedIn)
+{
+    <div class="alert alert-warning">🔒 Du skal være logget ind for at se denne side.</div>
+}
+else if (UserState.Role?.ToLower() != "elev")
+{
+    <div class="alert alert-danger">🚫 Adgang nægtet – kun elever har adgang til denne side.</div>
+}
+else
+{
+    <div class="card shadow-sm border-0 mb-4 bg-light p-4 rounded-4">
+        <h5 class="fw-bold">Velkommen til Comwells elev system, @UserState.Username!</h5>
+       
+    </div>
+
+    @if (elevplanLoading)
+    {
+        <p>⏳ Indlæser elevplan...</p>
+    }
+    else if (!string.IsNullOrWhiteSpace(fejlbesked))
+    {
+        <div class="alert alert-warning">@fejlbesked</div>
+    }
+    else if (aktivElevplan != null)
+    {
+        <div class="card bg-light shadow-sm rounded mb-4">
+            <div class="card-body">
+                <h5 class="card-title">📋 Din elevplan</h5>
+                <p><strong>Startdato:</strong> @aktivElevplan.StartDato.ToShortDateString()</p>
+                <p><strong>Slutdato:</strong> @aktivElevplan.SlutDato.ToShortDateString()</p>
+                <p><strong>Kommentar:</strong> @aktivElevplan.Kommentar</p>
+
+                <button class="btn btn-outline-primary mt-3" @onclick="() => GåTilDelmål(aktivElevplan.Id)">
+                    Se delmål og progression
+                </button>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">Ingen elevplan fundet endnu.</div>
+    }
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-6">
+            <div class="card border-success shadow rounded-4">
+                <div class="card-header bg-success text-white rounded-top-4">
+                    🔥 Point & Niveau
+                </div>
+                <div class="card-body">
+                    <p>Du har <strong>450 XP</strong></p>
+                    <p>Nuværende niveau: <strong>Tomat 🍳</strong></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card border-primary shadow rounded-4">
+                <div class="card-header bg-primary text-white rounded-top-4">
+                    🗨️ ComwellConnect
+                </div>
+                <div class="card-body text-center">
+                    <p class="mb-3 text-muted">
+                        Deltag i samtaler med andre elever, grupper og undervisere via intern chat.
+                    </p>
+                    <a href="/messages" class="btn btn-primary btn-lg shadow rounded-pill px-4">
+                        Åbn ComwellConnect
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private Elevplan? aktivElevplan;
+    private string? fejlbesked;
+    private bool elevplanLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (UserState.IsLoggedIn && UserState.Id.HasValue)
+        {
+            try
+            {
+                aktivElevplan = await Http.GetFromJsonAsync<Elevplan>($"api/elevplan/byuser/{UserState.Id.Value}");
+            }
+            catch (Exception ex)
+            {
+                fejlbesked = "Fejl under hentning af elevplan: " + ex.Message;
+            }
+        }
+        elevplanLoading = false;
+    }
+
+    private void GåTilDelmål(int elevplanId)
+    {
+        NavManager.NavigateTo($"/delmaal/{elevplanId}");
+    }
+
+    public class Elevplan
+    {
+        public int Id { get; set; }
+        public DateTime OprettetDato { get; set; }
+        public string Kommentar { get; set; } = "";
+        public DateTime StartDato { get; set; }
+        public DateTime SlutDato { get; set; }
+        public int ElevId { get; set; }
+        public List<int> PraktikperiodeIds { get; set; } = new();
+    }
+}
