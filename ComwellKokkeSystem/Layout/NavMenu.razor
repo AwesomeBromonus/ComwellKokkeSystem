@@ -12,10 +12,12 @@
             🏠 Hjem
         </NavLink>
 
-
-        <NavLink class="nav-link text-white" href="/administrator">
-            🛠 Administrator
-        </NavLink>
+        @if (UserState.IsLoggedIn && UserState.Role?.ToLower() == "admin")
+        {
+            <NavLink class="nav-link text-white" href="/administrator">
+                🛠 Administrator
+            </NavLink>
+        }
 
         <NavLink class="nav-link text-white" href="/messages">
             💬 Chat
@@ -23,8 +25,8 @@
 
         @if (UserState.IsLoggedIn && UserState.Role?.ToLower() == "elev")
         {
-            <NavLink class="nav-link text-white" href="/elevatorblik">
-                🎓 Elev Overblik
+            <NavLink class="nav-link text-white" href="/mitoverblik">
+                🎓 Mit Overblik
             </NavLink>
         }
 
@@ -58,7 +60,7 @@
 
     private async Task LogoutAsync()
     {
-        await UserState.LogoutAsync(); // Denne skal findes i UserState.cs
+        await UserState.LogoutAsync();
         NavManager.NavigateTo("/");
     }
 }

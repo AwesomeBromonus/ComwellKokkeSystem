@@ -27,10 +27,8 @@ namespace ComwellSystemAPI.Controllers
             if (existing != null)
                 return Conflict("Brugernavn findes allerede");
 
-            // Trim og standardiser rolle
             model.Role = model.Role?.Trim().ToLower();
 
-            // Automatisk dato hvis ikke sat
             if (model.StartDato == default)
                 model.StartDato = DateTime.UtcNow;
 
@@ -38,8 +36,7 @@ namespace ComwellSystemAPI.Controllers
             return Ok("Bruger oprettet");
         }
 
-
-        // POST: api/users/login
+        // ✅ RETTET: Login returnerer nu alle nødvendige felter
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
@@ -51,11 +48,19 @@ namespace ComwellSystemAPI.Controllers
             {
                 Id = user.Id,
                 Username = user.Username,
-                Role = user.Role
+                Role = user.Role,
+                HotelId = user.HotelId,
+                ElevplanId = user.ElevplanId
             });
         }
 
-      
+        // GET: api/users/all
+        [HttpGet("all")]
+        public async Task<IActionResult> GetAllUsers()
+        {
+            var allUsers = await _userRepo.GetAllAsync();
+            return Ok(allUsers);
+        }
 
         // DELETE: api/users/{id}
         [HttpDelete("{id}")]
@@ -69,14 +74,7 @@ namespace ComwellSystemAPI.Controllers
             return Ok("Bruger slettet");
         }
 
-        // GET: api/users/all
-        [HttpGet("all")]
-        public async Task<IActionResult> GetAllUsers()
-        {
-            var allUsers = await _userRepo.GetAllAsync();
-            return Ok(allUsers);
-        }
-
+        // PUT: api/users/{id}/assign-elevplan
         [HttpPut("{id}/assign-elevplan")]
         public async Task<IActionResult> AssignElevplan(int id, [FromBody] JsonElement body)
         {
@@ -93,9 +91,5 @@ namespace ComwellSystemAPI.Controllers
 
             return Ok();
         }
-
-
-
-
     }
 }

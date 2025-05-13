@@ -22,12 +22,21 @@ public class AuthService : IAuthService
 
             if (result != null)
             {
-                await _userState.SetUserAsync(result.Username, result.Role, result.Id);
+                // Fallback hvis HotelId eller ElevplanId mangler
+                int? hotelId = result.HotelId.HasValue ? result.HotelId : null;
+                int? elevplanId = result.ElevplanId.HasValue ? result.ElevplanId : null;
+
+                await _userState.SetUserAsync(result.Username, result.Role, result.Id, hotelId, elevplanId);
                 return true;
             }
         }
 
         return false;
+    }
+
+    public async Task<UserModel?> GetUserByUsername(string username)
+    {
+        return await _http.GetFromJsonAsync<UserModel>($"api/users/{username}");
     }
 
     public async Task<bool> Register(UserModel user)
@@ -36,11 +45,11 @@ public class AuthService : IAuthService
         return response.IsSuccessStatusCode;
     }
 
+    public Task<int?> GetCurrentUserIdAsync() => Task.FromResult(_userState.Id);
+    public Task<string?> GetCurrentUserRoleAsync() => Task.FromResult(_userState.Role);
+
     public async Task Logout()
     {
         await _userState.LogoutAsync();
     }
-
-    public Task<int?> GetCurrentUserIdAsync() => Task.FromResult(_userState.Id);
-    public Task<string?> GetCurrentUserRoleAsync() => Task.FromResult(_userState.Role);
 }
