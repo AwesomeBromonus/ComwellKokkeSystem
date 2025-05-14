@@ -5,7 +5,6 @@
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<!-- Fjern evt. forkert WASM ops�tning -->
-        <WasmEnableLinking>true</WasmEnableLinking>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -27,13 +26,9 @@
 
   <ItemGroup>
     <PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
-    <PackageReference Include="ClosedXML" Version="0.104.2" />
-    <PackageReference Include="ClosedXML_Excel" Version="1.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="9.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="9.0.2" PrivateAssets="all" />
-      <PackageReference Include="MudBlazor" Version="6.11.0" />
-
-      <PackageReference Include="Tailwind.MSBuild" Version="1.1.0">
+    <PackageReference Include="Tailwind.MSBuild" Version="1.1.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
