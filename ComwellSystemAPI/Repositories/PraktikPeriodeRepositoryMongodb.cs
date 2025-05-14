@@ -46,27 +46,10 @@ public class PraktikperiodeRepository : IPraktikperiode
         var last = await _collection.Find(_ => true).Sort(sort).Limit(1).FirstOrDefaultAsync();
         return last == null ? 1 : last.Id + 1;
     }
-    public async Task UpdateDelmålAsync(int praktikPeriodeId, int delmålId, string status)
+
+    public async Task<List<Praktikperiode>> GetByElevplanIdAsync(int elevplanId)
     {
-        var filter = Builders<Praktikperiode>.Filter.Eq(p => p.Id, praktikPeriodeId);
-
-        var update = Builders<Praktikperiode>.Update
-            .Set("Delmål.$[d].Status", status);
-
-        var arrayFilter = new List<ArrayFilterDefinition>
-    {
-        new BsonDocumentArrayFilterDefinition<BsonDocument>(
-            new BsonDocument("d._id", delmålId))
-    };
-
-        var options = new UpdateOptions { ArrayFilters = arrayFilter };
-
-        var result = await _collection.UpdateOneAsync(filter, update, options);
-
-        if (result.ModifiedCount == 0)
-        {
-            throw new Exception("Delmålet blev ikke opdateret. Tjek om ID'er matcher.");
-        }
+        return await _collection.Find(p => p.ElevplanId == elevplanId).ToListAsync();
     }
 
 

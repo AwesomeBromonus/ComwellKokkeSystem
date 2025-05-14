@@ -84,7 +84,7 @@ else
     private async Task VisDelmaal(int praktikperiodeId)
     {
         valgtPraktikId = praktikperiodeId;
-        delmaalListe = await DelmaalService.GetByPraktikperiodeIdAsync(praktikperiodeId);
+        delmaalListe = await DelmaalService.GetByElevplanIdAndPraktikperiodeIdAsync(elevplanId, praktikperiodeId);
     }
 
     private bool IsFuldført(Modeller.Delmål d) => d.Status == "Fuldført";

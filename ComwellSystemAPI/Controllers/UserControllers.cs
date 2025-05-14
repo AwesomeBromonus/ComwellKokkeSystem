@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Modeller;
-using ComwellSystemAPI.Repositories;
-using System.Text.Json;
+using ComwellSystemAPI.Interfaces;
 
 namespace ComwellSystemAPI.Controllers
 {
@@ -11,9 +10,9 @@ namespace ComwellSystemAPI.Controllers
     {
         private readonly IUserRepository _userRepo;
 
-        public UsersController()
+        public UsersController(IUserRepository userRepo)
         {
-            _userRepo = new UserRepositoryMongodb();
+            _userRepo = userRepo;
         }
 
         // POST: api/users/register
@@ -21,11 +20,11 @@ namespace ComwellSystemAPI.Controllers
         public async Task<IActionResult> Register([FromBody] UserModel model)
         {
             if (string.IsNullOrWhiteSpace(model.Username) || string.IsNullOrWhiteSpace(model.Password))
-                return BadRequest("Brugernavn og adgangskode skal udfyldes");
+                return BadRequest("Brugernavn og adgangskode skal udfyldes.");
 
             var existing = await _userRepo.GetByUsernameAsync(model.Username);
             if (existing != null)
-                return Conflict("Brugernavn findes allerede");
+                return Conflict("Brugernavn findes allerede.");
 
             model.Role = model.Role?.Trim().ToLower();
 
@@ -33,16 +32,16 @@ namespace ComwellSystemAPI.Controllers
                 model.StartDato = DateTime.UtcNow;
 
             await _userRepo.AddAsync(model);
-            return Ok("Bruger oprettet");
+            return Ok("Bruger oprettet.");
         }
 
-        // ✅ RETTET: Login returnerer nu alle nødvendige felter
+        // POST: api/users/login
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
             var user = await _userRepo.GetByUsernameAsync(model.Username);
             if (user == null || user.Password != model.Password)
-                return Unauthorized("Login fejlede");
+                return Unauthorized("Login fejlede.");
 
             return Ok(new LoginResponse
             {
@@ -68,28 +67,29 @@ namespace ComwellSystemAPI.Controllers
         {
             var bruger = await _userRepo.GetByIdAsync(id);
             if (bruger == null)
-                return NotFound();
+                return NotFound("Bruger ikke fundet.");
 
             await _userRepo.DeleteAsync(id);
-            return Ok("Bruger slettet");
+            return Ok("Bruger slettet.");
         }
 
         // PUT: api/users/{id}/assign-elevplan
         [HttpPut("{id}/assign-elevplan")]
-        public async Task<IActionResult> AssignElevplan(int id, [FromBody] JsonElement body)
+        public async Task<IActionResult> AssignElevplan(int id, [FromBody] AssignElevplanRequest request)
         {
-            if (!body.TryGetProperty("elevplanId", out var elevplanIdProp))
-                return BadRequest("ElevplanId mangler.");
-
-            var elevplanId = elevplanIdProp.GetInt32();
-
             var bruger = await _userRepo.GetByIdAsync(id);
-            if (bruger == null) return NotFound("Bruger ikke fundet.");
+            if (bruger == null)
+                return NotFound("Bruger ikke fundet.");
 
-            bruger.ElevplanId = elevplanId;
+            bruger.ElevplanId = request.ElevplanId;
             await _userRepo.UpdateUserAsync(bruger);
 
-            return Ok();
+            return Ok("Elevplan tildelt.");
         }
+    }
+
+    public class AssignElevplanRequest
+    {
+        public int ElevplanId { get; set; }
     }
 }

@@ -13,14 +13,15 @@ public class DelmaalController : ControllerBase
         _repo = repo;
     }
 
-    [HttpGet("praktikperiode/{praktikperiodeId}")]
-    public async Task<IActionResult> GetByPraktikperiodeId(int praktikperiodeId)
+    [HttpPost]
+    public async Task<IActionResult> AddDelmaal([FromBody] Delmål delmaal)
     {
-        var result = await _repo.GetByPraktikperiodeIdAsync(praktikperiodeId);
-        return Ok(result);
+        await _repo.AddAsync(delmaal);
+        return Ok();
     }
+
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateDelmaal(int id, [FromBody] Modeller.Delmål delmaal)
+    public async Task<IActionResult> UpdateDelmaal(int id, [FromBody] Delmål delmaal)
     {
         if (delmaal.Id != id)
             return BadRequest("ID mismatch");
@@ -29,4 +30,24 @@ public class DelmaalController : ControllerBase
         return Ok();
     }
 
+    [HttpGet("praktikperiode/{praktikperiodeId}")]
+    public async Task<IActionResult> GetByPraktikperiodeId(int praktikperiodeId)
+    {
+        var result = await _repo.GetByPraktikperiodeIdAsync(praktikperiodeId);
+        return Ok(result);
+    }
+
+    [HttpGet("elevplan/{elevplanId}/praktikperiode/{praktikperiodeId}")]
+    public async Task<IActionResult> GetByElevplanAndPraktikperiode(int elevplanId, int praktikperiodeId)
+    {
+        var result = await _repo.GetByElevplanIdAndPraktikperiodeIdAsync(elevplanId, praktikperiodeId);
+        return Ok(result);
+    }
+
+    [HttpGet("elev/{elevId}")]
+    public async Task<IActionResult> GetByElevId(int elevId)
+    {
+        var result = await _repo.GetByElevIdAsync(elevId);
+        return Ok(result);
+    }
 }

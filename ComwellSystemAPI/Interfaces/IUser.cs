@@ -8,5 +8,7 @@ public interface IUserRepository
     Task<UserModel?> GetByIdAsync(int id);
     Task DeleteAsync(int id);
     Task<bool> ValidateLogin(string username, string password);
-    Task UpdateUserAsync(UserModel bruger); // 👈 nødvendig til ElevplanId
+    Task UpdateUserAsync(UserModel bruger);
+
+    Task AssignElevplanToUserAsync(int userId, int elevplanId); // 👈 NY
 }
