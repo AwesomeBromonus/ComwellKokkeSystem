@@ -32,7 +32,8 @@ public class Program
         builder.Services.AddScoped<IDelmaalService, DelmaalService>();
         builder.Services.AddScoped<IBeskedService, BeskedService>();
         builder.Services.AddScoped<IKommentarService, KommentarService>();
-
+        // Register the service
+        builder.Services.AddScoped<IGenereRapportService, GenereRapportService>();
 
 
 

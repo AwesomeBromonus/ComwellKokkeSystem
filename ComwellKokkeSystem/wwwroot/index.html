@@ -56,6 +56,31 @@
     </div>
 
     <script src="_framework/blazor.webassembly.js"></script>
+
+    <script>
+        window.BlazorDownloadFile = function (fileName, contentType, content) {
+            // Convert the byte array to a Blob // BLOB ER BINARY LARGE OBJECT
+            // Stores binary data - Blolb will hold multimedia object to add to the 
+            // database ( ikke alle supporter blob storage ) 
+            const blob = new Blob([content], { type: contentType });
+
+            // Create a URL for the Blob
+            const url = URL.createObjectURL(blob);
+
+            // Create a download link
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+
+            // Add to the DOM, click, and remove
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+
+            // Release the URL object
+            URL.revokeObjectURL(url);
+        }
+    </script>
 </body>
 
 </html>
