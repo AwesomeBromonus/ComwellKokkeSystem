@@ -37,6 +37,12 @@ else
         </div>
 
         <div class="mb-3">
+            <label>Skoleperiode:</label>
+            <InputText class="form-control" @bind-Value="elevplan.Skoleperiode" placeholder="Fx GF2 - uge 33-41" />
+        </div>
+
+
+        <div class="mb-3">
             <label>Vælg bruger (kun elever uden elevplan):</label>
             @if (brugere.Count == 0)
             {

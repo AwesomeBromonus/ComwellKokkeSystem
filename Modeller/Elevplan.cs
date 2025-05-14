@@ -22,6 +22,9 @@ namespace Modeller
 
         public List<int> PraktikperiodeIds { get; set; } = new();
 
+        public string Skoleperiode { get; set; } = string.Empty;
+
+
     }
 }
 
