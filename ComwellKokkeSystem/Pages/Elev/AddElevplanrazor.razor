@@ -45,7 +45,6 @@ else
             else
             {
                 @foreach (var b in brugere.Where(b => b.Role?.ToLower() == "elev" && (b.ElevplanId == null || b.ElevplanId == 0)))
-
                 {
                     <div class="card p-3 mb-2 shadow-sm"
                          style="cursor: pointer; border: @(valgtElevId == b.Id ? "2px solid #198754" : "1px solid #ccc")"
@@ -120,7 +119,6 @@ else
         elevplan.OprettetDato = DateTime.Now;
         elevplan.PraktikperiodeIds = new List<int>();
 
-        // 1. Opret elevplan
         var elevplanResponse = await Http.PostAsJsonAsync("api/elevplan", elevplan);
         if (!elevplanResponse.IsSuccessStatusCode)
         {
@@ -135,7 +133,6 @@ else
             return;
         }
 
-        // 2. Opret 3 praktikperioder
         for (int i = 1; i <= 3; i++)
         {
             var praktik = new Modeller.Praktikperiode
@@ -157,20 +154,33 @@ else
             {
                 oprettetPlan.PraktikperiodeIds.Add(oprettetPraktik.Id);
 
-                // 3. Opret standarddelmål til praktikperioden
-                var delmaalListe = GenererStandardDelmaal(i, oprettetPraktik.Id, valgtElevId, oprettetPlan.Id);
-
-                foreach (var delmaal in delmaalListe)
+                var skabeloner = await Http.GetFromJsonAsync<List<Modeller.DelmaalSkabelon>>($"api/delmaalskabelon/periode/{i}");
+                if (skabeloner != null)
                 {
-                    await Http.PostAsJsonAsync("api/delmaal", delmaal);
+                    foreach (var skabelon in skabeloner)
+                    {
+                        var delmaal = new Modeller.Delmål
+                            {
+                                Beskrivelse = skabelon.Beskrivelse,
+                                Deadline = elevplan.StartDato.AddDays(skabelon.DeadlineOffsetDage),
+                                Status = "Ikke fuldført",
+                                Ansvarlig = skabelon.Ansvarlig,
+                                Igangsætter = skabelon.Igangsætter,
+                                Kommentar = "",
+                                Elevtur = "",
+                                ElevId = valgtElevId,
+                                ElevplanId = oprettetPlan.Id,
+                                PraktikperiodeId = oprettetPraktik.Id
+                            };
+
+                        await Http.PostAsJsonAsync("api/delmaal", delmaal);
+                    }
                 }
             }
         }
 
-        // 4. Opdater elevplan med praktikperiode-ids
         await Http.PutAsJsonAsync($"api/elevplan/{oprettetPlan.Id}", oprettetPlan);
 
-        // 5. Tildel elevplan til bruger
         var assignResponse = await Http.PutAsJsonAsync($"api/users/{valgtElevId}/assign-elevplan", new { ElevplanId = oprettetPlan.Id });
         if (!assignResponse.IsSuccessStatusCode)
         {
@@ -181,45 +191,4 @@ else
         success = true;
         Nav.NavigateTo("/administrator");
     }
-    private List<Modeller.Delmål> GenererStandardDelmaal(int nr, int praktikperiodeId, int elevId, int elevplanId)
-    {
-        var skabelon = nr switch
-        {
-            1 => new[]
-            {
-            ("Skære grøntsager i ensartede tern", new DateTime(2025, 6, 15)),
-            ("Anvende korrekt hygiejne ved råvarer", new DateTime(2025, 6, 20)),
-            ("Skrælle og klargøre kartofler korrekt", new DateTime(2025, 6, 25))
-        },
-            2 => new[]
-            {
-            ("Lære at tilberede en grundsovs", new DateTime(2026, 1, 15)),
-            ("Forstå køkkenets arbejdsgange", new DateTime(2026, 1, 20)),
-            ("Assistere ved en middagsservering", new DateTime(2026, 1, 25))
-        },
-            3 => new[]
-            {
-            ("Planlægge en menu for en uge", new DateTime(2027, 1, 15)),
-            ("Lede et mindre team i køkkenet", new DateTime(2027, 1, 20)),
-            ("Evaluere en uges arbejde", new DateTime(2027, 1, 25))
-        },
-            _ => Array.Empty<(string, DateTime)>()
-        };
-
-        return skabelon.Select(s => new Modeller.Delmål
-            {
-                Beskrivelse = s.Item1,
-                Deadline = s.Item2,
-                Status = "Ikke fuldført",
-                Ansvarlig = "Nærmeste leder",
-                Igangsætter = "Nærmeste leder",
-                Kommentar = "",
-                Elevtur = "",
-                ElevId = elevId,
-                ElevplanId = elevplanId,
-                PraktikperiodeId = praktikperiodeId
-            }).ToList();
-    }
-
-
 }

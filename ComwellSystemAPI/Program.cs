@@ -25,6 +25,7 @@ builder.Services.AddSingleton<IUserRepository, UserRepositoryMongodb>();
 builder.Services.AddSingleton<IDelmål, DelmålRepository>();
 builder.Services.AddSingleton<IBesked, BeskedRepositoryMongoDB>();
 builder.Services.AddSingleton<IKommentar, KommentarRepository>();
+builder.Services.AddSingleton<IDelmaalSkabelon, DelmaalSkabelonRepository>();
 
 
 builder.Services.AddOpenApi();
