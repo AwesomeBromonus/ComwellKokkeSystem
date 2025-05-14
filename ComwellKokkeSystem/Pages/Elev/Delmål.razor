@@ -1,7 +1,9 @@
 ﻿@page "/delmaal/{elevplanId:int}"
 @using Modeller
+@using ComwellKokkeSystem.Service
 @inject IDelmaalService DelmaalService
 @inject IElevplanService ElevplanService
+@inject IKommentarService KommentarService
 @inject NavigationManager Nav
 
 <h3 class="text-xl font-bold mb-4">📘 Delmål for elevplan ID: @elevplanId</h3>
@@ -33,17 +35,46 @@ else
             <ul class="list-group">
                 @foreach (var d in delmaalListe)
                 {
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <div>
-                            <strong>@d.Beskrivelse</strong>
-                            <div class="text-muted">Deadline: @d.Deadline.ToShortDateString()</div>
+                    <li class="list-group-item mb-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>@d.Beskrivelse</strong><br />
+                                <span class="text-muted">Deadline: @d.Deadline.ToShortDateString()</span>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input"
+                                       checked="@IsFuldført(d)"
+                                       @onchange="() => ToggleStatus(d)" />
+                                <label class="form-check-label">@d.Status</label>
+                            </div>
                         </div>
-                        <div class="form-check">
-                            <input type="checkbox" class="form-check-input"
-                                   checked="@IsFuldført(d)"
-                                   @onchange="() => ToggleStatus(d)" />
-                            <label class="form-check-label">@d.Status</label>
+
+                        <!-- Kommentarfelt -->
+                        <div class="mt-3">
+                            <label>💬 Kommentar / Spørgsmål:</label>
+                            <textarea class="form-control"
+                                      placeholder="Skriv en kommentar..."
+                                      @bind="nyeKommentarer[d.Id]"></textarea>
+
+                            <button class="btn btn-sm btn-primary mt-2"
+                                    @onclick="() => GemKommentar(d.Id)">
+                                ➕ Gem kommentar
+                            </button>
                         </div>
+
+                        <!-- Vis tidligere kommentarer -->
+                        @if (kommentarer.ContainsKey(d.Id))
+                        {
+                            <div class="mt-3 ps-3 border-start">
+                                <strong>Tidligere kommentarer:</strong>
+                                <ul>
+                                    @foreach (var k in kommentarer[d.Id])
+                                    {
+                                        <li><em>@k.Indhold</em> <small class="text-muted">(@k.Tidspunkt.ToShortDateString())</small></li>
+                                    }
+                                </ul>
+                            </div>
+                        }
                     </li>
                 }
             </ul>
@@ -67,6 +98,9 @@ else
     private int valgtPraktikId = 0;
     private bool isLoading = true;
 
+    private Dictionary<int, string> nyeKommentarer = new();
+    private Dictionary<int, List<Modeller.Kommentar>> kommentarer = new();
+
     protected override async Task OnInitializedAsync()
     {
         try
@@ -85,6 +119,14 @@ else
     {
         valgtPraktikId = praktikperiodeId;
         delmaalListe = await DelmaalService.GetByElevplanIdAndPraktikperiodeIdAsync(elevplanId, praktikperiodeId);
+
+        foreach (var delmål in delmaalListe)
+        {
+            nyeKommentarer[delmål.Id] = "";
+
+            var eksisterendeKommentarer = await KommentarService.GetByDelmålIdAsync(delmål.Id);
+            kommentarer[delmål.Id] = eksisterendeKommentarer ?? new();
+        }
     }
 
     private bool IsFuldført(Modeller.Delmål d) => d.Status == "Fuldført";
@@ -95,8 +137,26 @@ else
         await DelmaalService.UpdateDelmaalAsync(d);
     }
 
-    private void Tilbage()
+    private async Task GemKommentar(int delmålId)
     {
-        Nav.NavigateTo("/administrator");
+        if (!string.IsNullOrWhiteSpace(nyeKommentarer[delmålId]))
+        {
+            var kommentar = new Modeller.Kommentar
+                {
+                    DelmålId = delmålId,
+                    Indhold = nyeKommentarer[delmålId],
+                    Tidspunkt = DateTime.Now
+                };
+
+            await KommentarService.AddKommentarAsync(kommentar);
+            nyeKommentarer[delmålId] = "";
+
+            if (!kommentarer.ContainsKey(delmålId))
+                kommentarer[delmålId] = new();
+
+            kommentarer[delmålId].Add(kommentar);
+        }
     }
+
+    private void Tilbage() => Nav.NavigateTo("/administrator");
 }
