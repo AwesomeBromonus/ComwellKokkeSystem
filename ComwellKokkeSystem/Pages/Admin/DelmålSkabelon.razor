@@ -16,82 +16,95 @@ else
 
         if (periodeSkabeloner.Any())
         {
-            <h4 class="mt-4">📌 Praktikperiode @periode</h4>
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        
-                        <th>Beskrivelse</th>
-                        <th>DeadlineOffsetDage</th>
-                        <th>Ansvarlig</th>
-                        <th>Igangsætter</th>
-                        <th>Handlinger</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var s in periodeSkabeloner)
-                    {
+            <div class="border rounded p-3 mb-4 shadow-sm bg-light">
+                <h4 class="mb-3">📌 Praktikperiode @periode</h4>
+                <table class="table table-striped mb-0">
+                    <thead>
                         <tr>
-                           
-                            <td>@s.Beskrivelse</td>
-                            <td>@s.DeadlineOffsetDage</td>
-                            <td>@s.Ansvarlig</td>
-                            <td>@s.Igangsætter</td>
-                            <td>
-                                <button class="btn btn-sm btn-warning me-1" @onclick="() => RedigerSkabelon(s)">✏️</button>
-                                <button class="btn btn-sm btn-danger" @onclick="() => SletSkabelon(s.Id)">🗑️</button>
-                            </td>
+                            <th>Beskrivelse</th>
+                            <th>DeadlineOffsetDage</th>
+                            <th>Ansvarlig</th>
+                            <th>Igangsætter</th>
+                            <th>Handlinger</th>
                         </tr>
-                    }
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @foreach (var s in periodeSkabeloner)
+                        {
+                            <tr>
+                                <td>@s.Beskrivelse</td>
+                                <td>@s.DeadlineOffsetDage</td>
+                                <td>@s.Ansvarlig</td>
+                                <td>@s.Igangsætter</td>
+                                <td>
+                                    <button class="btn btn-sm btn-warning me-1" @onclick="() => RedigerSkabelon(s)">✏️</button>
+                                    <button class="btn btn-sm btn-danger" @onclick="() => SletSkabelon(s.Id)">🗑️</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
         }
     }
 }
 
-<hr />
-<h5>@(redigerMode ? "Rediger delmålsskabelon" : "Tilføj ny delmålsskabelon")</h5>
+<!-- Tilføj delmål-knap -->
+<button class="btn btn-primary mb-4" @onclick="ÅbenTilføjModal">➕ Tilføj delmål</button>
 
-<EditForm Model="nySkabelon" OnValidSubmit="GemSkabelon">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
+<!-- Modal -->
+<div class="modal fade @(visModal ? "show d-block" : "")" tabindex="-1" style="background-color: rgba(0,0,0,0.5);" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@((redigerMode ? "Rediger delmålsskabelon" : "Tilføj ny delmålsskabelon"))</h5>
+                <button type="button" class="btn-close" @onclick="LukModal"></button>
+            </div>
+            <div class="modal-body">
+                <EditForm Model="nySkabelon" OnValidSubmit="GemSkabelon">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
 
-    <div class="mb-2">
-        <label>Praktikperiode:</label>
-        <InputNumber class="form-control" @bind-Value="nySkabelon.PraktikperiodeNummer" />
+                    <div class="mb-2">
+                        <label>Praktikperiode:</label>
+                        <InputNumber class="form-control" @bind-Value="nySkabelon.PraktikperiodeNummer" />
+                    </div>
+
+                    <div class="mb-2">
+                        <label>Beskrivelse:</label>
+                        <InputText class="form-control" @bind-Value="nySkabelon.Beskrivelse" />
+                    </div>
+
+                    <div class="mb-2">
+                        <label>Deadline offset (dage):</label>
+                        <InputNumber class="form-control" @bind-Value="nySkabelon.DeadlineOffsetDage" />
+                    </div>
+
+                    <div class="mb-2">
+                        <label>Ansvarlig:</label>
+                        <InputText class="form-control" @bind-Value="nySkabelon.Ansvarlig" />
+                    </div>
+
+                    <div class="mb-2">
+                        <label>Igangsætter:</label>
+                        <InputText class="form-control" @bind-Value="nySkabelon.Igangsætter" />
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success">@((redigerMode) ? "Opdater" : "Tilføj")</button>
+                        <button type="button" class="btn btn-secondary" @onclick="LukModal">Annuller</button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
     </div>
-
-    <div class="mb-2">
-        <label>Beskrivelse:</label>
-        <InputText class="form-control" @bind-Value="nySkabelon.Beskrivelse" />
-    </div>
-
-    <div class="mb-2">
-        <label>Deadline offset (dage):</label>
-        <InputNumber class="form-control" @bind-Value="nySkabelon.DeadlineOffsetDage" />
-    </div>
-
-    <div class="mb-2">
-        <label>Ansvarlig:</label>
-        <InputText class="form-control" @bind-Value="nySkabelon.Ansvarlig" />
-    </div>
-
-    <div class="mb-2">
-        <label>Igangsætter:</label>
-        <InputText class="form-control" @bind-Value="nySkabelon.Igangsætter" />
-    </div>
-
-    <button class="btn btn-success mt-2" type="submit">@((redigerMode) ? "Opdater" : "Tilføj")</button>
-    @if (redigerMode)
-    {
-        <button class="btn btn-secondary mt-2 ms-2" type="button" @onclick="AnnullerRedigering">Annuller</button>
-    }
-</EditForm>
+</div>
 
 @code {
     private List<Modeller.DelmaalSkabelon>? skabeloner;
     private Modeller.DelmaalSkabelon nySkabelon = new();
     private bool redigerMode = false;
+    private bool visModal = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -114,6 +127,7 @@ else
             await Http.PostAsJsonAsync("api/delmaalskabelon", nySkabelon);
         }
 
+        visModal = false;
         redigerMode = false;
         nySkabelon = new();
         await HentAlle();
@@ -131,6 +145,7 @@ else
                 Igangsætter = s.Igangsætter
             };
         redigerMode = true;
+        visModal = true;
     }
 
     private async Task SletSkabelon(int id)
@@ -139,8 +154,16 @@ else
         await HentAlle();
     }
 
-    private void AnnullerRedigering()
+    private void ÅbenTilføjModal()
     {
+        redigerMode = false;
+        nySkabelon = new();
+        visModal = true;
+    }
+
+    private void LukModal()
+    {
+        visModal = false;
         redigerMode = false;
         nySkabelon = new();
     }

@@ -30,6 +30,27 @@ public class DelmaalController : ControllerBase
         return Ok();
     }
 
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteDelmaal(int id)
+    {
+        var eksisterende = await _repo.GetByIdAsync(id);
+        if (eksisterende == null)
+            return NotFound();
+
+        await _repo.DeleteDelmaalAsync(id);
+        return Ok();
+    }
+
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById(int id)
+    {
+        var delmaal = await _repo.GetByIdAsync(id);
+        if (delmaal == null)
+            return NotFound();
+
+        return Ok(delmaal);
+    }
+
     [HttpGet("praktikperiode/{praktikperiodeId}")]
     public async Task<IActionResult> GetByPraktikperiodeId(int praktikperiodeId)
     {
