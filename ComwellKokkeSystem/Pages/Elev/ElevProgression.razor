@@ -1,7 +1,11 @@
+@page "/elevprogression/{ElevId:int}"
 @using Modeller
 @using ComwellKokkeSystem.Service
 @inject IDelmaalService DelmålService
 @inject IAuthService AuthService
+@inject NavigationManager NavigationManager
+
+<h3>Elevens Progression</h3>
 
 @if (!isAuthorized)
 {
@@ -55,26 +59,11 @@ else
                         role.Equals("kok", StringComparison.OrdinalIgnoreCase));
         if (!isAuthorized)
         {
+            NavigationManager.NavigateTo("/access-denied");
             return;
         }
 
-        try
-        {
-            delmål = await DelmålService.GetDelmålForElevAsync(ElevId);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Fejl ved hentning af delmål: {ex.Message}");
-            delmål = new List<Modeller.Delmål>();
-        }
-    }
-
-    protected override async Task OnParametersSetAsync()
-    {
-        if (ElevId > 0)
-        {
-            await LoadDelmål();
-        }
+        await LoadDelmål();
     }
 
     private async Task LoadDelmål()

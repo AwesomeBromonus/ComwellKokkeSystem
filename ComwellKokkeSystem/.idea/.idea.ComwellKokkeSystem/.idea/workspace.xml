@@ -11,29 +11,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="867a39b7-f00d-4256-9506-36754830a52e" name="Changes" comment="Total i orden">
-      <change afterPath="$PROJECT_DIR$/Pages/Elev/ElevProgression.razor" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/../.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.ComwellKokkeSystem/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.ComwellKokkeSystem/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ComwellKokkeSystem.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/ComwellKokkeSystem.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Pages/Elev/AddElevplanrazor.razor" beforeDir="false" afterPath="$PROJECT_DIR$/Pages/Elev/AddElevplanrazor.razor" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Pages/Elev/Delmål.razor" beforeDir="false" afterPath="$PROJECT_DIR$/Pages/Elev/Delmål.razor" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Pages/Elev/Elevplan.razor" beforeDir="false" afterPath="$PROJECT_DIR$/Pages/Elev/Elevplan.razor" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Pages/Elev/ElevProgression.razor" beforeDir="false" afterPath="$PROJECT_DIR$/Pages/Elev/ElevProgression.razor" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Pages/GenereRapport.razor" beforeDir="false" afterPath="$PROJECT_DIR$/Pages/GenereRapport.razor" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Service/Elev/DelmålService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Service/Elev/DelmålService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Service/Elev/ElevplanService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Service/Elev/ElevplanService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Service/Elev/IDelmålService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Service/Elev/IDelmålService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Service/Elev/IElevplanService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Service/Elev/IElevplanService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Service/GenereRapportService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Service/GenereRapportService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Service/IGenereRapportService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Service/IGenereRapportService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Service/Login/AuthService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Service/Login/AuthService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/wwwroot/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/wwwroot/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/ComwellSystemAPI.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/ComwellSystemAPI.csproj" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Controllers/UserControllers.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Controllers/UserControllers.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Interfaces/IGenereRapport.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Interfaces/IGenereRapport.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Repositories/GenereRapportMongoDB.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Repositories/GenereRapportMongoDB.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Repositories/UserRepositoryMongodb.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Repositories/UserRepositoryMongodb.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -46,7 +28,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$/.." value="luk" />
+        <entry key="$PROJECT_DIR$/.." value="master" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
@@ -105,23 +87,24 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;.NET Launch Settings Profile.ComwellKokkeSystem: http.executor&quot;: &quot;Run&quot;,
-    &quot;.NET Launch Settings Profile.ComwellKokkeSystem: https.executor&quot;: &quot;Run&quot;,
-    &quot;.NET Launch Settings Profile.ComwellSystemAPI: http.executor&quot;: &quot;Run&quot;,
-    &quot;.NET Launch Settings Profile.ComwellSystemAPI: https.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;luk&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    ".NET Launch Settings Profile.ComwellKokkeSystem: http.executor": "Run",
+    ".NET Launch Settings Profile.ComwellKokkeSystem: https.executor": "Run",
+    ".NET Launch Settings Profile.ComwellSystemAPI: http.executor": "Run",
+    ".NET Launch Settings Profile.ComwellSystemAPI: https.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "luk",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "preferences.lookFeel",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RunManager" selected="Multi-Launch.Kør">
     <configuration name="ComwellKokkeSystem: https" type="LaunchSettings" factoryName=".NET Launch Settings Profile">
       <option name="LAUNCH_PROFILE_PROJECT_FILE_PATH" value="$PROJECT_DIR$/ComwellKokkeSystem.csproj" />
@@ -335,17 +318,17 @@
             <list>
               <RecentGroup>
                 <option name="FILTER_VALUES">
+                  <option value="master" />
+                </option>
+              </RecentGroup>
+              <RecentGroup>
+                <option name="FILTER_VALUES">
                   <option value="HEAD" />
                 </option>
               </RecentGroup>
               <RecentGroup>
                 <option name="FILTER_VALUES">
                   <option value="origin/master" />
-                </option>
-              </RecentGroup>
-              <RecentGroup>
-                <option name="FILTER_VALUES">
-                  <option value="master" />
                 </option>
               </RecentGroup>
             </list>

@@ -1,30 +1,25 @@
 ﻿@page "/rapportside"
 @using Modeller
 @using ComwellKokkeSystem.Service
-@using ComwellKokkeSystem.Service.Elev  @* Added this namespace *@
 @using System
-@inject IGenereRapportService RapportService 
+@inject IGenereRapportService RapportService
 @inject IAuthService AuthService
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime
-@inject IElevplanService ElevplanService 
+@inject IElevplanService ElevplanService
 
 <h3>HR Rapport</h3>
-<!-- Tjekker om brugeren har en autoriseret rolle (admin, HR eller kok) -->
 @if (!isAuthorized)
 {
     <p>Adgang nægtet. Kun admin, HR eller kok kan se denne side.</p>
 }
-else if (praktikperioder == null || delmål == null || brugere == null)
+else if (isLoading)
 {
     <p><em>Loading...</em></p>
 }
-else 
+else
 {
-    // Plan for rapportvisning: Vise data i tabeller og tilbyde eksportmuligheder.
     <h4>Praktikperioder</h4>
-  
-    // Skift mellem årene
     <select @onchange="ChangeYear">
         <option value="2025">2025</option>
         <option value="2026">2026</option>
@@ -33,36 +28,36 @@ else
         <option value="2029">2029</option>
         <option value="2030">2030</option>
     </select>
-    
+
     <div class="mt-4">
         <button class="btn btn-primary me-2" @onclick="ExportToCsv">Eksporter til CSV</button>
         <button class="btn btn-success me-2" @onclick="ExportToExcel">Eksporter til Excel</button>
-        
-        @* Added Elev Progression Section *@
+
         <h4 class="mt-4">Elevprogression</h4>
-        @if (elever != null && elever.Any())
+        @if (elever.Any())
         {
             <div class="mb-3">
                 <label for="elevSelect" class="form-label">Vælg elev:</label>
-                <select id="elevSelect" class="form-select" @onchange="OnElevSelected">
-                    <option value="">-- Vælg elev --</option>
+                <select id="elevSelect" class="form-select" @bind="selectedElevId">
+                    <option value="0">-- Vælg elev --</option>
                     @foreach (var elev in elever)
                     {
                         <option value="@elev.Id">@elev.Navn</option>
                     }
                 </select>
             </div>
-            
-            <button class="btn btn-info" @onclick="NavigateToElevProgression" disabled="@(selectedElevId == 0)">
-                Vis Elevprogression
-            </button>
+
+            @if (selectedElevId > 0)
+            {
+                <ElevProgression ElevId="selectedElevId" />
+            }
         }
         else
         {
             <p>Ingen elever fundet.</p>
         }
     </div>
-    
+
     <table class="table mt-3">
         <thead>
             <tr>
@@ -123,21 +118,20 @@ else
 }
 
 @code {
-    // Plan for rapportside: Håndtere visning og eksport af HR-data baseret på år og brugerrolle.
-    private List<Praktikperiode>? praktikperioder;
-    private List<Modeller.Delmål>? delmål;
-    private List<UserModel>? brugere;
-    private List<UserModel>? elever; // Added elever list to store elev users
+    private List<Praktikperiode> praktikperioder = new();
+    private List<Modeller.Delmål> delmål = new();
+    private List<UserModel> brugere = new();
+    private List<UserModel> elever = new();
     private int selectedYear = 2025;
-    private int selectedElevId = 0; // Added to track selected elev
+    private int selectedElevId = 0;
     private bool isAuthorized = false;
+    private bool isLoading = true;
 
-    // Udfører initialisering og autorisationskontrol ved sidenindlæsning.
     protected override async Task OnInitializedAsync()
     {
         var role = await AuthService.GetCurrentUserRoleAsync();
-        Console.WriteLine($"Brugerrolle: {role}"); // Til debugging
-        isAuthorized = !string.IsNullOrEmpty(role) && 
+        Console.WriteLine($"Brugerrolle: {role}");
+        isAuthorized = !string.IsNullOrEmpty(role) &&
                        (role.Equals("Admin", StringComparison.OrdinalIgnoreCase) ||
                         role.Equals("HR", StringComparison.OrdinalIgnoreCase) ||
                         role.Equals("kok", StringComparison.OrdinalIgnoreCase));
@@ -148,52 +142,9 @@ else
         }
 
         await LoadData();
-        await LoadElever(); // Added method to load elever
+        isLoading = false;
     }
 
-    // New method to load elever
-    private async Task LoadElever()
-    {
-        try
-        {
-            // Assuming you have a service method to get all elever
-            // If not, you may need to create one or filter users by role
-            elever = await RapportService.GetEleverAsync(selectedYear) ?? new List<UserModel>();
-            
-            // For debugging
-            Console.WriteLine($"Loaded {elever.Count} elever");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Fejl ved hentning af elever: {ex.Message}");
-            elever = new List<UserModel>();
-        }
-    }
-
-    // Handle elev selection
-    private void OnElevSelected(ChangeEventArgs e)
-    {
-        if (e.Value != null && int.TryParse(e.Value.ToString(), out int elevId))
-        {
-            selectedElevId = elevId;
-            Console.WriteLine($"Selected elev ID: {selectedElevId}");
-        }
-        else
-        {
-            selectedElevId = 0;
-        }
-    }
-
-    // Navigate to the elevprogression page
-    private void NavigateToElevProgression()
-    {
-        if (selectedElevId > 0)
-        {
-            NavigationManager.NavigateTo($"/elevprogression/{selectedElevId}");
-        }
-    }
-
-    // Udfører asynkron indlæsning af data baseret på valgt år.
     private async Task LoadData()
     {
         try
@@ -201,27 +152,29 @@ else
             praktikperioder = await RapportService.GetPraktikPerioderAsync(selectedYear) ?? new List<Praktikperiode>();
             delmål = await RapportService.GetDelmålAsync(selectedYear) ?? new List<Modeller.Delmål>();
             brugere = await RapportService.GetBrugereAsync(selectedYear) ?? new List<UserModel>();
+            elever = await RapportService.GetEleverAsync(selectedYear) ?? new List<UserModel>();
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Fejl ved hentning af data: {ex.Message}");
+            Console.WriteLine($"Fejl ved indlæsning af data: {ex.Message}");
             praktikperioder = new List<Praktikperiode>();
-            delmål = new List<Delmål>();
+            delmål = new List<Modeller.Delmål>();
             brugere = new List<UserModel>();
+            elever = new List<UserModel>();
         }
     }
 
-    // Udfører ændring af valgt år og genindlæser data.
     private async Task ChangeYear(ChangeEventArgs e)
     {
         if (e.Value != null)
         {
             selectedYear = int.Parse(e.Value.ToString());
+            isLoading = true;
             await LoadData();
+            isLoading = false;
         }
     }
 
-    // Udfører eksport af data til CSV-fil.
     private async Task ExportToCsv()
     {
         try
@@ -235,11 +188,9 @@ else
         catch (Exception ex)
         {
             Console.WriteLine($"Fejl ved eksport til CSV: {ex.Message}");
-            // Vis fejlbesked til brugeren
         }
     }
 
-    // Udfører eksport af data til Excel-fil.
     private async Task ExportToExcel()
     {
         try
@@ -253,11 +204,9 @@ else
         catch (Exception ex)
         {
             Console.WriteLine($"Fejl ved eksport til Excel: {ex.Message}");
-            // Vis fejlbesked til brugeren
         }
     }
 
-    // Udfører download af en fil ved hjælp af JavaScript-interop.
     private async Task DownloadFile(string fileName, string contentType, byte[] content)
     {
         await JSRuntime.InvokeVoidAsync("BlazorDownloadFile", fileName, contentType, content);
