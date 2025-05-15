@@ -1,9 +1,11 @@
+using BlazorDownloadFile;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using ComwellKokkeSystem;
 using Blazored.LocalStorage;
-using Service;
 using ComwellKokkeSystem.Service;
+using ComwellKokkeSystem.Service.Elev;
+
 
 
 public class Program
@@ -31,7 +33,11 @@ public class Program
         builder.Services.AddScoped<IAuthService, AuthService>();
         builder.Services.AddScoped<IDelmaalService, DelmaalService>();
         builder.Services.AddScoped<IBeskedService, BeskedService>();
+        builder.Services.AddScoped<IKommentarService, KommentarService>();
+        builder.Services.AddScoped<IGenereRapportService, GenereRapportService>();
 
+        builder.Services.AddBlazorDownloadFile();
+        
 
 
 

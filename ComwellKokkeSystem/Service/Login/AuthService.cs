@@ -41,10 +41,18 @@ public class AuthService : IAuthService
 
     public async Task<bool> Register(UserModel user)
     {
-        var response = await _http.PostAsJsonAsync("api/users/register", user);
-        return response.IsSuccessStatusCode;
+        try
+        {
+            var response = await _http.PostAsJsonAsync("api/users/register", user);
+            return response.IsSuccessStatusCode;
+        }
+        catch {
+            
+            Console.WriteLine($"Fejl ved regisrering: {user.Username}");
+            return false;
+        }   
     }
-
+   
     public Task<int?> GetCurrentUserIdAsync() => Task.FromResult(_userState.Id);
     public Task<string?> GetCurrentUserRoleAsync() => Task.FromResult(_userState.Role);
 

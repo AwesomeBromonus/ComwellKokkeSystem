@@ -1,7 +1,7 @@
 ﻿using Modeller;
 using System.Net.Http.Json;
 
-namespace Service;
+namespace ComwellKokkeSystem.Service.Elev;
 
 public class ElevplanService : IElevplanService
 {
@@ -12,13 +12,13 @@ public class ElevplanService : IElevplanService
         _http = http;
     }
 
-    public async Task<List<Elevplan>> GetElevplanerAsync() =>
+    public async Task<List<Elevplan>?> GetElevplanerAsync() =>
         await _http.GetFromJsonAsync<List<Elevplan>>("api/elevplan");
 
     public async Task<Elevplan?> GetElevplanByIdAsync(int id) =>
         await _http.GetFromJsonAsync<Elevplan>($"api/elevplan/{id}");
 
-    public async Task<List<Elevplan>> GetElevplanerForElevAsync(int elevId) =>
+    public async Task<List<Elevplan>?> GetElevplanerForElevAsync(int elevId) =>
         await _http.GetFromJsonAsync<List<Elevplan>>($"api/elevplan/elev/{elevId}");
 
     public async Task AddElevplanAsync(Elevplan plan) =>
@@ -30,3 +30,5 @@ public class ElevplanService : IElevplanService
     public async Task DeleteElevplanAsync(int id) =>
         await _http.DeleteAsync($"api/elevplan/{id}");
 }
+
+
