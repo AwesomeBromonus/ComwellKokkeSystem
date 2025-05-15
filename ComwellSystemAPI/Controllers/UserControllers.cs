@@ -34,6 +34,25 @@ namespace ComwellSystemAPI.Controllers
             await _userRepo.AddAsync(model);
             return Ok("Bruger oprettet.");
         }
+        [HttpGet("elever/{year}")]
+
+        
+        // Dette endpoint filterer brugere med rollen "elev" og matcher 
+        // startDato.Year
+        // hvis year er 0, returneres alle elever. 
+        public async Task<IActionResult> GetElever(int year)
+        {
+            var allUsers = await _userRepo.GetAllAsync();
+            var elever = allUsers
+                .Where(u => u.Role != null && u.Role.Equals("elev", StringComparison.OrdinalIgnoreCase))
+                .Where(u => u.StartDato.Year == year || year == 0) // Hvis year er 0, ignorér filter
+                .ToList();
+    
+            if (!elever.Any())
+                return NotFound("Ingen elever fundet for det angivne år.");
+
+            return Ok(elever);
+        }
 
         // POST: api/users/login
         [HttpPost("login")]

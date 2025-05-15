@@ -7,14 +7,11 @@ namespace ComwellSystemAPI.Interfaces
     public interface IGenereRapport
     {
         Task<List<Praktikperiode>> GetPraktikPerioderAsync(int year);
-        Task<List<Delmål>> GetDelmålAsync(int year);
-        Task<List<Delmål>> GetDelmålMånedAsync(int year, int month);
+        Task<List<DelmålDTO>> GetDelmålAsync(int year); // DelmålDTO
         Task<List<UserModel>> GetBrugereAsync(int year);
-        Task<List<Delmål>> GetFuldførteDelmålAsync(int year); // Nyttig for statusrapporter
-        Task<List<Praktikperiode>> GetPraktikPerioderPerElevAsync(int elevId, int year); // Rapporter per elev
-        Task<int> GetTotalTimerAsync(int year); // Hvis timer bliver implementeret senere
-        
-        Task<Byte[]> ExportToCsvAsync(int year);
-        Task<Byte[]> ExportToExcelAsync(int year);
+        Task<byte[]> ExportToCsvAsync(int year);
+        Task<byte[]> ExportToExcelAsync(int year);
+        Task<List<Praktikperiode>> GetPraktikperioderPerElevAsync(int elevId); 
+        Task<List<Delmål>> GetFuldførteDelmålAsync(int elevId); 
     }
 }

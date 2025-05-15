@@ -1,8 +1,16 @@
-﻿using ComwellSystemAPI.Interfaces;
+﻿using ComwellKokkeSystem;
+using ComwellSystemAPI.Interfaces;
 using ComwellSystemAPI.Repositories;
+using MongoDB.Driver;
 
+// Hvis man forbinder direkte i klassen, bryder vi 
+// dependency injection ( som forbindelsestrenge )
 var builder = WebApplication.CreateBuilder(args);
-
+// Tilføj MongoDB-forbindelse
+var mongoUri = "mongodb+srv://Brobolo:Bromus12344321@cluster0.k4kon.mongodb.net/";
+var client = new MongoClient(mongoUri);
+var database = client.GetDatabase("Comwell");
+builder.Services.AddSingleton<IMongoDatabase>(database);
 // Add services to the container.
 builder.Services.AddControllers();
 
@@ -17,6 +25,7 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod();
     });
 });
+
 
 
         builder.Services.AddSingleton<IElevplan, ElevplanRepository>();
