@@ -11,5 +11,7 @@ namespace ComwellKokkeSystem.Service
         Task<List<UserModel>?> GetBrugereAsync(int year);
         Task<byte[]> ExportToCsvAsync(int year);
         Task<byte[]> ExportToExcelAsync(int year);
+
+        Task<List<UserModel>> GetEleverAsync(int year); 
     }
 }

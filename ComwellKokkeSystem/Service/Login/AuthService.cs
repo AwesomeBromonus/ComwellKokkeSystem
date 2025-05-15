@@ -50,7 +50,7 @@ public class AuthService : IAuthService
             
             Console.WriteLine($"Fejl ved regisrering: {user.Username}");
             return false;
-        }
+        }   
     }
    
     public Task<int?> GetCurrentUserIdAsync() => Task.FromResult(_userState.Id);

@@ -6,7 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ComwellKokkeSystem</title>
     <base href="/" />
-
+    
+    <!-- Til at downloade csv,excel --> 
+    <script src="js/download.js"></script>
     <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 
@@ -36,7 +38,7 @@
         }
     </style>
 
-
+    
 </head>
 
 <body>
@@ -55,6 +57,20 @@
     </div>
 
     <script src="_framework/blazor.webassembly.js"></script>
+    <script>
+        window.BlazorDownloadFile = (fileName, contentType, content) => {
+            const byteArray = new Uint8Array(content);
+            const blob = new Blob([byteArray], { type: contentType });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        };
+    </script>
 </body>
 
 </html>

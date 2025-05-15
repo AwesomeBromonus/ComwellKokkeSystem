@@ -45,5 +45,21 @@ namespace ComwellKokkeSystem.Service
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadAsByteArrayAsync();
         }
+        
+        public async Task<List<UserModel>> GetEleverAsync(int year)
+        {
+            try
+            {
+                var elever = await _httpClient.GetFromJsonAsync<List<UserModel>>
+                    ($"api/users/elever/{year}");
+                return elever ?? new List<UserModel>();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching elever for year {year}: {ex}");
+                return new List<UserModel>();
+            }
+            
+        }
     }
 }
