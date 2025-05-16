@@ -66,7 +66,7 @@ namespace ComwellSystemAPI.Controllers
                     Titel = titel,
                     Beskrivelse = beskrivelse,
                     FilNavn = file.FileName,
-                    FilSti = "", // Ikke brugt
+                    FilSti = "",
                     Filtype = extension.Trim('.'),
                     FilIndholdBase64 = base64,
                     Oprettet = DateTime.UtcNow
@@ -89,7 +89,9 @@ namespace ComwellSystemAPI.Controllers
                 return NotFound();
 
             var bytes = Convert.FromBase64String(læring.FilIndholdBase64);
-            return File(bytes, GetContentType(læring.Filtype), læring.FilNavn);
+
+            Response.Headers.Add("Content-Disposition", $"attachment; filename=\"{læring.FilNavn}\"");
+            return File(bytes, GetContentType(læring.Filtype));
         }
 
         private string GetContentType(string filtype) => filtype.ToLower() switch
