@@ -26,9 +26,10 @@ builder.Services.AddCors(options =>
         builder.Services.AddSingleton<IUserRepository,UserRepositoryMongodb>();
         builder.Services.AddSingleton<IDelmål, DelmålRepository>();
         builder.Services.AddSingleton<IBesked, BeskedRepositoryMongoDB>();
-        // Add these lines to your services configuration
+        builder.Services.AddSingleton<ILæring, LæringRepositoryMongoDB>();
+// Add these lines to your services configuration
         builder.Services.AddSingleton<IGenereRapport, GenereRapportMongoDB>();
-builder.Services.AddSingleton<IKommentar, KommentarRepository>();
+        builder.Services.AddSingleton<IKommentar, KommentarRepository>();
 
 
 
