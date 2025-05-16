@@ -8,4 +8,6 @@ public interface IDelmaalService
     Task AddDelmaalAsync(Delmål delmaal);                 // Tilføj delmål
     Task DeleteDelmaalAsync(int id);                      // Slet delmål
     Task<Delmål?> GetByIdAsync(int id);                   // Hent enkelt delmål (bruges i controller og modal hvis nødvendigt)
+    Task<List<Delmål>> GetByElevplanIdAsync(int elevId);
+    Task<List<Delmål>> GetDelmålForElevAsync(int elevId);
 }

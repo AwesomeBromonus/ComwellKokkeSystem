@@ -18,17 +18,22 @@ builder.Services.AddCors(options =>
     });
 });
 
-// Repositories
-builder.Services.AddSingleton<IElevplan, ElevplanRepository>();
-builder.Services.AddSingleton<IPraktikperiode, PraktikperiodeRepository>();
-builder.Services.AddSingleton<IUserRepository, UserRepositoryMongodb>();
-builder.Services.AddSingleton<IDelmål, DelmålRepository>();
-builder.Services.AddSingleton<IBesked, BeskedRepositoryMongoDB>();
+
+        builder.Services.AddSingleton<IElevplan, ElevplanRepository>();
+
+        builder.Services.AddSingleton<IPraktikperiode, PraktikperiodeRepository>();
+        builder.Services.AddSingleton<IUserRepository,UserRepositoryMongodb>();
+        builder.Services.AddSingleton<IDelmål, DelmålRepository>();
+        builder.Services.AddSingleton<IBesked, BeskedRepositoryMongoDB>();
+        // Add these lines to your services configuration
+        builder.Services.AddSingleton<IGenereRapport, GenereRapportMongoDB>();
 builder.Services.AddSingleton<IKommentar, KommentarRepository>();
 builder.Services.AddSingleton<IDelmaalSkabelon, DelmaalSkabelonRepository>();
 
 
-builder.Services.AddOpenApi();
+
+        // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+        builder.Services.AddOpenApi();
 
 var app = builder.Build();
 

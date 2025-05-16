@@ -10,7 +10,7 @@ public class DelmaalService : IDelmaalService
         _http = http;
     }
 
-    public async Task<List<Delmål>> GetByPraktikperiodeIdAsync(int praktikperiodeId)
+    public async Task<List<Delmål>?> GetByPraktikperiodeIdAsync(int praktikperiodeId)
     {
         return await _http.GetFromJsonAsync<List<Delmål>>($"api/delmaal/praktikperiode/{praktikperiodeId}");
     }
@@ -34,9 +34,22 @@ public class DelmaalService : IDelmaalService
     {
         await _http.PutAsJsonAsync($"api/delmaal/{delmaal.Id}", delmaal);
     }
+    public async Task<List<Delmål>> GetByElevplanIdAsync(int elevId)
+    {
+        // Implementer logik til at hente delmål baseret på elevplan-id (hvis relevant)
+        return await _http.GetFromJsonAsync<List<Delmål>>($"api/delmaal/elevplan/{elevId}") ?? new List<Delmål>();
+    }
+
+    public async Task<List<Delmål>> GetDelmålForElevAsync(int elevId)
+    {
+        // Implementer logik til at hente delmål for en specifik elev
+        return await _http.GetFromJsonAsync<List<Delmål>>($"api/delmaal/elev/{elevId}") ?? new List<Delmål>();
+    }
+    
 
     public async Task DeleteDelmaalAsync(int id)
     {
         await _http.DeleteAsync($"api/delmaal/{id}");
     }
 }
+
