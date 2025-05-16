@@ -1,5 +1,4 @@
-﻿using ComwellKokkeSystem.Service;
-using Modeller;
+﻿using Modeller;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -22,9 +21,18 @@ namespace ComwellKokkeSystem.Service
             return await _httpClient.GetFromJsonAsync<List<Praktikperiode>>($"api/rapport/praktikperioder/{year}");
         }
 
-        public async Task<List<Delmål>?> GetDelmålAsync(int year)
+        public async Task<List<DelmålDTO>?> GetDelmålAsync(int year)
         {
-            return await _httpClient.GetFromJsonAsync<List<Modeller.Delmål>>($"api/rapport/delmaal/{year}");
+            try
+            {
+                var delmål = await _httpClient.GetFromJsonAsync<List<DelmålDTO>>($"api/rapport/delmaal/{year}");
+                return delmål ?? new List<DelmålDTO>();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching delmål for year {year}: {ex}");
+                return new List<DelmålDTO>();
+            }
         }
 
         public async Task<List<UserModel>?> GetBrugereAsync(int year)
@@ -45,13 +53,12 @@ namespace ComwellKokkeSystem.Service
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadAsByteArrayAsync();
         }
-        
-        public async Task<List<UserModel>> GetEleverAsync(int year)
+
+        public async Task<List<UserModel>?> GetEleverAsync(int year)
         {
             try
             {
-                var elever = await _httpClient.GetFromJsonAsync<List<UserModel>>
-                    ($"api/users/elever/{year}");
+                var elever = await _httpClient.GetFromJsonAsync<List<UserModel>>($"api/users/elever/{year}");
                 return elever ?? new List<UserModel>();
             }
             catch (Exception ex)
@@ -59,7 +66,7 @@ namespace ComwellKokkeSystem.Service
                 Console.WriteLine($"Error fetching elever for year {year}: {ex}");
                 return new List<UserModel>();
             }
-            
         }
+       
     }
 }

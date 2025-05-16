@@ -9,11 +9,11 @@
 @inject IElevplanService ElevplanService
 
 <h3>HR Rapport</h3>
-@if (!isAuthorized)
+@if (!_isAuthorized)
 {
     <p>Adgang nægtet. Kun admin, HR eller kok kan se denne side.</p>
 }
-else if (isLoading)
+else if (_praktikperioder == null || _delmål == null || _brugere == null || _elever == null)
 {
     <p><em>Loading...</em></p>
 }
@@ -34,20 +34,20 @@ else
         <button class="btn btn-success me-2" @onclick="ExportToExcel">Eksporter til Excel</button>
 
         <h4 class="mt-4">Elevprogression</h4>
-        @if (elever.Any())
+        @if (_elever.Any())
         {
             <div class="mb-3">
                 <label for="elevSelect" class="form-label">Vælg elev:</label>
-                <select id="elevSelect" class="form-select" @bind="selectedElevId">
+                <select id="elevSelect" class="form-select" @bind="_selectedElevId">
                     <option value="0">-- Vælg elev --</option>
-                    @foreach (var elev in elever)
+                    @foreach (var elev in _elever)
                     {
                         <option value="@elev.Id">@elev.Navn</option>
                     }
                 </select>
             </div>
 
-            @if (selectedElevId > 0)
+            @if (_selectedElevId > 0)
             {
                 <ElevProgression ElevId="selectedElevId" />
             }
@@ -67,7 +67,7 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var periode in praktikperioder)
+            @foreach (var periode in _praktikperioder)
             {
                 <tr>
                     <td>@periode.Navn</td>
@@ -82,14 +82,16 @@ else
     <table class="table">
         <thead>
             <tr>
+                <th>Elev</th>
                 <th>Beskrivelse</th>
                 <th>Deadline</th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var dm in delmål)
+            @foreach (var dm in _delmål)
             {
                 <tr>
+                    <td>@dm.ElevNavn</td>
                     <td>@dm.Beskrivelse</td>
                     <td>@(dm.Deadline.ToString("dd/MM/yyyy") ?? "Ingen dato")</td>
                 </tr>
@@ -106,7 +108,7 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var bruger in brugere)
+            @foreach (var bruger in _brugere)
             {
                 <tr>
                     <td>@bruger.Navn</td>
@@ -118,60 +120,45 @@ else
 }
 
 @code {
-    private List<Praktikperiode> praktikperioder = new();
-    private List<Modeller.Delmål> delmål = new();
-    private List<UserModel> brugere = new();
-    private List<UserModel> elever = new();
-    private int selectedYear = 2025;
-    private int selectedElevId = 0;
-    private bool isAuthorized = false;
-    private bool isLoading = true;
+    private List<Praktikperiode> _praktikperioder = new();
+    private List<DelmålDTO> _delmål = new(); // Ændret til DelmålDTO
+    private List<UserModel> _brugere = new();
+    private List<UserModel> _elever = new();
+    private int _selectedYear = 2025;
+    private int _selectedElevId = 0;
+    private bool _isAuthorized = false;
 
     protected override async Task OnInitializedAsync()
     {
         var role = await AuthService.GetCurrentUserRoleAsync();
         Console.WriteLine($"Brugerrolle: {role}");
-        isAuthorized = !string.IsNullOrEmpty(role) &&
+        _isAuthorized = !string.IsNullOrEmpty(role) &&
                        (role.Equals("Admin", StringComparison.OrdinalIgnoreCase) ||
                         role.Equals("HR", StringComparison.OrdinalIgnoreCase) ||
                         role.Equals("kok", StringComparison.OrdinalIgnoreCase));
-        if (!isAuthorized)
+        if (!_isAuthorized)
         {
             NavigationManager.NavigateTo("/access-denied");
             return;
         }
 
         await LoadData();
-        isLoading = false;
     }
 
     private async Task LoadData()
     {
-        try
-        {
-            praktikperioder = await RapportService.GetPraktikPerioderAsync(selectedYear) ?? new List<Praktikperiode>();
-            delmål = await RapportService.GetDelmålAsync(selectedYear) ?? new List<Modeller.Delmål>();
-            brugere = await RapportService.GetBrugereAsync(selectedYear) ?? new List<UserModel>();
-            elever = await RapportService.GetEleverAsync(selectedYear) ?? new List<UserModel>();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Fejl ved indlæsning af data: {ex.Message}");
-            praktikperioder = new List<Praktikperiode>();
-            delmål = new List<Modeller.Delmål>();
-            brugere = new List<UserModel>();
-            elever = new List<UserModel>();
-        }
+        _praktikperioder = await RapportService.GetPraktikPerioderAsync(_selectedYear) ?? new List<Praktikperiode>();
+        _delmål = await RapportService.GetDelmålAsync(_selectedYear) ?? new List<DelmålDTO>(); // Ændret til DelmålDTO
+        _brugere = await RapportService.GetBrugereAsync(_selectedYear) ?? new List<UserModel>();
+        _elever = await RapportService.GetEleverAsync(_selectedYear) ?? new List<UserModel>();
     }
 
     private async Task ChangeYear(ChangeEventArgs e)
     {
         if (e.Value != null)
         {
-            selectedYear = int.Parse(e.Value.ToString());
-            isLoading = true;
+            _selectedYear = int.Parse(e.Value.ToString());
             await LoadData();
-            isLoading = false;
         }
     }
 
@@ -179,7 +166,7 @@ else
     {
         try
         {
-            var fileContent = await RapportService.ExportToCsvAsync(selectedYear);
+            var fileContent = await RapportService.ExportToCsvAsync(_selectedYear);
             if (fileContent.Length > 0)
             {
                 await DownloadFile("rapport.csv", "text/csv", fileContent);
@@ -195,7 +182,7 @@ else
     {
         try
         {
-            var fileContent = await RapportService.ExportToExcelAsync(selectedYear);
+            var fileContent = await RapportService.ExportToExcelAsync(_selectedYear);
             if (fileContent.Length > 0)
             {
                 await DownloadFile("rapport.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileContent);

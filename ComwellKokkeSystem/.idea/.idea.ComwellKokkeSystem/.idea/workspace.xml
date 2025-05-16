@@ -12,10 +12,10 @@
   <component name="ChangeListManager">
     <list default="true" id="867a39b7-f00d-4256-9506-36754830a52e" name="Changes" comment="Total i orden">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.ComwellKokkeSystem/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.ComwellKokkeSystem/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Pages/Elev/ElevProgression.razor" beforeDir="false" afterPath="$PROJECT_DIR$/Pages/Elev/ElevProgression.razor" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Pages/GenereRapport.razor" beforeDir="false" afterPath="$PROJECT_DIR$/Pages/GenereRapport.razor" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Controllers/UserControllers.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Controllers/UserControllers.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Program.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Service/GenereRapportService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Service/GenereRapportService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Service/IGenereRapportService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Service/IGenereRapportService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Modeller/DelmålDTO.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Modeller/DelmålDTO.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
