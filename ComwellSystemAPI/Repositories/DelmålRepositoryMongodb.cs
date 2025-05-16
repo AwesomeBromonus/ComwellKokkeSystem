@@ -15,9 +15,10 @@ public class DelmålRepository : IDelmål
 
     public async Task AddAsync(Delmål delmaal)
     {
-        delmaal.Id = await GetNextIdAsync(); // ← Tilføj dette!
+        delmaal.Id = await GetNextIdAsync();
         await _collection.InsertOneAsync(delmaal);
     }
+
     private async Task<int> GetNextIdAsync()
     {
         var sort = Builders<Delmål>.Sort.Descending(d => d.Id);
@@ -50,11 +51,17 @@ public class DelmålRepository : IDelmål
     {
         return await _collection.Find(d => d.Id == id).FirstOrDefaultAsync();
     }
-    public async Task UpdateStatusAsync(int delmålId, string nyStatus)
+
+    public async Task UpdateStatusAsync(int delmaalId, string nyStatus)
     {
-        var filter = Builders<Delmål>.Filter.Eq(d => d.Id, delmålId);
+        var filter = Builders<Delmål>.Filter.Eq(d => d.Id, delmaalId);
         var update = Builders<Delmål>.Update.Set(d => d.Status, nyStatus);
         await _collection.UpdateOneAsync(filter, update);
     }
 
+    public async Task DeleteDelmaalAsync(int id)
+    {
+        var filter = Builders<Delmål>.Filter.Eq(d => d.Id, id);
+        await _collection.DeleteOneAsync(filter);
+    }
 }

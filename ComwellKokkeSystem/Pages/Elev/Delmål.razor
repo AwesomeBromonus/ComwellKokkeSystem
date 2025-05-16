@@ -28,6 +28,11 @@ else
         }
     </div>
 
+    @if (valgtPraktikId != 0)
+    {
+        <button class="btn btn-success mb-3" @onclick="ÅbnModalTilføjDelmaal">➕ Tilføj delmål</button>
+    }
+
     @if (valgtPraktikId != 0 && delmaalListe != null)
     {
         @if (delmaalListe.Any())
@@ -36,16 +41,20 @@ else
                 @foreach (var d in delmaalListe)
                 {
                     <li class="list-group-item mb-3">
-                        <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
                             <div>
                                 <strong>@d.Beskrivelse</strong><br />
                                 <span class="text-muted">Deadline: @d.Deadline.ToShortDateString()</span>
                             </div>
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input"
+                            <div>
+                                <input type="checkbox" class="form-check-input me-2"
                                        checked="@IsFuldført(d)"
                                        @onchange="() => ToggleStatus(d)" />
-                                <label class="form-check-label">@d.Status</label>
+                                <label>@d.Status</label>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-sm btn-warning" @onclick="() => RedigerDelmaal(d)">✏️</button>
+                                <button class="btn btn-sm btn-danger" @onclick="() => SletDelmaal(d.Id)">🗑️</button>
                             </div>
                         </div>
 
@@ -62,8 +71,8 @@ else
                             </button>
                         </div>
 
-                        <!-- Vis tidligere kommentarer -->
-                        @if (kommentarer.ContainsKey(d.Id))
+                        <!-- Tidligere kommentarer -->
+                        @if (kommentarer.ContainsKey(d.Id) && kommentarer[d.Id].Any())
                         {
                             <div class="mt-3 ps-3 border-start">
                                 <strong>Tidligere kommentarer:</strong>
@@ -90,6 +99,48 @@ else
     <button class="btn btn-secondary mt-4" @onclick="Tilbage">🔙 Tilbage</button>
 }
 
+<!-- Modal -->
+@if (visModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@((redigerMode ? "Rediger delmål" : "Tilføj nyt delmål"))</h5>
+                    <button type="button" class="btn-close" @onclick="LukModal"></button>
+                </div>
+                <div class="modal-body">
+                    <EditForm Model="nytDelmaal" OnValidSubmit="GemDelmaal">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+
+                        <div class="mb-3">
+                            <label>Beskrivelse:</label>
+                            <InputText class="form-control" @bind-Value="nytDelmaal.Beskrivelse" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label>Deadline:</label>
+                            <InputDate class="form-control" @bind-Value="nytDelmaal.Deadline" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label>Status:</label>
+                            <InputText class="form-control" @bind-Value="nytDelmaal.Status" />
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-success">@((redigerMode) ? "Opdater" : "Tilføj")</button>
+                            <button type="button" class="btn btn-secondary" @onclick="LukModal">Annuller</button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
 @code {
     [Parameter] public int elevplanId { get; set; }
     
@@ -101,6 +152,10 @@ else
 
     private Dictionary<int, string> nyeKommentarer = new();
     private Dictionary<int, List<Modeller.Kommentar>> kommentarer = new();
+
+    private Modeller.Delmål nytDelmaal = new();
+    private bool visModal = false;
+    private bool redigerMode = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -124,7 +179,6 @@ else
         foreach (var delmål in delmaalListe)
         {
             nyeKommentarer[delmål.Id] = "";
-
             var eksisterendeKommentarer = await KommentarService.GetByDelmålIdAsync(delmål.Id);
             kommentarer[delmål.Id] = eksisterendeKommentarer ?? new();
         }
@@ -142,7 +196,7 @@ else
     {
         if (!string.IsNullOrWhiteSpace(nyeKommentarer[delmålId]))
         {
-            var kommentar = new Modeller.Kommentar
+            var kommentar = new Kommentar
                 {
                     DelmålId = delmålId,
                     Indhold = nyeKommentarer[delmålId],
@@ -160,4 +214,60 @@ else
     }
 
     private void Tilbage() => Nav.NavigateTo("/administrator");
+
+    private void ÅbnModalTilføjDelmaal()
+    {
+        nytDelmaal = new Modeller.Delmål
+            {
+                ElevplanId = elevplanId,
+                PraktikperiodeId = valgtPraktikId,
+                Deadline = DateTime.Today,
+                Status = "Ikke fuldført"
+            };
+        redigerMode = false;
+        visModal = true;
+    }
+
+    private void RedigerDelmaal(Modeller.Delmål d)
+    {
+        nytDelmaal = new Modeller.Delmål
+            {
+                Id = d.Id,
+                Beskrivelse = d.Beskrivelse,
+                Deadline = d.Deadline,
+                Status = d.Status,
+                PraktikperiodeId = d.PraktikperiodeId,
+                ElevplanId = d.ElevplanId
+            };
+        redigerMode = true;
+        visModal = true;
+    }
+
+    private async Task GemDelmaal()
+    {
+        if (redigerMode)
+        {
+            await DelmaalService.UpdateDelmaalAsync(nytDelmaal);
+        }
+        else
+        {
+            await DelmaalService.AddDelmaalAsync(nytDelmaal);
+        }
+
+        visModal = false;
+        await VisDelmaal(valgtPraktikId);
+    }
+
+    private async Task SletDelmaal(int id)
+    {
+        await DelmaalService.DeleteDelmaalAsync(id);
+        await VisDelmaal(valgtPraktikId);
+    }
+
+    private void LukModal()
+    {
+        visModal = false;
+        redigerMode = false;
+        nytDelmaal = new();
+    }
 }
