@@ -25,8 +25,8 @@
                         }
                         else if (UserState.Role?.ToLower() == "elev")
                         {
-                            <NavLink class="nav-link text-white" href="/elevatorblik">
-                                🏠 Hjem
+                            <NavLink class="nav-link text-white" href="/mitoverblik">
+                                🗂️ Elevplan
                             </NavLink>
                         }
                     </li>
@@ -43,19 +43,12 @@
                         </NavLink>
                     </li>
 
-                    @if (UserState.Role?.ToLower() == "elev")
-                    {
-                        <li class="nav-item">
-                            <NavLink class="nav-link text-white" href="/mitoverblik">
-                                🗂️ Elevplan
-                            </NavLink>
-                        </li>
-                    }
+                   
 
                     @if (UserState.Role?.ToLower() == "admin")
                     {
                         <li class="nav-item">
-                            <NavLink class="nav-link text-white" href="/a">
+                            <NavLink class="nav-link text-white" href="/rapportside">
                                 📊 Rapport
                             </NavLink>
                         </li>

@@ -1,4 +1,5 @@
 ﻿@page "/opret-elevplan"
+@using ComwellKokkeSystem.Service
 @using Modeller
 @inject IElevplanService ElevplanService
 @inject IPraktikperiodeService PraktikService
@@ -35,6 +36,12 @@ else
             <label>Slutdato:</label>
             <InputDate class="form-control" @bind-Value="elevplan.SlutDato" />
         </div>
+
+        <div class="mb-3">
+            <label>Skoleperiode:</label>
+            <InputText class="form-control" @bind-Value="elevplan.Skoleperiode" placeholder="Fx GF2 - uge 33-41" />
+        </div>
+
 
         <div class="mb-3">
             <label>Vælg bruger (kun elever uden elevplan):</label>

@@ -1,0 +1,163 @@
+﻿@page "/delmaal/{elevplanId:int}"
+@using Modeller
+@using ComwellKokkeSystem.Service
+@inject IDelmaalService DelmaalService
+@inject IElevplanService ElevplanService
+@inject IKommentarService KommentarService
+@inject NavigationManager Nav
+
+<h3 class="text-xl font-bold mb-4">📘 Delmål for elevplan ID: @elevplanId</h3>
+
+@if (isLoading)
+{
+    <p>⏳ Indlæser praktikperioder...</p>
+}
+else if (praktikperiodeIds == null || !praktikperiodeIds.Any())
+{
+    <div class="alert alert-warning">Ingen praktikperioder fundet for denne elevplan.</div>
+}
+else
+{
+    <div class="mb-4">
+        @foreach (var praktikId in praktikperiodeIds)
+        {
+            <button class="btn btn-outline-primary me-2 mb-2"
+                    @onclick="() => VisDelmaal(praktikId)">
+                Praktikperiode @praktikId
+            </button>
+        }
+    </div>
+
+    @if (valgtPraktikId != 0 && delmaalListe != null)
+    {
+        @if (delmaalListe.Any())
+        {
+            <ul class="list-group">
+                @foreach (var d in delmaalListe)
+                {
+                    <li class="list-group-item mb-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>@d.Beskrivelse</strong><br />
+                                <span class="text-muted">Deadline: @d.Deadline.ToShortDateString()</span>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input"
+                                       checked="@IsFuldført(d)"
+                                       @onchange="() => ToggleStatus(d)" />
+                                <label class="form-check-label">@d.Status</label>
+                            </div>
+                        </div>
+
+                        <!-- Kommentarfelt -->
+                        <div class="mt-3">
+                            <label>💬 Kommentar / Spørgsmål:</label>
+                            <textarea class="form-control"
+                                      placeholder="Skriv en kommentar..."
+                                      @bind="nyeKommentarer[d.Id]"></textarea>
+
+                            <button class="btn btn-sm btn-primary mt-2"
+                                    @onclick="() => GemKommentar(d.Id)">
+                                ➕ Gem kommentar
+                            </button>
+                        </div>
+
+                        <!-- Vis tidligere kommentarer -->
+                        @if (kommentarer.ContainsKey(d.Id))
+                        {
+                            <div class="mt-3 ps-3 border-start">
+                                <strong>Tidligere kommentarer:</strong>
+                                <ul>
+                                    @foreach (var k in kommentarer[d.Id])
+                                    {
+                                        <li><em>@k.Indhold</em> <small class="text-muted">(@k.Tidspunkt.ToShortDateString())</small></li>
+                                    }
+                                </ul>
+                            </div>
+                        }
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <div class="alert alert-info">
+                Ingen delmål fundet for praktikperiode @valgtPraktikId.
+            </div>
+        }
+    }
+
+    <button class="btn btn-secondary mt-4" @onclick="Tilbage">🔙 Tilbage</button>
+}
+
+@code {
+    [Parameter] public int elevplanId { get; set; }
+    
+
+    private List<int>? praktikperiodeIds;
+    private List<Modeller.Delmål>? delmaalListe;
+    private int valgtPraktikId = 0;
+    private bool isLoading = true;
+
+    private Dictionary<int, string> nyeKommentarer = new();
+    private Dictionary<int, List<Modeller.Kommentar>> kommentarer = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var plan = await ElevplanService.GetElevplanByIdAsync(elevplanId);
+            praktikperiodeIds = plan?.PraktikperiodeIds ?? new();
+        }
+        catch
+        {
+            praktikperiodeIds = null;
+        }
+        isLoading = false;
+    }
+
+    private async Task VisDelmaal(int praktikperiodeId)
+    {
+        valgtPraktikId = praktikperiodeId;
+        delmaalListe = await DelmaalService.GetByElevplanIdAndPraktikperiodeIdAsync(elevplanId, praktikperiodeId);
+
+        foreach (var delmål in delmaalListe)
+        {
+            nyeKommentarer[delmål.Id] = "";
+
+            var eksisterendeKommentarer = await KommentarService.GetByDelmålIdAsync(delmål.Id);
+            kommentarer[delmål.Id] = eksisterendeKommentarer ?? new();
+        }
+    }
+
+    private bool IsFuldført(Modeller.Delmål d) => d.Status == "Fuldført";
+
+    private async Task ToggleStatus(Modeller.Delmål d)
+    {
+        d.Status = d.Status == "Fuldført" ? "Ikke fuldført" : "Fuldført";
+        await DelmaalService.UpdateDelmaalAsync(d);
+    }
+
+    private async Task GemKommentar(int delmålId)
+    {
+        if (!string.IsNullOrWhiteSpace(nyeKommentarer[delmålId]))
+        {
+            var kommentar = new Modeller.Kommentar
+                {
+                    DelmålId = delmålId,
+                    Indhold = nyeKommentarer[delmålId],
+                    Tidspunkt = DateTime.Now
+                };
+
+            await KommentarService.AddKommentarAsync(kommentar);
+            nyeKommentarer[delmålId] = "";
+
+            if (!kommentarer.ContainsKey(delmålId))
+                kommentarer[delmålId] = new();
+
+            kommentarer[delmålId].Add(kommentar);
+        }
+    }
+
+    private void Tilbage() => Nav.NavigateTo("/administrator");
+}

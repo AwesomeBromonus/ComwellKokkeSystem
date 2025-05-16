@@ -1,0 +1,214 @@
+﻿@page "/rapportside"
+@using Modeller
+@using ComwellKokkeSystem.Service
+@using System
+@inject IGenereRapportService RapportService
+@inject IAuthService AuthService
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+@inject IElevplanService ElevplanService
+
+<h3>HR Rapport</h3>
+@if (!isAuthorized)
+{
+    <p>Adgang nægtet. Kun admin, HR eller kok kan se denne side.</p>
+}
+else if (isLoading)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <h4>Praktikperioder</h4>
+    <select @onchange="ChangeYear">
+        <option value="2025">2025</option>
+        <option value="2026">2026</option>
+        <option value="2027">2027</option>
+        <option value="2028">2028</option>
+        <option value="2029">2029</option>
+        <option value="2030">2030</option>
+    </select>
+
+    <div class="mt-4">
+        <button class="btn btn-primary me-2" @onclick="ExportToCsv">Eksporter til CSV</button>
+        <button class="btn btn-success me-2" @onclick="ExportToExcel">Eksporter til Excel</button>
+
+        <h4 class="mt-4">Elevprogression</h4>
+        @if (elever.Any())
+        {
+            <div class="mb-3">
+                <label for="elevSelect" class="form-label">Vælg elev:</label>
+                <select id="elevSelect" class="form-select" @bind="selectedElevId">
+                    <option value="0">-- Vælg elev --</option>
+                    @foreach (var elev in elever)
+                    {
+                        <option value="@elev.Id">@elev.Navn</option>
+                    }
+                </select>
+            </div>
+
+            @if (selectedElevId > 0)
+            {
+                <ElevProgression ElevId="selectedElevId" />
+            }
+        }
+        else
+        {
+            <p>Ingen elever fundet.</p>
+        }
+    </div>
+
+    <table class="table mt-3">
+        <thead>
+            <tr>
+                <th>Navn</th>
+                <th>Start Dato</th>
+                <th>Slut Dato</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var periode in praktikperioder)
+            {
+                <tr>
+                    <td>@periode.Navn</td>
+                    <td>@(periode.StartDato.ToString("dd/MM/yyyy") ?? "Ingen dato")</td>
+                    <td>@(periode.SlutDato.ToString("dd/MM/yyyy") ?? "Ingen dato")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <h4>Delmål Deadlines</h4>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Beskrivelse</th>
+                <th>Deadline</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var dm in delmål)
+            {
+                <tr>
+                    <td>@dm.Beskrivelse</td>
+                    <td>@(dm.Deadline.ToString("dd/MM/yyyy") ?? "Ingen dato")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <h4>Nye Brugere</h4>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Navn</th>
+                <th>Start Dato</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var bruger in brugere)
+            {
+                <tr>
+                    <td>@bruger.Navn</td>
+                    <td>@(bruger.StartDato.ToString("dd/MM/yyyy") ?? "Ingen dato")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Praktikperiode> praktikperioder = new();
+    private List<Modeller.Delmål> delmål = new();
+    private List<UserModel> brugere = new();
+    private List<UserModel> elever = new();
+    private int selectedYear = 2025;
+    private int selectedElevId = 0;
+    private bool isAuthorized = false;
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var role = await AuthService.GetCurrentUserRoleAsync();
+        Console.WriteLine($"Brugerrolle: {role}");
+        isAuthorized = !string.IsNullOrEmpty(role) &&
+                       (role.Equals("Admin", StringComparison.OrdinalIgnoreCase) ||
+                        role.Equals("HR", StringComparison.OrdinalIgnoreCase) ||
+                        role.Equals("kok", StringComparison.OrdinalIgnoreCase));
+        if (!isAuthorized)
+        {
+            NavigationManager.NavigateTo("/access-denied");
+            return;
+        }
+
+        await LoadData();
+        isLoading = false;
+    }
+
+    private async Task LoadData()
+    {
+        try
+        {
+            praktikperioder = await RapportService.GetPraktikPerioderAsync(selectedYear) ?? new List<Praktikperiode>();
+            delmål = await RapportService.GetDelmålAsync(selectedYear) ?? new List<Modeller.Delmål>();
+            brugere = await RapportService.GetBrugereAsync(selectedYear) ?? new List<UserModel>();
+            elever = await RapportService.GetEleverAsync(selectedYear) ?? new List<UserModel>();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Fejl ved indlæsning af data: {ex.Message}");
+            praktikperioder = new List<Praktikperiode>();
+            delmål = new List<Modeller.Delmål>();
+            brugere = new List<UserModel>();
+            elever = new List<UserModel>();
+        }
+    }
+
+    private async Task ChangeYear(ChangeEventArgs e)
+    {
+        if (e.Value != null)
+        {
+            selectedYear = int.Parse(e.Value.ToString());
+            isLoading = true;
+            await LoadData();
+            isLoading = false;
+        }
+    }
+
+    private async Task ExportToCsv()
+    {
+        try
+        {
+            var fileContent = await RapportService.ExportToCsvAsync(selectedYear);
+            if (fileContent.Length > 0)
+            {
+                await DownloadFile("rapport.csv", "text/csv", fileContent);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Fejl ved eksport til CSV: {ex.Message}");
+        }
+    }
+
+    private async Task ExportToExcel()
+    {
+        try
+        {
+            var fileContent = await RapportService.ExportToExcelAsync(selectedYear);
+            if (fileContent.Length > 0)
+            {
+                await DownloadFile("rapport.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileContent);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Fejl ved eksport til Excel: {ex.Message}");
+        }
+    }
+
+    private async Task DownloadFile(string fileName, string contentType, byte[] content)
+    {
+        await JSRuntime.InvokeVoidAsync("BlazorDownloadFile", fileName, contentType, content);
+    }
+}
