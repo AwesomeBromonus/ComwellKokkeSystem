@@ -1,5 +1,6 @@
 ﻿using ComwellSystemAPI.Interfaces;
 using ComwellSystemAPI.Repositories;
+using Interface;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,7 +24,9 @@ builder.Services.AddSingleton<IElevplan, ElevplanRepository>();
 builder.Services.AddSingleton<IPraktikperiode, PraktikperiodeRepository>();
 builder.Services.AddSingleton<IUserRepository, UserRepositoryMongodb>();
 builder.Services.AddSingleton<IDelmål, DelmålRepository>();
+builder.Services.AddSingleton<ILæring, LæringRepositoryMongoDB>();
 builder.Services.AddSingleton<IBesked, BeskedRepositoryMongoDB>();
+
 
 builder.Services.AddOpenApi();
 

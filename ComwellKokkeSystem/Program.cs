@@ -31,6 +31,7 @@ public class Program
         builder.Services.AddScoped<IAuthService, AuthService>();
         builder.Services.AddScoped<IDelmaalService, DelmaalService>();
         builder.Services.AddScoped<IBeskedService, BeskedService>();
+        builder.Services.AddScoped<ILæringService, LæringService>();
 
 
 
