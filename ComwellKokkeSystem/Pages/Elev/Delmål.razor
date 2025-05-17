@@ -6,7 +6,7 @@
 @inject IKommentarService KommentarService
 @inject NavigationManager Nav
 
-<h3 class="text-xl font-bold mb-4">📘 Delmål for elevplan ID: @elevplanId</h3>
+<h3 class="text-xl font-bold mb-4">📘 Delmål </h3>
 
 @if (isLoading)
 {
@@ -23,6 +23,7 @@ else
         {
             <button class="btn btn-outline-primary me-2 mb-2"
                     @onclick="() => VisDelmaal(praktikId)">
+                    <!--Skal have praktikperiode navn i stedet-->
                 Praktikperiode @praktikId
             </button>
         }
