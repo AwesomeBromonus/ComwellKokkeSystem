@@ -46,12 +46,15 @@ else
                                 <strong>@d.Beskrivelse</strong><br />
                                 <span class="text-muted">Deadline: @d.Deadline.ToShortDateString()</span>
                             </div>
+
                             <div>
-                                <input type="checkbox" class="form-check-input me-2"
-                                       checked="@IsFuldført(d)"
-                                       @onchange="() => ToggleStatus(d)" />
-                                <label>@d.Status</label>
+                                <select class="form-select" @onchange="(e) => OpdaterStatus(d, e.Value?.ToString())">
+                                    <option value="Ikke fuldført" selected="@IsSelected(d, "Ikke fuldført")">❌ Ikke fuldført</option>
+                                    <option value="I gang" selected="@IsSelected(d, "I gang")">🔄 I gang</option>
+                                    <option value="Fuldført" selected="@IsSelected(d, "Fuldført")">✅ Fuldført</option>
+                                </select>
                             </div>
+
                             <div class="d-flex gap-2">
                                 <button class="btn btn-sm btn-warning" @onclick="() => RedigerDelmaal(d)">✏️</button>
                                 <button class="btn btn-sm btn-danger" @onclick="() => SletDelmaal(d.Id)">🗑️</button>
@@ -126,7 +129,11 @@ else
 
                         <div class="mb-3">
                             <label>Status:</label>
-                            <InputText class="form-control" @bind-Value="nytDelmaal.Status" />
+                            <select class="form-select" @bind="nytDelmaal.Status">
+                                <option value="Ikke fuldført">❌ Ikke fuldført</option>
+                                <option value="I gang">🔄 I gang</option>
+                                <option value="Fuldført">✅ Fuldført</option>
+                            </select>
                         </div>
 
                         <div class="modal-footer">
@@ -140,10 +147,8 @@ else
     </div>
 }
 
-
 @code {
     [Parameter] public int elevplanId { get; set; }
-    
 
     private List<int>? praktikperiodeIds;
     private List<Modeller.Delmål>? delmaalListe;
@@ -184,13 +189,16 @@ else
         }
     }
 
-    private bool IsFuldført(Modeller.Delmål d) => d.Status == "Fuldført";
-
-    private async Task ToggleStatus(Modeller.Delmål d)
+    private async Task OpdaterStatus(Modeller.Delmål d, string? nyStatus)
     {
-        d.Status = d.Status == "Fuldført" ? "Ikke fuldført" : "Fuldført";
-        await DelmaalService.UpdateDelmaalAsync(d);
+        if (!string.IsNullOrEmpty(nyStatus) && d.Status != nyStatus)
+        {
+            d.Status = nyStatus;
+            await DelmaalService.UpdateDelmaalAsync(d);
+        }
     }
+
+    private bool IsSelected(Modeller.Delmål d, string status) => d.Status == status;
 
     private async Task GemKommentar(int delmålId)
     {
