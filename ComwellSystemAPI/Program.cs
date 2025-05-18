@@ -1,7 +1,7 @@
-﻿using ComwellKokkeSystem;
-using ComwellSystemAPI.Interfaces;
+﻿using ComwellSystemAPI.Interfaces;
 using ComwellSystemAPI.Repositories;
 using MongoDB.Driver;
+using Interface;
 
 // Hvis man forbinder direkte i klassen, bryder vi 
 // dependency injection ( som forbindelsestrenge )
@@ -27,16 +27,17 @@ builder.Services.AddCors(options =>
 });
 
 
-
         builder.Services.AddSingleton<IElevplan, ElevplanRepository>();
 
         builder.Services.AddSingleton<IPraktikperiode, PraktikperiodeRepository>();
         builder.Services.AddSingleton<IUserRepository,UserRepositoryMongodb>();
         builder.Services.AddSingleton<IDelmål, DelmålRepository>();
         builder.Services.AddSingleton<IBesked, BeskedRepositoryMongoDB>();
-        // Add these lines to your services configuration
+        builder.Services.AddSingleton<ILæring, LæringRepositoryMongoDB>();
+// Add these lines to your services configuration
         builder.Services.AddSingleton<IGenereRapport, GenereRapportMongoDB>();
 builder.Services.AddSingleton<IKommentar, KommentarRepository>();
+builder.Services.AddSingleton<IDelmaalSkabelon, DelmaalSkabelonRepository>();
 
 
 
