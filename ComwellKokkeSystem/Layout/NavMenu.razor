@@ -4,49 +4,69 @@
 
 @if (UserState.IsLoggedIn)
 {
-    <div class="sidebar vh-100 d-flex flex-column justify-content-between shadow"
-         style="width: 180px; background: linear-gradient(180deg, #002f3a, #001f2a);">
+    <div class="sidebar vh-100 shadow-sm d-flex flex-column justify-content-between"
+         style="width: 250px; background: linear-gradient(180deg, #003b4a 0%, #002f3a 100%);">
 
-        <!-- Top / Logo -->
+        <!-- Logo / Top -->
         <div>
-            <div class="px-3 py-3 border-bottom border-secondary text-center">
-                <h5 class="m-0 text-white fw-semibold">✨ Comwell</h5>
+            <div class="px-4 py-3 border-bottom border-light">
+                <h5 class="m-0 text-white fw-semibold">Comwell</h5>
             </div>
 
             <!-- Navigation -->
-            <nav class="nav flex-column mt-2 px-2 gap-1">
-                @if (UserState.Role?.ToLower() == "admin")
-                {
-                    <NavLink class="nav-link text-white rounded nav-hover" href="/administrator" title="Administrator">
-                        🛠️ <span class="ms-2">Administrator</span>
-                    </NavLink>
-                    <NavLink class="nav-link text-white rounded nav-hover" href="/a" title="Rapport">
-                        📊 <span class="ms-2">Rapport</span>
-                    </NavLink>
-                }
-                else if (UserState.Role?.ToLower() == "elev")
-                {
-                    <NavLink class="nav-link text-white rounded nav-hover" href="/mitoverblik" title="Elevplan">
-                        🗂️ <span class="ms-2">Elevplan</span>
-                    </NavLink>
-                }
+            <nav class="nav flex-column mt-3 px-3">
+                <ul class="nav flex-column gap-2">
+                    <li class="nav-item">
+                        @if (UserState.Role?.ToLower() == "admin")
+                        {
+                            <NavLink class="nav-link text-white" href="/administrator">
+                                🏠 Hjem
+                            </NavLink>
+                        }
+                        else if (UserState.Role?.ToLower() == "elev")
+                        {
+                            <NavLink class="nav-link text-white" href="/mitoverblik">
+                                🗂️ Elevplan
+                            </NavLink>
+                        }
+                    </li>
 
-                <!-- Fælles -->
-                <NavLink class="nav-link text-white rounded nav-hover" href="/messages" title="Chat">
-                    💬 <span class="ms-2">Chat</span>
-                </NavLink>
+                    <li class="nav-item">
+                        <NavLink class="nav-link text-white" href="/messages">
+                            💬 Chat
+                        </NavLink>
+                    </li>
 
-                <NavLink class="nav-link text-white rounded nav-hover" href="/laering" title="Læring">
-                    📚 <span class="ms-2">Læring</span>
-                </NavLink>
+                    <li class="nav-item">
+                        <NavLink class="nav-link text-white" href="/laering">
+                            📚 Læring
+                        </NavLink>
+                    </li>
+
+                   
+
+                    @if (UserState.Role?.ToLower() == "admin")
+                    {
+                        <li class="nav-item">
+                            <NavLink class="nav-link text-white" href="/rapportside">
+                                📊 Rapport
+                            </NavLink>
+                        </li>
+                    }
+                    <NavLink class="nav-link text-white" href="/delmaalskabeloner">
+                        🧾 Delmålsskabeloner
+                    </NavLink>
+
+                </ul>
+
             </nav>
         </div>
 
-        <!-- Footer / Bruger -->
-        <div class="px-3 py-3 border-top border-secondary">
-            <div class="text-white small mb-2 text-center">
-                👤 <strong>@UserState.Username</strong><br />
-                <span class="badge bg-info text-dark">@UserState.Role</span>
+        <!-- Footer -->
+        <div class="px-3 pb-3">
+            <hr class="text-white my-3" />
+            <div class="text-white small mb-2">
+                Logget ind som <strong>@UserState.Username</strong> (@UserState.Role)
             </div>
             <button class="btn btn-sm btn-outline-light w-100" @onclick="LogoutAsync">Log ud</button>
         </div>
@@ -54,53 +74,13 @@
 }
 else
 {
-    <div class="sidebar vh-100 d-flex justify-content-center align-items-center text-white"
-         style="width: 180px; background: linear-gradient(180deg, #002f3a, #001f2a);">
-        <NavLink class="btn btn-outline-light" href="/login" title="Log ind">
+    <div class="sidebar vh-100 d-flex flex-column justify-content-center align-items-center text-white"
+         style="width: 250px; background: linear-gradient(180deg, #003b4a 0%, #002f3a 100%);">
+        <NavLink class="btn btn-light" href="/login">
             🔐 Log ind
         </NavLink>
     </div>
 }
-
-<style>
-    /* Base layout */
-    .sidebar {
-        transition: all 0.3s ease-in-out;
-    }
-
-    .nav-link {
-        padding: 10px 12px;
-        transition: background-color 0.2s ease-in-out, transform 0.2s ease;
-        display: flex;
-        align-items: center;
-    }
-
-        .nav-link span {
-            white-space: nowrap;
-        }
-
-        .nav-link.active {
-            background-color: #007fa3;
-            font-weight: bold;
-            border-radius: 8px;
-        }
-
-    .nav-hover:hover {
-        background-color: rgba(255, 255, 255, 0.1);
-        transform: translateX(4px);
-        border-left: 3px solid #00cfff;
-    }
-
-    .btn-outline-light {
-        border-color: #ccc;
-        color: #fff;
-    }
-
-        .btn-outline-light:hover {
-            background-color: #ffffff22;
-            color: #fff;
-        }
-</style>
 
 @code {
     protected override void OnInitialized()

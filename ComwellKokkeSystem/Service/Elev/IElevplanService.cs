@@ -1,22 +1,24 @@
 using Modeller;
 
-public interface IElevplanService
-{
-    // Hent alle elevplaner (typisk til admin)
-    Task<List<Elevplan>> GetElevplanerAsync();
+namespace ComwellKokkeSystem.Service;
 
-    // Hent én specifik elevplan ud fra ID
-    Task<Elevplan?> GetElevplanByIdAsync(int id);
+    public interface IElevplanService
+    {
+        // Hent alle elevplaner (typisk til admin)
+        Task<List<Elevplan>?> GetElevplanerAsync();
 
-    // Hent elevplaner for en bestemt elev
-    Task<List<Elevplan>> GetElevplanerForElevAsync(int elevId);
+        // Hent ï¿½n specifik elevplan ud fra ID
+        Task<Elevplan?> GetElevplanByIdAsync(int id);
 
-    // Tilføj ny elevplan
-    Task AddElevplanAsync(Elevplan plan);
+        // Hent elevplaner for en bestemt elev
+        Task<List<Elevplan>?> GetElevplanerForElevAsync(int elevId);
 
-    // Opdater eksisterende elevplan
-    Task UpdateElevplanAsync(Elevplan plan);
+        // TilfÃ¸j ny elevplan
+        Task AddElevplanAsync(Elevplan plan);
 
-    // Slet elevplan ud fra ID
-    Task DeleteElevplanAsync(int id);
-}
+        // Opdater eksisterende elevplan
+        Task UpdateElevplanAsync(Elevplan plan);
+
+        // Slet elevplan ud fra ID
+        Task DeleteElevplanAsync(int id);
+    }

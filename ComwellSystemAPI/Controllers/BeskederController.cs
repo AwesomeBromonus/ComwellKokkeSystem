@@ -1,4 +1,4 @@
-﻿using ComwellSystemAPI.Interfaces;
+﻿using Interface;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
