@@ -8,4 +8,5 @@ public interface IAuthService
     Task Logout();
     Task<int?> GetCurrentUserIdAsync();
     Task<string?> GetCurrentUserRoleAsync();
+    Task<List<UserModel>> GetAdminsOgKokkeAsync();
 }

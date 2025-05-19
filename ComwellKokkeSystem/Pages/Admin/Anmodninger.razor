@@ -1,0 +1,107 @@
+﻿@page "/anmodninger"
+@using Modeller
+@using ComwellKokkeSystem.Service;
+@inject IAnmodningService AnmodningService
+@inject IDelmaalService DelmaalService
+@inject UserState UserState
+@inject NavigationManager Nav
+
+<h3 class="text-xl font-bold mb-4">📩 Indkomne Delmålsanmodninger</h3>
+
+@if (!UserState.IsLoggedIn)
+{
+    <div class="alert alert-danger">Du skal være logget ind for at se denne side.</div>
+}
+else if (UserState.Role?.ToLower() != "admin" && UserState.Role?.ToLower() != "kok")
+{
+    <div class="alert alert-warning">Denne side er kun for kokke og administratorer.</div>
+}
+else if (anmodninger == null)
+{
+    <p>⏳ Indlæser anmodninger...</p>
+}
+else if (!anmodninger.Any())
+{
+    <div class="alert alert-info">Ingen afventende anmodninger.</div>
+}
+else
+{
+    <ul class="list-group">
+        @foreach (var a in anmodninger)
+        {
+            var delmaal = delmaalMap.ContainsKey(a.DelmaalId) ? delmaalMap[a.DelmaalId] : null;
+
+            <li class="list-group-item mb-3">
+                <strong>Delmål:</strong> @delmaal?.Beskrivelse <br />
+                <strong>Ønsket status:</strong> @a.ØnsketStatus <br />
+                <strong>Anmodet af elev-id:</strong> @a.ElevId <br />
+                
+
+                <div class="mt-2 d-flex gap-2">
+                    <button class="btn btn-sm btn-success" @onclick="() => BehandlAnmodning(a.Id, true)">✅ Accepter</button>
+                    <button class="btn btn-sm btn-danger" @onclick="() => BehandlAnmodning(a.Id, false)">❌ Afvis</button>
+                </div>
+            </li>
+        }
+    </ul>
+}
+@code {
+    private List<Anmodning>? anmodninger;
+    private Dictionary<int, Delmål> delmaalMap = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (UserState.Id == null)
+        {
+            Nav.NavigateTo("/login");
+            return;
+        }
+
+        anmodninger = await AnmodningService.GetTilModtagerAsync(UserState.Id.Value);
+
+        foreach (var a in anmodninger)
+        {
+            var delmaal = await DelmaalService.GetByIdAsync(a.DelmaalId);
+            if (delmaal != null)
+                delmaalMap[delmaal.Id] = delmaal;
+        }
+    }
+
+    private async Task BehandlAnmodning(int anmodningId, bool accepteret)
+    {
+        var anmodning = await AnmodningService.GetByIdAsync(anmodningId);
+        if (anmodning == null) return;
+
+        if (accepteret)
+        {
+            var delmaal = await DelmaalService.GetByIdAsync(anmodning.DelmaalId);
+            if (delmaal != null)
+            {
+                delmaal.Status = anmodning.ØnsketStatus;
+                await DelmaalService.UpdateDelmaalAsync(delmaal);
+            }
+
+            anmodning.Status = "Godkendt";
+        }
+        else
+        {
+            anmodning.Status = "Afvist";
+        }
+
+        await AnmodningService.UpdateAsync(anmodning);
+
+        // Genindlæs
+        anmodninger = await AnmodningService.GetTilModtagerAsync(UserState.Id.Value);
+
+        delmaalMap.Clear();
+        foreach (var a in anmodninger)
+        {
+            var delmaal = await DelmaalService.GetByIdAsync(a.DelmaalId);
+            if (delmaal != null)
+                delmaalMap[delmaal.Id] = delmaal;
+        }
+
+        StateHasChanged();
+    }
+
+}

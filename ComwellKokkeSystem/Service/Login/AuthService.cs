@@ -46,18 +46,26 @@ public class AuthService : IAuthService
             var response = await _http.PostAsJsonAsync("api/users/register", user);
             return response.IsSuccessStatusCode;
         }
-        catch {
-            
-            Console.WriteLine($"Fejl ved regisrering: {user.Username}");
+        catch
+        {
+            Console.WriteLine($"Fejl ved registrering: {user.Username}");
             return false;
-        }   
+        }
     }
-   
+
     public Task<int?> GetCurrentUserIdAsync() => Task.FromResult(_userState.Id);
+
     public Task<string?> GetCurrentUserRoleAsync() => Task.FromResult(_userState.Role);
 
     public async Task Logout()
     {
         await _userState.LogoutAsync();
     }
+
+    // ✅ Ny metode til at hente kokke og admins
+    public async Task<List<UserModel>> GetAdminsOgKokkeAsync()
+    {
+        return await _http.GetFromJsonAsync<List<UserModel>>("api/users/admins-og-kokke");
+    }
+
 }
