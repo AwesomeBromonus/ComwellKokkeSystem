@@ -34,8 +34,7 @@ builder.Services.AddSingleton<IGenereRapport, GenereRapportMongoDB>();
 builder.Services.AddSingleton<IKommentar, KommentarRepository>();
 builder.Services.AddSingleton<IDelmaalSkabelon, DelmaalSkabelonRepository>();
 
-// Tilføj også NotificationRepository hvis du bruger det direkte her
-builder.Services.AddSingleton<NotificationRepositoryMongoDB>();
+
 
 // OpenAPI/Swagger
 builder.Services.AddOpenApi();
@@ -54,22 +53,6 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-// ✅ Tilføj testnotifikation-endpoint herunder:
-app.MapGet("/lavtestnotifikation", async () =>
-{
-    var repo = new NotificationRepositoryMongoDB();
-    var note = new Notification
-    {
-        ReceiverUserId = 1, // ← Skift til Lars' faktiske ID
-        Message = "🚀 Testnotifikation: Delmål godkendt!",
-        Type = "delmål",
-        IsRead = false,
-        CreatedAt = DateTime.UtcNow,
-        Link = "/delmaal/12"
-    };
 
-    await repo.AddAsync(note);
-    return Results.Ok("Notifikation oprettet!");
-});
 
 app.Run();
