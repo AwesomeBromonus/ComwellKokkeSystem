@@ -32,25 +32,30 @@ namespace ComwellSystemAPI.Controllers
                 model.StartDato = DateTime.UtcNow;
 
             await _userRepo.AddAsync(model);
-            return Ok("Bruger oprettet.");
+            return Ok(new { message = "Bruger oprettet." });
         }
 
         // POST: api/users/login
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
+            if (string.IsNullOrWhiteSpace(model.Username) || string.IsNullOrWhiteSpace(model.Password))
+                return BadRequest("Udfyld brugernavn og adgangskode.");
+
             var user = await _userRepo.GetByUsernameAsync(model.Username);
             if (user == null || user.Password != model.Password)
-                return Unauthorized("Login fejlede.");
+                return Unauthorized("Forkert brugernavn eller adgangskode.");
 
-            return Ok(new LoginResponse
+            var response = new LoginResponse
             {
                 Id = user.Id,
                 Username = user.Username,
                 Role = user.Role,
                 HotelId = user.HotelId,
                 ElevplanId = user.ElevplanId
-            });
+            };
+
+            return Ok(response);
         }
 
         // GET: api/users/all
@@ -85,6 +90,17 @@ namespace ComwellSystemAPI.Controllers
             await _userRepo.UpdateUserAsync(bruger);
 
             return Ok("Elevplan tildelt.");
+        }
+
+        // GET: api/users/{username}
+        [HttpGet("{username}")]
+        public async Task<IActionResult> GetByUsername(string username)
+        {
+            var user = await _userRepo.GetByUsernameAsync(username);
+            if (user == null)
+                return NotFound("Bruger ikke fundet.");
+
+            return Ok(user);
         }
     }
 
