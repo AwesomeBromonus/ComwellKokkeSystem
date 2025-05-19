@@ -16,6 +16,7 @@
             <!-- Navigation -->
             <nav class="nav flex-column mt-3 px-3">
                 <ul class="nav flex-column gap-2">
+
                     <li class="nav-item">
                         @if (UserState.Role?.ToLower() == "admin")
                         {
@@ -43,7 +44,14 @@
                         </NavLink>
                     </li>
 
-                   
+                    @if (UserState.Role?.ToLower() == "admin" || UserState.Role?.ToLower() == "kok")
+                    {
+                        <li class="nav-item">
+                            <NavLink class="nav-link text-white" href="/anmodninger">
+                                📩 Anmodninger
+                            </NavLink>
+                        </li>
+                    }
 
                     @if (UserState.Role?.ToLower() == "admin")
                     {
@@ -53,12 +61,17 @@
                             </NavLink>
                         </li>
                     }
-                    <NavLink class="nav-link text-white" href="/delmaalskabeloner">
-                        🧾 Delmålsskabeloner
-                    </NavLink>
+
+                    @if (UserState.Role?.ToLower() == "admin")
+                    {
+                        <li class="nav-item">
+                            <NavLink class="nav-link text-white" href="/delmaalskabeloner">
+                                🧾 Delmålsskabeloner
+                            </NavLink>
+                        </li>
+                    }
 
                 </ul>
-
             </nav>
         </div>
 

@@ -5,7 +5,9 @@
 @inject IElevplanService ElevplanService
 @inject IKommentarService KommentarService
 @inject NavigationManager Nav
-
+@inject IAnmodningService AnmodningService
+@inject IAuthService AuthService
+@inject UserState UserState
 <h3 class="text-xl font-bold mb-4">📘 Delmål </h3>
 
 @if (isLoading)
@@ -19,18 +21,17 @@ else if (praktikperiodeIds == null || !praktikperiodeIds.Any())
 else
 {
     <div class="mb-4">
-        
         @foreach (var praktikId in praktikperiodeIds)
         {
             <button class="btn btn-outline-primary me-2 mb-2"
                     @onclick="() => VisDelmaal(praktikId)">
-                <!--Skal have praktikperiode navn i stedet-->
+                    <!--Skal have praktikperiode navn i stedet-->
                 Praktikperiode @praktikId
             </button>
         }
     </div>
 
-    @if (valgtPraktikId != 0)
+    @if (valgtPraktikId != 0 && UserState.Role?.ToLower() != "elev")
     {
         <button class="btn btn-success mb-3" @onclick="ÅbnModalTilføjDelmaal">➕ Tilføj delmål</button>
     }
@@ -50,22 +51,43 @@ else
                             </div>
 
                             <div>
-                                <select class="form-select" @onchange="(e) => OpdaterStatus(d, e.Value?.ToString())">
-                                    <option value="Ikke fuldført" selected="@IsSelected(d, "Ikke fuldført")">❌ Ikke fuldført</option>
-                                    <option value="I gang" selected="@IsSelected(d, "I gang")">🔄 I gang</option>
-                                    <option value="Fuldført" selected="@IsSelected(d, "Fuldført")">✅ Fuldført</option>
-                                </select>
+                                @if (UserState.Role?.ToLower() == "elev")
+                                {
+                                    <select class="form-select" disabled>
+                                        <option value="Ikke fuldført" selected="@IsSelected(d, "Ikke fuldført")">❌ Ikke fuldført</option>
+                                        <option value="I gang" selected="@IsSelected(d, "I gang")">🔄 I gang</option>
+                                        <option value="Fuldført" selected="@IsSelected(d, "Fuldført")">✅ Fuldført</option>
+                                    </select>
+
+                                    <button class="btn btn-sm btn-outline-secondary mt-2"
+                                            @onclick="() => StartAnmodning(d.Id)">
+                                        📩 Anmod om ændring
+                                    </button>
+                                }
+                                else
+                                {
+                                    <select class="form-select" @onchange="(e) => OpdaterStatus(d, e.Value?.ToString())">
+                                        <option value="Ikke fuldført" selected="@IsSelected(d, "Ikke fuldført")">❌ Ikke fuldført</option>
+                                        <option value="I gang" selected="@IsSelected(d, "I gang")">🔄 I gang</option>
+                                        <option value="Fuldført" selected="@IsSelected(d, "Fuldført")">✅ Fuldført</option>
+                                    </select>
+                                }
+
                             </div>
 
-                            <div class="d-flex gap-2">
-                                <button class="btn btn-sm btn-warning" @onclick="() => RedigerDelmaal(d)">✏️</button>
-                                <button class="btn btn-sm btn-danger" @onclick="() => SletDelmaal(d.Id)">🗑️</button>
-                            </div>
+                            @if (UserState.Role?.ToLower() != "elev")
+                            {
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-sm btn-warning" @onclick="() => RedigerDelmaal(d)">✏️</button>
+                                    <button class="btn btn-sm btn-danger" @onclick="() => SletDelmaal(d.Id)">🗑️</button>
+                                </div>
+                            }
+
                         </div>
 
-                        <!-- Kommentarfelt -->
+                        <!-- Kommentar -->
                         <div class="mt-3">
-                            <label>💬 Kommentar / Spørgsmål:</label>
+                            <label>💬 Kommentar:</label>
                             <textarea class="form-control"
                                       placeholder="Skriv en kommentar..."
                                       @bind="nyeKommentarer[d.Id]"></textarea>
@@ -104,7 +126,7 @@ else
     <button class="btn btn-secondary mt-4" @onclick="Tilbage">🔙 Tilbage</button>
 }
 
-<!-- Modal -->
+<!-- Modal: Tilføj/rediger delmål -->
 @if (visModal)
 {
     <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
@@ -149,6 +171,45 @@ else
     </div>
 }
 
+<!-- Modal: Anmodning -->
+@if (visAnmodningsModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Anmod om statusændring</h5>
+                    <button type="button" class="btn-close" @onclick="LukAnmodningsModal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label>Ønsket status:</label>
+                        <select class="form-select" @bind="ønsketStatus">
+                            <option value="I gang">🔄 I gang</option>
+                            <option value="Fuldført">✅ Fuldført</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Vælg modtager:</label>
+                        <select class="form-select" @bind="valgtModtagerId">
+                            @foreach (var m in muligeModtagere)
+                            {
+                                <option value="@m.Id">@m.Username (@m.Role)</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" @onclick="SendAnmodning">Send anmodning</button>
+                        <button class="btn btn-secondary" @onclick="LukAnmodningsModal">Annuller</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
 @code {
     [Parameter] public int elevplanId { get; set; }
 
@@ -163,6 +224,14 @@ else
     private Modeller.Delmål nytDelmaal = new();
     private bool visModal = false;
     private bool redigerMode = false;
+
+    // Anmodningsdata
+    private bool visAnmodningsModal = false;
+    private int valgtDelmaalId = 0;
+    private string ønsketStatus = "Fuldført";
+    private int valgtModtagerId;
+    private List<Modeller.UserModel> muligeModtagere = new();
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -183,11 +252,11 @@ else
         valgtPraktikId = praktikperiodeId;
         delmaalListe = await DelmaalService.GetByElevplanIdAndPraktikperiodeIdAsync(elevplanId, praktikperiodeId);
 
-        foreach (var delmål in delmaalListe)
+        foreach (var d in delmaalListe)
         {
-            nyeKommentarer[delmål.Id] = "";
-            var eksisterendeKommentarer = await KommentarService.GetByDelmålIdAsync(delmål.Id);
-            kommentarer[delmål.Id] = eksisterendeKommentarer ?? new();
+            nyeKommentarer[d.Id] = "";
+            var eksisterendeKommentarer = await KommentarService.GetByDelmålIdAsync(d.Id);
+            kommentarer[d.Id] = eksisterendeKommentarer ?? new();
         }
     }
 
@@ -202,27 +271,69 @@ else
 
     private bool IsSelected(Modeller.Delmål d, string status) => d.Status == status;
 
-    private async Task GemKommentar(int delmålId)
+    private async Task GemKommentar(int delmaalId)
     {
-        if (!string.IsNullOrWhiteSpace(nyeKommentarer[delmålId]))
+        if (!string.IsNullOrWhiteSpace(nyeKommentarer[delmaalId]))
         {
             var kommentar = new Kommentar
                 {
-                    DelmålId = delmålId,
-                    Indhold = nyeKommentarer[delmålId],
+                    DelmålId = delmaalId,
+                    Indhold = nyeKommentarer[delmaalId],
                     Tidspunkt = DateTime.Now
                 };
 
             await KommentarService.AddKommentarAsync(kommentar);
-            nyeKommentarer[delmålId] = "";
+            nyeKommentarer[delmaalId] = "";
 
-            if (!kommentarer.ContainsKey(delmålId))
-                kommentarer[delmålId] = new();
+            if (!kommentarer.ContainsKey(delmaalId))
+                kommentarer[delmaalId] = new();
 
-            kommentarer[delmålId].Add(kommentar);
+            kommentarer[delmaalId].Add(kommentar);
         }
     }
+    private async Task StartAnmodning(int delmaalId)
+    {
+        valgtDelmaalId = delmaalId;
+        ønsketStatus = "Fuldført";
+        valgtModtagerId = 0;
 
+        muligeModtagere = await AuthService.GetAdminsOgKokkeAsync();
+
+        if (muligeModtagere == null || !muligeModtagere.Any())
+        {
+            Console.WriteLine("❌ Ingen kokke eller admins fundet.");
+            return;
+        }
+
+        // Sæt første som standardvalg
+        valgtModtagerId = muligeModtagere.First().Id;
+
+        visAnmodningsModal = true;
+    }
+
+
+    private async Task SendAnmodning()
+    {
+        if (UserState.Id == null || valgtModtagerId == 0)
+        {
+            Console.WriteLine("❌ Elev eller modtager ikke valgt.");
+            return;
+        }
+
+        var anmodning = new Anmodning
+            {
+                DelmaalId = valgtDelmaalId,
+                ElevId = UserState.Id.Value,
+                ModtagerId = valgtModtagerId,
+                ØnsketStatus = ønsketStatus
+            };
+
+        await AnmodningService.OpretAsync(anmodning);
+        visAnmodningsModal = false;
+    }
+
+
+    private void LukAnmodningsModal() => visAnmodningsModal = false;
     private void Tilbage() => Nav.NavigateTo("/administrator");
 
     private void ÅbnModalTilføjDelmaal()

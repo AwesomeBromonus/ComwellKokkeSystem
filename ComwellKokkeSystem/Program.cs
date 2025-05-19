@@ -37,6 +37,7 @@ public class Program
         builder.Services.AddScoped<IGenereRapportService, GenereRapportService>();
         builder.Services.AddScoped<ILæringService, LæringService>();
         builder.Services.AddBlazorDownloadFile();
+        builder.Services.AddScoped<IAnmodningService, AnmodningService>();
         builder.Services.AddScoped<IUserService, UserService>();
 
 
