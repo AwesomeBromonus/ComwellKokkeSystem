@@ -3,15 +3,19 @@
 @using Modeller
 @inject HttpClient Http
 @inject ILæringService LæringService
+@inject UserState userState
 
 <h3 class="text-2xl font-semibold mb-4">📚 Læringsmaterialer</h3>
 
-<button @onclick="ToggleForm"
-        class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition mb-4">
-    @(VisForm ? "Annuller" : "➕ Tilføj materiale")
-</button>
+@if (userState.Role == "admin" || userState.Role == "kok")
+{
+    <button @onclick="ToggleForm"
+            class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition mb-4">
+        @(VisForm ? "Annuller" : "➕ Tilføj materiale")
+    </button>
+}
 
-@if (VisForm)
+@if (VisForm && (userState.Role == "admin" || userState.Role == "kok"))
 {
     <div class="bg-gray-100 p-4 rounded shadow mb-4">
         <form onsubmit="return false;">
