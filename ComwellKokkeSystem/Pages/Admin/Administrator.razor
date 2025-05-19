@@ -3,6 +3,7 @@
 @inject NavigationManager NavManager
 @inject UserState UserState
 @using Modeller
+@layout AdminLayout
 
 <div class="container mt-4">
     <h3 class="mb-3">📊 Administratorpanel</h3>
@@ -29,10 +30,10 @@
             <div class="col-md-6">
                 <p class="fw-semibold">🔧 Administrative funktioner:</p>
                 <div class="d-grid gap-3">
-                    <button class="btn btn-primary btn-lg shadow" @onclick='() => NavManager.NavigateTo("/opretuser")'>
+                    <button class="btn btn-modern blue" @onclick='() => NavManager.NavigateTo("/opretuser")'>
                         <i class="bi bi-person-plus-fill"></i> Opret bruger
                     </button>
-                    <button class="btn btn-success btn-lg shadow" @onclick='() => NavManager.NavigateTo("/opret-elevplan")'>
+                    <button class="btn btn-modern green" @onclick='() => NavManager.NavigateTo("/opret-elevplan")'>
                         <i class="bi bi-journal-plus"></i> Opret elevplan
                     </button>
                 </div>
@@ -40,28 +41,26 @@
             <div class="col-md-6">
                 <p class="fw-semibold">📈 Brugertællere:</p>
                 <div class="d-flex flex-wrap gap-2">
-                    <span class="badge bg-secondary">👤 Alle: @brugere.Count</span>
-                    <span class="badge bg-success">🧑‍🎓 Elever: @brugere.Count(x => x.Role?.ToLower() == "elev")</span>
-                    <span class="badge bg-warning text-dark">👨‍🍳 Kokke: @brugere.Count(x => x.Role?.ToLower() == "kok")</span>
-                    <span class="badge bg-danger">🛡️ Admins: @brugere.Count(x => x.Role?.ToLower() == "admin")</span>
-                    <span class="badge bg-info text-dark">🧾 HR: @brugere.Count(x => x.Role?.ToLower() == "hr")</span>
+                    <span class="role-tag role-ukendt">👤 Alle: @brugere.Count</span>
+                    <span class="role-tag role-elev">🧑‍🎓 Elever: @brugere.Count(x => x.Role?.ToLower() == "elev")</span>
+                    <span class="role-tag role-kok">👨‍🍳 Kokke: @brugere.Count(x => x.Role?.ToLower() == "kok")</span>
+                    <span class="role-tag role-admin">🛡️ Admins: @brugere.Count(x => x.Role?.ToLower() == "admin")</span>
+                    <span class="role-tag role-hr">🧾 HR: @brugere.Count(x => x.Role?.ToLower() == "hr")</span>
                 </div>
             </div>
         </div>
 
-        <div class="mb-3">
-            <input class="form-control" placeholder="🔍 Søg efter brugernavn..." @bind="søgeord" />
-        </div>
+        <input class="search-bar" placeholder="🔍 Søg efter brugernavn..." @bind="søgeord" />
 
         <div class="row">
             @foreach (var b in brugere.Where(b => string.IsNullOrWhiteSpace(søgeord) || b.Username.Contains(søgeord, StringComparison.OrdinalIgnoreCase)))
             {
                 <div class="col-md-6 col-lg-4">
-                    <div class="card user-card mb-3 shadow-sm" @onclick="() => VisDetaljer(b)" style="cursor:pointer;">
+                    <div class="user-card mb-3" @onclick="() => VisDetaljer(b)">
                         <div class="card-body">
                             <h5 class="card-title">@b.Navn</h5>
-                            <p class="card-text text-muted mb-1">@b.Username</p>
-                            <span class="badge @GetRoleColor(b.Role)">🧷 @b.Role</span>
+                            <p class="card-text">@b.Username</p>
+                            <span class="role-tag @GetRoleClass(b.Role)">🧷 @b.Role</span>
                         </div>
                     </div>
                 </div>
@@ -84,7 +83,7 @@
                             <p><strong>Adresse:</strong> @valgtBruger.Adresse</p>
                             <p><strong>Hotel ID:</strong> @valgtBruger.HotelId</p>
                             <p><strong>Startdato:</strong> @valgtBruger.StartDato.ToShortDateString()</p>
-                            <p><strong>Rolle:</strong> <span class="badge @GetRoleColor(valgtBruger.Role)">@valgtBruger.Role</span></p>
+                            <p><strong>Rolle:</strong> <span class="role-tag @GetRoleClass(valgtBruger.Role)">@valgtBruger.Role</span></p>
                         </div>
                         <div class="modal-footer">
                             <button class="btn btn-secondary" @onclick="LukDetaljer">Luk</button>
@@ -144,13 +143,12 @@
         NavManager.NavigateTo($"/delmaal/{elevplanId}");
     }
 
-    // kan laves i css
-    private string GetRoleColor(string role) => role?.ToLower() switch
+    private string GetRoleClass(string role) => role?.ToLower() switch
     {
-        "admin" => "bg-danger",
-        "elev" => "bg-success",
-        "kok" => "bg-warning text-dark",
-        "hr" => "bg-info text-dark",
-        _ => "bg-secondary"
+        "admin" => "role-admin",
+        "elev" => "role-elev",
+        "kok" => "role-kok",
+        "hr" => "role-hr",
+        _ => "role-ukendt"
     };
 }

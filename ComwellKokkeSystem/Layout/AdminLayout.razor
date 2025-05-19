@@ -1,7 +1,4 @@
 ﻿@inherits LayoutComponentBase
-@inject UserState UserState
-@inject NavigationManager NavManager
-@implements IDisposable
 
 <link href="css/admin.css" rel="stylesheet" />
 
@@ -10,7 +7,6 @@
         <div class="admin-logo">
             <img src="/ComwellLogo2.png" alt="Comwell logo" />
         </div>
-
         <nav class="admin-nav">
             <NavLink class="nav-link" href="/administrator" Match="NavLinkMatch.All">🏠 Hjem</NavLink>
             <NavLink class="nav-link" href="/messages">💬 Chat</NavLink>
@@ -18,7 +14,6 @@
             <NavLink class="nav-link" href="/rapportside">📈 Rapport</NavLink>
             <NavLink class="nav-link" href="/delmaalskabeloner">🧩 Delmålsskabeloner</NavLink>
         </nav>
-
         <div class="admin-footer">
             <p>🔐 Logget ind som <strong>@UserState.Username</strong> (@UserState.Role)</p>
             <button class="btn btn-outline-light w-100" @onclick="Logout">Log ud</button>
@@ -31,30 +26,12 @@
 </div>
 
 @code {
-    private bool initialized = false;
-
-    protected override void OnInitialized()
-    {
-        UserState.OnChange += StateHasChanged;
-    }
-
-    public void Dispose()
-    {
-        UserState.OnChange -= StateHasChanged;
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender && !initialized)
-        {
-            initialized = true;
-            await UserState.InitializeAsync();
-        }
-    }
+    [Inject] private NavigationManager Nav { get; set; } = default!;
+    [Inject] private UserState UserState { get; set; } = default!;
 
     private async Task Logout()
     {
         await UserState.LogoutAsync();
-        NavManager.NavigateTo("/login", true);
+        Nav.NavigateTo("/login", true);
     }
 }
