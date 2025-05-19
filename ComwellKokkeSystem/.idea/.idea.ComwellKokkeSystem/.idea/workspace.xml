@@ -11,6 +11,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="867a39b7-f00d-4256-9506-36754830a52e" name="Changes" comment="Total i orden">
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.ComwellKokkeSystem/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.ComwellKokkeSystem/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Pages/Pratikperioder.razor" beforeDir="false" afterPath="$PROJECT_DIR$/Pages/Pratikperioder.razor" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Controllers/DelmålController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Controllers/DelmålController.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Controllers/ElevplanController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Controllers/ElevplanController.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Controllers/PraktikPeriodeController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Controllers/PraktikPeriodeController.cs" afterDir="false" />
@@ -61,25 +63,21 @@
   }
 }</component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="mock://C:/projekt/ComwellKokkeSystem/ComwellKokkeSystem/ComwellKokkeSystem/Layout/NavMenu.razor" root0="SKIP_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" root2="FORCE_HIGHLIGHTING" />
-    <setting file="mock://C:/projekt/ComwellKokkeSystem/ComwellKokkeSystem/ComwellKokkeSystem/Layout/NavMenu.razor" root0="SKIP_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" root2="FORCE_HIGHLIGHTING" />
-    <setting file="mock://C:/projekt/ComwellKokkeSystem/ComwellKokkeSystem/ComwellKokkeSystem/Layout/NavMenu.razor" root0="SKIP_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" root2="FORCE_HIGHLIGHTING" />
-    <setting file="mock://C:/projekt/ComwellKokkeSystem/ComwellKokkeSystem/ComwellKokkeSystem/Layout/NavMenu.razor" root0="SKIP_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" root2="FORCE_HIGHLIGHTING" />
+    <setting file="mock://C:/projekt/ComwellKokkeSystem/ComwellKokkeSystem/ComwellKokkeSystem/Pages/Elev/Delmål.razor" root0="SKIP_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" root2="FORCE_HIGHLIGHTING" />
+    <setting file="mock://C:/projekt/ComwellKokkeSystem/ComwellKokkeSystem/ComwellKokkeSystem/Pages/Elev/Delmål.razor" root0="SKIP_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" root2="FORCE_HIGHLIGHTING" />
     <setting file="mock://C:/projekt/ComwellKokkeSystem/ComwellKokkeSystem/ComwellKokkeSystem/Program.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock://C:/projekt/ComwellKokkeSystem/ComwellKokkeSystem/ComwellKokkeSystem/Program.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://C:/projekt/ComwellKokkeSystem/ComwellKokkeSystem/ComwellKokkeSystem/Program.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://C:/projekt/ComwellKokkeSystem/ComwellKokkeSystem/ComwellKokkeSystem/Program.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://C:/projekt/ComwellKokkeSystem/ComwellKokkeSystem/ComwellKokkeSystem/Service/GenereRapportService.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://C:/projekt/ComwellKokkeSystem/ComwellKokkeSystem/ComwellKokkeSystem/Service/GenereRapportService.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://C:/projekt/ComwellKokkeSystem/ComwellKokkeSystem/ComwellKokkeSystem/Service/IGenereRapportService.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://C:/projekt/ComwellKokkeSystem/ComwellKokkeSystem/ComwellKokkeSystem/Service/IGenereRapportService.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://C:/projekt/ComwellKokkeSystem/ComwellKokkeSystem/ComwellKokkeSystem/Service/Login/AuthService.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://C:/projekt/ComwellKokkeSystem/ComwellKokkeSystem/ComwellKokkeSystem/Service/Login/AuthService.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/package-lock.json" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://C:/projekt/ComwellKokkeSystem/ComwellKokkeSystem/ComwellSystemAPI/Controllers/RapportController.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://C:/projekt/ComwellKokkeSystem/ComwellKokkeSystem/ComwellSystemAPI/Interfaces/IGenereRapport.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://C:/projekt/ComwellKokkeSystem/ComwellKokkeSystem/ComwellSystemAPI/Interfaces/IGenereRapportService.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://C:/projekt/ComwellKokkeSystem/ComwellKokkeSystem/ComwellSystemAPI/Repositories/GenereRapportMongoDB.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://C:/projekt/ComwellKokkeSystem/ComwellKokkeSystem/ComwellSystemAPI/Program.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://C:/projekt/ComwellKokkeSystem/ComwellKokkeSystem/ComwellSystemAPI/Program.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://diff.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://diff.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://diff.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://diff.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://diff.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://diff.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://diff.razor" root0="SKIP_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" root2="FORCE_HIGHLIGHTING" />
+    <setting file="mock://diff.razor" root0="SKIP_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" root2="FORCE_HIGHLIGHTING" />
   </component>
   <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="true" />
   <component name="ProjectColorInfo">{
