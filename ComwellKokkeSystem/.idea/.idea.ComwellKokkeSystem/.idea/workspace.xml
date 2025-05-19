@@ -11,11 +11,28 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="867a39b7-f00d-4256-9506-36754830a52e" name="Changes" comment="Total i orden">
+      <change afterPath="$PROJECT_DIR$/Pages/Helpers/EnumerableExtensions.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Pages/Pratikperioder.razor" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Pages/ProgessionModal.razor" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Pages/StudentTable.razor" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Service/IUserService.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Service/UserService.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Modeller/StudentViewModels.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.ComwellKokkeSystem/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.ComwellKokkeSystem/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Pages/Elev/ElevProgression.razor" beforeDir="false" afterPath="$PROJECT_DIR$/Pages/Elev/ElevProgression.razor" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Pages/Elev/Delmål.razor" beforeDir="false" afterPath="$PROJECT_DIR$/Pages/Elev/Delmål.razor" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Pages/Elev/ElevProgression.razor" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Pages/GenereRapport.razor" beforeDir="false" afterPath="$PROJECT_DIR$/Pages/GenereRapport.razor" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Program.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Service/Elev/IPraktikPeriodeService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Service/Elev/IPraktikPeriodeService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Service/Elev/PraktikPeriodeService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Service/Elev/PraktikPeriodeService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Controllers/DelmålController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Controllers/DelmålController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Controllers/ElevplanController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Controllers/ElevplanController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Controllers/PraktikPeriodeController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Controllers/PraktikPeriodeController.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Controllers/UserControllers.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Controllers/UserControllers.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Program.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Interfaces/IPraktikPeriode.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Interfaces/IPraktikPeriode.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Interfaces/IUser.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Interfaces/IUser.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Repositories/PraktikPeriodeRepositoryMongodb.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Repositories/PraktikPeriodeRepositoryMongodb.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Repositories/UserRepositoryMongodb.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Repositories/UserRepositoryMongodb.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -28,7 +45,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$/.." value="master" />
+        <entry key="$PROJECT_DIR$/.." value="luk" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
@@ -95,7 +112,7 @@
     ".NET Launch Settings Profile.ComwellSystemAPI: https.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "luk",
+    "git-widget-placeholder": "master0",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",

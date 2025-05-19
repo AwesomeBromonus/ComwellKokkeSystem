@@ -19,11 +19,12 @@ else if (praktikperiodeIds == null || !praktikperiodeIds.Any())
 else
 {
     <div class="mb-4">
+        
         @foreach (var praktikId in praktikperiodeIds)
         {
             <button class="btn btn-outline-primary me-2 mb-2"
                     @onclick="() => VisDelmaal(praktikId)">
-                    <!--Skal have praktikperiode navn i stedet-->
+                <!--Skal have praktikperiode navn i stedet-->
                 Praktikperiode @praktikId
             </button>
         }

@@ -1,0 +1,53 @@
+﻿@page "/praktikperioder/{elevId:int}"
+@using ComwellKokkeSystem.Service
+@using Modeller
+@inject IPraktikperiodeService PraktikperiodeService
+@inject IUserService UserService
+
+<h3>
+    Alle praktikperioder for 
+    @if (elev != null)
+    {
+        <span>@elev.Navn</span>
+    }
+    else
+    {
+        <span>elev @elevId</span>
+    }
+</h3>
+
+@if (praktikperioder == null)
+{
+    <p>Indlæser praktikperioder...</p>
+}
+else if (!praktikperioder.Any())
+{
+    <div class="alert alert-warning">Ingen praktikperioder fundet for denne elev.</div>
+}
+else
+{
+    <ul>
+        @foreach (var p in praktikperioder)
+        {
+            <li>
+                <strong>@p.Navn:</strong> @p.StartDato.ToShortDateString() - @p.SlutDato.ToShortDateString()
+                <br />
+                <span>Status: @p.Status</span>
+                <br />
+                <span>ElevplanId: @p.ElevplanId</span>
+            </li>
+        }
+    </ul>
+}
+
+@code {
+    [Parameter] public int elevId { get; set; }
+    private List<Praktikperiode> praktikperioder;
+    private UserModel? elev;
+
+    protected override async Task OnInitializedAsync()
+    {
+        praktikperioder = await PraktikperiodeService.GetPraktikperioderForElevAsync(elevId);
+        elev = await UserService.GetByIdAsync(elevId);
+    }
+}

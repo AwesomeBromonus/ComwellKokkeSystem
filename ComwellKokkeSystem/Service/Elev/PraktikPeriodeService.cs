@@ -23,7 +23,11 @@ namespace ComwellKokkeSystem.Service
             var content = JsonContent.Create(nyStatus);
             await _http.PutAsync($"api/praktikperiode/{praktikperiodeId}/delmål/{delmålId}", content);
         }
-
+        public async Task<List<Praktikperiode>> GetPraktikperioderForElevAsync(int elevId)
+        {
+            // You need an endpoint in your API like: GET api/praktikperiode/elevid/5
+            return await _http.GetFromJsonAsync<List<Praktikperiode>>($"api/praktikperiode/elevid/{elevId}");
+        }
 
     }
 
