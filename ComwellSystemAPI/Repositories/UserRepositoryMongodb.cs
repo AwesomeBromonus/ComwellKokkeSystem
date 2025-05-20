@@ -47,22 +47,29 @@ namespace ComwellSystemAPI.Repositories
             return user != null && user.Password == password;
         }
 
-        private async Task<int> GetNextIdAsync()
-        {
-            var allUsers = await _userCollection.Find(_ => true).ToListAsync();
-            return allUsers.Count == 0 ? 1 : allUsers.Max(u => u.Id) + 1;
-        }
         public async Task UpdateUserAsync(UserModel bruger)
         {
             var filter = Builders<UserModel>.Filter.Eq(u => u.Id, bruger.Id);
             var update = Builders<UserModel>.Update.Set(u => u.ElevplanId, bruger.ElevplanId);
             await _userCollection.UpdateOneAsync(filter, update);
         }
+
         public async Task AssignElevplanToUserAsync(int userId, int elevplanId)
         {
             var filter = Builders<UserModel>.Filter.Eq(u => u.Id, userId);
             var update = Builders<UserModel>.Update.Set(u => u.ElevplanId, elevplanId);
             await _userCollection.UpdateOneAsync(filter, update);
+        }
+
+        private async Task<int> GetNextIdAsync()
+        {
+            var allUsers = await _userCollection.Find(_ => true).ToListAsync();
+            return allUsers.Count == 0 ? 1 : allUsers.Max(u => u.Id) + 1;
+        }
+        public async Task<List<UserModel>> GetAdminsOgKokkeAsync()
+        {
+            var filter = Builders<UserModel>.Filter.In(u => u.Role, new[] { "admin", "kok" });
+            return await _userCollection.Find(filter).ToListAsync();
         }
 
     }

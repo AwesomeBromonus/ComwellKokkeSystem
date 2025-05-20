@@ -9,6 +9,7 @@ public interface IUserRepository
     Task DeleteAsync(int id);
     Task<bool> ValidateLogin(string username, string password);
     Task UpdateUserAsync(UserModel bruger);
+    Task AssignElevplanToUserAsync(int userId, int elevplanId);
+    Task<List<UserModel>> GetAdminsOgKokkeAsync();
 
-    Task AssignElevplanToUserAsync(int userId, int elevplanId); // 👈 NY
 }

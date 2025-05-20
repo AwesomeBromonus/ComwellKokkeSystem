@@ -1,0 +1,136 @@
+﻿@using ComwellKokkeSystem.Pages.Helpers
+@using Modeller
+@using ComwellKokkeSystem.Pages.Helpers
+@inject NavigationManager NavigationManager
+
+<div class="overflow-x-auto">
+    <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-100">
+            <tr>
+                <th>
+                    <input type="checkbox" @onclick="ToggleSelectAll" checked="@AllSelected" />
+                </th>
+                <th @onclick="() => SortBy(nameof(UserModel.Navn))" class="cursor-pointer">Navn</th>
+                <th @onclick="() => SortBy(nameof(UserModel.Email))" class="cursor-pointer">Email</th>
+                <th>Status</th>
+                <th>Praktikperiode</th>
+                <th>Delmål Progress</th>
+                <th>Start Dato</th>
+                <th>Slut Dato</th>
+                <th>Notifikation</th>
+                <th>Detaljer</th>
+            </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+            @foreach (var elev in PagedStudents)
+            {
+                <tr>
+                    <td>
+                        <input type="checkbox" @bind="elev.IsSelected" />
+                    </td>
+                    <td>@elev.Navn</td>
+                    <td>@elev.Email</td>
+                    <td>@elev.Status</td>
+                    <td>
+                        @if (elev.Praktikperiode != null)
+                        {
+                            @($"{elev.Praktikperiode.Navn}")
+                        }
+                    </td>
+                    <td>
+                        @if (elev.DelmaalTotal > 0)
+                        {
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div class="bg-green-500 h-2.5 rounded-full" style="width:@($"{elev.DelmaalPercent}%")"></div>
+                            </div>
+                            <span>@($"{elev.DelmaalDone}/{elev.DelmaalTotal} ({elev.DelmaalPercent}%)")</span>
+                        }
+                        else
+                        {
+                            <span>Ingen delmål</span>
+                        }
+                    </td>
+                    <td>@elev.Praktikperiode?.StartDato.ToString("dd/MM/yyyy")</td>
+                    <td>@elev.Praktikperiode?.SlutDato.ToString("dd/MM/yyyy")</td>
+                    <td>
+                        @if (elev.DaysToSchool is not null && elev.DaysToSchool <= 14 && elev.DaysToSchool >= 0)
+                        {
+                            <span class="text-red-600 font-bold">Skal i skole om @elev.DaysToSchool dage</span>
+                        }
+                    </td>
+                    <td>
+                        <button class="btn btn-primary" @onclick="() => ShowDetails(elev)">Detaljer</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Pagination -->
+<div class="flex justify-between items-center mt-4">
+    <button @onclick="PreviousPage" disabled="@IsFirstPage">Forrige</button>
+    <span>Side @CurrentPage af @TotalPages</span>
+    <button @onclick="NextPage" disabled="@IsLastPage">Næste</button>
+</div>
+
+@code {
+    [Parameter] public List<StudentViewModel> Elever { get; set; } = new();
+    [Parameter] public EventCallback<StudentViewModel> OnShowDetails { get; set; }
+
+    private int PageSize = 10;
+    private int CurrentPage = 1;
+    private string SortColumn = nameof(UserModel.Navn);
+    private bool SortAscending = true;
+
+    private IEnumerable<StudentViewModel> PagedStudents =>
+        Elever
+            .OrderByDynamic(SortColumn, SortAscending)
+            .Skip((CurrentPage - 1) * PageSize)
+            .Take(PageSize);
+
+    private int TotalPages => (int)Math.Ceiling(Elever.Count / (double)PageSize);
+    private bool IsFirstPage => CurrentPage == 1;
+    private bool IsLastPage => CurrentPage == TotalPages;
+
+    private bool AllSelected
+    {
+        get => Elever.All(e => e.IsSelected);
+        set
+        {
+            foreach (var elev in Elever)
+                elev.IsSelected = value;
+        }
+    }
+
+    private void ToggleSelectAll()
+    {
+        AllSelected = !AllSelected;
+    }
+
+    private void NextPage()
+    {
+        if (!IsLastPage) CurrentPage++;
+    }
+
+    private void PreviousPage()
+    {
+        if (!IsFirstPage) CurrentPage--;
+    }
+
+    private void SortBy(string column)
+    {
+        if (SortColumn == column)
+            SortAscending = !SortAscending;
+        else
+        {
+            SortColumn = column;
+            SortAscending = true;
+        }
+    }
+
+    private void ShowDetails(StudentViewModel elev)
+    {
+        OnShowDetails.InvokeAsync(elev);
+    }
+}
