@@ -61,11 +61,13 @@ else
                         <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
                             <div>
                                 <strong>@d.Beskrivelse</strong><br />
-                                <span class="text-muted">Deadline: @d.Deadline.ToShortDateString()</span>
-                                <button class="btn btn-sm btn-outline-secondary me-2"
+
+                                <button class="border-0 bg-transparent text-dark p-0"
+                                        style="font-size: 1.2rem;"
                                         @onclick="() => ToggleUnderdelmaalVisning(d.Id)">
-                                    @(udvidetDelmaalId == d.Id ? "⬇️ Skjul underdelmål" : "➡️ Vis underdelmål")
+                                    @(udvidetDelmaalId == d.Id ? "⬇️" : "➡️")
                                 </button>
+
 
                                 @if (udvidetDelmaalId == d.Id && underdelmaalMap.ContainsKey(d.Id))
                                 {
@@ -74,7 +76,7 @@ else
                                         {
                                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                                 <div>
-                                                    <strong>@u.Beskrivelse</strong> – Offset: @u.DeadlineOffsetDage dage
+                                                    <strong>@u.Beskrivelse</strong> 
                                                 </div>
                                                 @if (UserState.Role?.ToLower() != "elev")
                                                 {
@@ -129,14 +131,14 @@ else
 
                         <!-- Kommentar -->
                         <div class="mt-3">
-                            <label>💬 Kommentar:</label>
+                           
                             <textarea class="form-control"
                                       placeholder="Skriv en kommentar..."
                                       @bind="nyeKommentarer[d.Id]"></textarea>
 
                             <button class="btn btn-sm btn-primary mt-2"
                                     @onclick="() => GemKommentar(d.Id)">
-                                ➕ Gem kommentar
+                                Send
                             </button>
                         </div>
 
