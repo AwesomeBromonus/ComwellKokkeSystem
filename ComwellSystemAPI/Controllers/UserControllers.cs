@@ -66,6 +66,14 @@ namespace ComwellSystemAPI.Controllers
             return Ok(allUsers);
         }
 
+        [HttpGet("admins-og-kokke")]
+        public async Task<IActionResult> GetAdminsOgKokke()
+        {
+            var brugere = await _userRepo.GetAdminsOgKokkeAsync();
+            return Ok(brugere);
+        }
+
+
         // DELETE: api/users/{id}
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
