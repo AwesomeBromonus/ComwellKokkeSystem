@@ -3,11 +3,10 @@
 @inject NavigationManager NavManager
 @inject UserState UserState
 @using Modeller
-@layout AdminLayout
 
-<div class="container mt-4">
-    <h3 class="mb-3">📊 Administratorpanel</h3>
+<link href="css/Panel.css" rel="stylesheet" />
 
+<div class="admin-panel-container">
     @if (!UserState.IsLoggedInChecked)
     {
         <p>⏳ Indlæser brugerstatus...</p>
@@ -18,85 +17,93 @@
     }
     else if (UserState.Role?.ToLower() != "admin")
     {
-        <div class="alert alert-danger">🚫 Adgang nægtet – kun administratorer har adgang til denne side.</div>
+        <div class="alert alert-danger">🚫 Adgang nægtet – kun administratorer har adgang.</div>
     }
     else
     {
-        <div class="alert alert-success">
-            ✅ Velkommen, <strong>@UserState.Username</strong>! Du er logget ind som administrator.
+        <!-- Header med ur -->
+        <div class="admin-header">
+            <h2 class="admin-title">🛠️ Administratorpanel – Overblik og Værktøjer</h2>
+            <span class="clock">@currentTime</span>
         </div>
 
-        <div class="row mt-4 mb-4">
-            <div class="col-md-6">
-                <p class="fw-semibold">🔧 Administrative funktioner:</p>
-                <div class="d-grid gap-3">
-                    <button class="btn btn-modern blue" @onclick='() => NavManager.NavigateTo("/opretuser")'>
-                        <i class="bi bi-person-plus-fill"></i> Opret bruger
-                    </button>
-                    <button class="btn btn-modern green" @onclick='() => NavManager.NavigateTo("/opret-elevplan")'>
-                        <i class="bi bi-journal-plus"></i> Opret elevplan
-                    </button>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <p class="fw-semibold">📈 Brugertællere:</p>
-                <div class="d-flex flex-wrap gap-2">
-                    <span class="role-tag role-ukendt">👤 Alle: @brugere.Count</span>
-                    <span class="role-tag role-elev">🧑‍🎓 Elever: @brugere.Count(x => x.Role?.ToLower() == "elev")</span>
-                    <span class="role-tag role-kok">👨‍🍳 Kokke: @brugere.Count(x => x.Role?.ToLower() == "kok")</span>
-                    <span class="role-tag role-admin">🛡️ Admins: @brugere.Count(x => x.Role?.ToLower() == "admin")</span>
-                    <span class="role-tag role-hr">🧾 HR: @brugere.Count(x => x.Role?.ToLower() == "hr")</span>
-                </div>
-            </div>
-        </div>
-
-        <input class="search-bar" placeholder="🔍 Søg efter brugernavn..." @bind="søgeord" />
-
-        <div class="row">
-            @foreach (var b in brugere.Where(b => string.IsNullOrWhiteSpace(søgeord) || b.Username.Contains(søgeord, StringComparison.OrdinalIgnoreCase)))
+        <!-- Funktionelle værktøjer -->
+        <div class="panel-grid compact">
+            @foreach (var panel in panels)
             {
-                <div class="col-md-6 col-lg-4">
-                    <div class="user-card mb-3" @onclick="() => VisDetaljer(b)">
-                        <div class="card-body">
-                            <h5 class="card-title">@b.Navn</h5>
-                            <p class="card-text">@b.Username</p>
-                            <span class="role-tag @GetRoleClass(b.Role)">🧷 @b.Role</span>
-                        </div>
-                    </div>
+                <div class="panel-card">
+                    <div class="card-title">@panel.Icon @panel.Title</div>
+                    <p class="card-desc">@panel.Description</p>
+                    <button class="@panel.ButtonClass" @onclick="() => NavManager.NavigateTo(panel.Route)">
+                        @panel.ActionText
+                    </button>
                 </div>
             }
         </div>
 
+        <!-- Brugertællere -->
+        <div class="panel-box mb-3">
+            <h5>👥 Brugertællere</h5>
+            <div class="tag-list">
+                <span class="role-tag role-ukendt">Alle: @brugere.Count</span>
+                <span class="role-tag role-elev">Elever: @brugere.Count(x => x.Role?.ToLower() == "elev")</span>
+                <span class="role-tag role-kok">Kokke: @brugere.Count(x => x.Role?.ToLower() == "kok")</span>
+                <span class="role-tag role-admin">Admins: @brugere.Count(x => x.Role?.ToLower() == "admin")</span>
+                <span class="role-tag role-hr">HR: @brugere.Count(x => x.Role?.ToLower() == "hr")</span>
+            </div>
+        </div>
+
+        <!-- Filtrering -->
+        <div class="search-filter">
+            <input class="search-bar" placeholder="🔍 Søg brugernavn..." @bind="søgeord" />
+            <select class="filter-dropdown" @bind="valgtRolle">
+                <option value="">Alle roller</option>
+                <option value="elev">Elev</option>
+                <option value="admin">Admin</option>
+                <option value="kok">Kok</option>
+                <option value="hr">HR</option>
+            </select>
+        </div>
+
+        <!-- Brugerkort -->
+        <div class="user-grid slim">
+            @foreach (var b in brugere.Where(b =>
+           (string.IsNullOrWhiteSpace(søgeord) || b.Username.Contains(søgeord, StringComparison.OrdinalIgnoreCase)) &&
+           (string.IsNullOrWhiteSpace(valgtRolle) || b.Role?.ToLower() == valgtRolle)))
+            {
+                <div class="user-card" @onclick="() => VisDetaljer(b)">
+                    <h5 class="card-title">@b.Navn</h5>
+                    <p class="card-text">@b.Username</p>
+                    <span class="role-tag @GetRoleClass(b.Role)">🧷 @b.Role</span>
+                </div>
+            }
+        </div>
+
+        <!-- Modal -->
         @if (valgtBruger != null)
         {
-            <div class="modal show fade d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
-                <div class="modal-dialog modal-lg">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">👤 Brugerinfo: @valgtBruger.Username</h5>
-                            <button type="button" class="btn-close" @onclick="LukDetaljer"></button>
-                        </div>
-                        <div class="modal-body">
-                            <p><strong>Navn:</strong> @valgtBruger.Navn</p>
-                            <p><strong>Email:</strong> @valgtBruger.Email</p>
-                            <p><strong>Telefon:</strong> @valgtBruger.Tlf</p>
-                            <p><strong>Adresse:</strong> @valgtBruger.Adresse</p>
-                            <p><strong>Hotel ID:</strong> @valgtBruger.HotelId</p>
-                            <p><strong>Startdato:</strong> @valgtBruger.StartDato.ToShortDateString()</p>
-                            <p><strong>Rolle:</strong> <span class="role-tag @GetRoleClass(valgtBruger.Role)">@valgtBruger.Role</span></p>
-                        </div>
-                        <div class="modal-footer">
-                            <button class="btn btn-secondary" @onclick="LukDetaljer">Luk</button>
-                            <button class="btn btn-danger" @onclick="SletBrugerAsync">Slet</button>
-
-                            @if (valgtBruger.Role?.ToLower() == "elev" && valgtBruger.ElevplanId > 0)
-                            {
-                                <button class="btn btn-info" @onclick="() => SeElevplan(valgtBruger.ElevplanId.Value)">
-                                    Se elevplan
-                                </button>
-                            }
-
-                        </div>
+            <div class="modal-backdrop">
+                <div class="modal-window">
+                    <div class="modal-header">
+                        <h5>👤 Brugerinfo: @valgtBruger.Username</h5>
+                        <button class="btn-close" @onclick="LukDetaljer">×</button>
+                    </div>
+                    <div class="modal-body">
+                        <p><strong>Navn:</strong> @valgtBruger.Navn</p>
+                        <p><strong>Email:</strong> @valgtBruger.Email</p>
+                        <p><strong>Telefon:</strong> @valgtBruger.Tlf</p>
+                        <p><strong>Adresse:</strong> @valgtBruger.Adresse</p>
+                        <p><strong>Hotel ID:</strong> @valgtBruger.HotelId</p>
+                        <p><strong>Startdato:</strong> @valgtBruger.StartDato.ToShortDateString()</p>
+                        <p><strong>Rolle:</strong> <span class="role-tag @GetRoleClass(valgtBruger.Role)">@valgtBruger.Role</span></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" @onclick="LukDetaljer">Luk</button>
+                        <button class="btn btn-danger" @onclick="SletBrugerAsync">Slet</button>
+                        @if (valgtBruger.Role?.ToLower() == "elev" && valgtBruger.ElevplanId > 0)
+                        {
+                            <button class="btn btn-info" @onclick="() => SeElevplan(valgtBruger.ElevplanId.Value)">Se elevplan</button>
+                        }
                     </div>
                 </div>
             </div>
@@ -105,11 +112,31 @@
 </div>
 
 @code {
-    private List<Modeller.UserModel> brugere = new();
-    private Modeller.UserModel? valgtBruger;
+    private List<UserModel> brugere = new();
+    private UserModel? valgtBruger;
     private string søgeord = "";
+    private string valgtRolle = "";
+    private string currentTime = "";
+
+    private record PanelInfo(string Icon, string Title, string Description, string Route, string ActionText, string ButtonClass);
+    private List<PanelInfo> panels = new()
+    {
+        new("👤", "Opret Bruger", "Tilføj nye brugere til systemet.", "/opretuser", "Gå til", "btn btn-primary"),
+        new("📝", "Opret Elevplan", "Start ny elevplan og tilknyt praktikperioder.", "/opret-elevplan", "Gå til", "btn btn-primary"),
+        new("📊", "Rapporter", "Få indsigt i progression og statistik.", "/rapportside", "Se rapporter", "btn btn-secondary"),
+        new("📥", "Anmodninger", "Se og håndtér elevanmodninger.", "/anmodninger", "Se anmodninger", "btn btn-secondary"),
+        new("📄", "Delmålsskabeloner", "Redigér skabeloner for praktikmål.", "/delmaalskabeloner", "Se skabeloner", "btn btn-secondary"),
+        new("📚", "Læring", "Oversigt over elevens læringsmål og forløb.", "/laering", "Se læring", "btn btn-secondary"),
+        new("💬", "Chat", "Kommunikér med elever og kolleger.", "/messages", "Åbn chat", "btn btn-secondary")
+    };
 
     protected override async Task OnInitializedAsync()
+    {
+        await LoadUsers();
+        await UpdateClock();
+    }
+
+    private async Task LoadUsers()
     {
         try
         {
@@ -121,8 +148,17 @@
         }
     }
 
-    void VisDetaljer(UserModel bruger) => valgtBruger = bruger;
+    private async Task UpdateClock()
+    {
+        while (true)
+        {
+            currentTime = DateTime.Now.ToString("HH.mm.ss");
+            StateHasChanged();
+            await Task.Delay(1000);
+        }
+    }
 
+    void VisDetaljer(UserModel bruger) => valgtBruger = bruger;
     void LukDetaljer() => valgtBruger = null;
 
     private async Task SletBrugerAsync()

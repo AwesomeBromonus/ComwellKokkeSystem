@@ -6,50 +6,35 @@
 <link href="css/admin.css" rel="stylesheet" />
 
 <div class="admin-layout">
-    <aside class="admin-sidebar">
-        <div class="admin-logo">
-            <img src="/ComwellLogo2.png" alt="Comwell logo" />
-        </div>
-
-        <nav class="admin-nav">
-            <NavLink class="nav-link" href="/administrator" Match="NavLinkMatch.All">🏠 Hjem</NavLink>
-            <NavLink class="nav-link" href="/messages">💬 Chat</NavLink>
-            <NavLink class="nav-link" href="/laering">📚 Læring</NavLink>
-            <NavLink class="nav-link" href="/rapportside">📈 Rapport</NavLink>
-            <NavLink class="nav-link" href="/delmaalskabeloner">🧩 Delmålsskabeloner</NavLink>
-        </nav>
-
-        <div class="admin-footer">
-            <p>🔐 Logget ind som <strong>@UserState.Username</strong> (@UserState.Role)</p>
-            <button class="btn btn-outline-light w-100" @onclick="Logout">Log ud</button>
-        </div>
-    </aside>
+    <!-- Brug kun NavMenu direkte -->
+    <NavMenu />
 
     <main class="admin-content">
-        @Body
+        @if (!UserState.IsLoggedInChecked)
+        {
+            <p class="text-muted">⏳ Indlæser brugerdata...</p>
+        }
+        else
+        {
+            @Body
+        }
     </main>
 </div>
 
 @code {
-    private bool initialized = false;
-
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         UserState.OnChange += StateHasChanged;
+
+        if (!UserState.IsLoggedInChecked)
+        {
+            await UserState.InitializeAsync();
+        }
     }
 
     public void Dispose()
     {
         UserState.OnChange -= StateHasChanged;
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender && !initialized)
-        {
-            initialized = true;
-            await UserState.InitializeAsync();
-        }
     }
 
     private async Task Logout()
