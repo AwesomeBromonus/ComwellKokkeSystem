@@ -25,10 +25,13 @@ namespace ComwellKokkeSystem.Service
         }
         public async Task<List<Praktikperiode>> GetPraktikperioderForElevAsync(int elevId)
         {
-            // You need an endpoint in your API like: GET api/praktikperiode/elevid/5
-            return await _http.GetFromJsonAsync<List<Praktikperiode>>($"api/praktikperiode/elevid/{elevId}");
+            return await _http.GetFromJsonAsync<List<Praktikperiode>>($"api/praktikperiode/elev/{elevId}");
         }
 
+        public async Task<List<Praktikperiode>> GetByElevIdAsync(int elevId)
+        {
+            return await _http.GetFromJsonAsync<List<Praktikperiode>>($"api/praktikperiode/elev/{elevId}");
+        }
     }
 
 }

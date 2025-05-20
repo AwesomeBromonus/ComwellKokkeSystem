@@ -15,6 +15,12 @@ public class UserService : IUserService
     public async Task<UserModel?> GetByIdAsync(int id)
     {
         return await _http.GetFromJsonAsync<UserModel>($"api/users/byid/{id}");
+        
     }
+    public async Task<List<Praktikperiode>> GetPraktikperioderForElevAsync(int elevId)
+    {
+        return await _http.GetFromJsonAsync<List<Praktikperiode>>($"api/praktikperiode/elev/{elevId}");
+    }
+
     
 }
