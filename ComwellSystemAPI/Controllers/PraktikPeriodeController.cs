@@ -58,4 +58,14 @@ public class PraktikperiodeController : ControllerBase
         await _repo.DeleteAsync(id);
         return NoContent(); // 204
     }
+    
+    
+    [HttpGet("elev/{elevId}")]
+    public async Task<ActionResult<List<Praktikperiode>>> GetPraktikperioderForElev(int elevId)
+    {
+        var praktikperioder = await _repo.GetByElevIdAsync(elevId);
+        return Ok(praktikperioder);
+    }
+    
+
 }
