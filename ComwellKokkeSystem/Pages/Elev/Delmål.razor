@@ -1,6 +1,7 @@
 ﻿@page "/delmaal/{elevplanId:int}"
 @using Modeller
 @using ComwellKokkeSystem.Service
+@inject IPraktikperiodeService PraktikperiodeService
 @inject IDelmaalService DelmaalService
 @inject IElevplanService ElevplanService
 @inject IKommentarService KommentarService
@@ -8,27 +9,38 @@
 @inject IAnmodningService AnmodningService
 @inject IAuthService AuthService
 @inject UserState UserState
-<h3 class="text-xl font-bold mb-4">📘 Delmål </h3>
+@inject IUserService UserService
+
+<h1 class="text-3xl font-bold text-center text-dark mb-5">@elevNavn</h1>
+
+
 
 @if (isLoading)
 {
     <p>⏳ Indlæser praktikperioder...</p>
 }
-else if (praktikperiodeIds == null || !praktikperiodeIds.Any())
+else if (praktikperioder == null || !praktikperioder.Any())
 {
     <div class="alert alert-warning">Ingen praktikperioder fundet for denne elevplan.</div>
 }
 else
 {
     <div class="mb-4">
-        @foreach (var praktikId in praktikperiodeIds)
+        @foreach (var periode in praktikperioder)
         {
-            <button class="btn btn-outline-primary me-2 mb-2"
-                    @onclick="() => VisDelmaal(praktikId)">
-                    <!--Skal have praktikperiode navn i stedet-->
-                Praktikperiode @praktikId
+            var erValgt = periode.Id == valgtPraktikId;
+            var btnClass = erValgt
+            ? "btn btn-primary fw-bold me-2 mb-2 shadow-sm"
+            : "btn btn-outline-primary me-2 mb-2";
+
+            <button class="@btnClass"
+                    style="min-width: 160px; border-radius: 12px;"
+                    @onclick="() => VisDelmaal(periode.Id)">
+                @periode.Navn
             </button>
         }
+
+
     </div>
 
     @if (valgtPraktikId != 0 && UserState.Role?.ToLower() != "elev")
@@ -66,7 +78,8 @@ else
                                 }
                                 else
                                 {
-                                    <select class="form-select" @onchange="(e) => OpdaterStatus(d, e.Value?.ToString())">
+                                    <select class="form-select" @onchange="async e => await OpdaterStatus(d, ((ChangeEventArgs)e).Value?.ToString())">
+
                                         <option value="Ikke fuldført" selected="@IsSelected(d, "Ikke fuldført")">❌ Ikke fuldført</option>
                                         <option value="I gang" selected="@IsSelected(d, "I gang")">🔄 I gang</option>
                                         <option value="Fuldført" selected="@IsSelected(d, "Fuldført")">✅ Fuldført</option>
@@ -213,7 +226,8 @@ else
 @code {
     [Parameter] public int elevplanId { get; set; }
 
-    private List<int>? praktikperiodeIds;
+    private List<Modeller.Praktikperiode> praktikperioder = new();
+
     private List<Modeller.Delmål>? delmaalListe;
     private int valgtPraktikId = 0;
     private bool isLoading = true;
@@ -224,6 +238,8 @@ else
     private Modeller.Delmål nytDelmaal = new();
     private bool visModal = false;
     private bool redigerMode = false;
+
+    private string elevNavn = "";
 
     // Anmodningsdata
     private bool visAnmodningsModal = false;
@@ -237,15 +253,32 @@ else
     {
         try
         {
-            var plan = await ElevplanService.GetElevplanByIdAsync(elevplanId);
-            praktikperiodeIds = plan?.PraktikperiodeIds ?? new();
+            // Hent elevplanen
+            var elevplan = await ElevplanService.GetElevplanByIdAsync(elevplanId);
+
+            // Hent praktikperioder
+            praktikperioder = await PraktikperiodeService.GetByElevplanIdAsync(elevplanId);
+
+            // Hent brugeroplysninger hvis elevplanen eksisterer
+            if (elevplan != null)
+            {
+                var bruger = await UserService.GetByIdAsync(elevplan.ElevId);
+                elevNavn = bruger?.Navn ?? "Ukendt elev";
+            }
+            else
+            {
+                elevNavn = "Ukendt elev";
+            }
         }
         catch
         {
-            praktikperiodeIds = null;
+            praktikperioder = null;
+            elevNavn = "Ukendt elev";
         }
+
         isLoading = false;
     }
+
 
     private async Task VisDelmaal(int praktikperiodeId)
     {
