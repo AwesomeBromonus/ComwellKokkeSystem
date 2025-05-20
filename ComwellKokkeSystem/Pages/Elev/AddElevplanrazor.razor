@@ -95,6 +95,7 @@ else
     private bool success = false;
     private bool erTilladt = false;
     private string? fejlbesked = null;
+   
 
     protected override async Task OnInitializedAsync()
     {
@@ -177,7 +178,8 @@ else
                                 Elevtur = "",
                                 ElevId = valgtElevId,
                                 ElevplanId = oprettetPlan.Id,
-                                PraktikperiodeId = oprettetPraktik.Id
+                                PraktikperiodeId = oprettetPraktik.Id,
+                                DelmaalSkabelonId = skabelon.Id // 👈 NYT!
                             };
 
                         await Http.PostAsJsonAsync("api/delmaal", delmaal);
