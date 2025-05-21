@@ -54,7 +54,8 @@
         </div>
 
         <div class="row">
-            @foreach (var b in brugere.Where(b => string.IsNullOrWhiteSpace(søgeord) || b.Username.Contains(søgeord, StringComparison.OrdinalIgnoreCase)))
+            @foreach (var b in brugere
+           .Where(b => string.IsNullOrWhiteSpace(søgeord) || b.Username.Contains(søgeord, StringComparison.OrdinalIgnoreCase)))
             {
                 <div class="col-md-6 col-lg-4">
                     <div class="card user-card mb-3 shadow-sm" @onclick="() => VisDetaljer(b)" style="cursor:pointer;">
@@ -82,8 +83,47 @@
                             <p><strong>Email:</strong> @valgtBruger.Email</p>
                             <p><strong>Telefon:</strong> @valgtBruger.Tlf</p>
                             <p><strong>Adresse:</strong> @valgtBruger.Adresse</p>
-                            <p><strong>Hotel ID:</strong> @valgtBruger.HotelId</p>
-                            <p><strong>Startdato:</strong> @valgtBruger.StartDato.ToShortDateString()</p>
+                            <p><strong>Hotel:</strong> @valgtBruger.HotelNavn</p>
+
+                            @if (valgtBruger.Role?.ToLower() == "elev")
+                            {
+                                @if (!redigeringsMode)
+                                {
+                                    <p>
+                                        <strong>Startdato:</strong> @valgtBruger.StartDato.ToShortDateString()<br />
+                                        <strong>Slutdato:</strong> @(valgtBruger.SlutDato?.ToShortDateString() ?? "Ikke angivet")
+
+                                        <button class="btn btn-sm btn-outline-secondary ms-2" @onclick="ÅbnRediger" title="Rediger">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </button>
+                                    </p>
+                                }
+                                else
+                                {
+                                    <div class="mb-2">
+                                        <label class="form-label mb-1">Startdato:</label>
+                                        <input type="date" class="form-control" @bind="valgtBruger.StartDato" />
+
+                                        <label class="form-label mt-3 mb-1">Slutdato:</label>
+                                        <input type="date" class="form-control" @bind="valgtBruger.SlutDato" />
+
+                                        @if (!string.IsNullOrWhiteSpace(datoFejl))
+                                        {
+                                            <div class="text-danger mt-2">@datoFejl</div>
+                                        }
+
+                                        <div class="mt-3">
+                                            <button class="btn btn-success btn-sm" @onclick="GemDatoer">Gem</button>
+                                            <button class="btn btn-secondary btn-sm ms-2" @onclick="LukRediger">Annullér</button>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <p><strong>Startdato:</strong> @valgtBruger.StartDato.ToShortDateString()</p>
+                            }
+
                             <p><strong>Rolle:</strong> <span class="badge @GetRoleColor(valgtBruger.Role)">@valgtBruger.Role</span></p>
                         </div>
                         <div class="modal-footer">
@@ -96,7 +136,6 @@
                                     Se elevplan
                                 </button>
                             }
-
                         </div>
                     </div>
                 </div>
@@ -106,25 +145,84 @@
 </div>
 
 @code {
-    private List<Modeller.UserModel> brugere = new();
-    private Modeller.UserModel? valgtBruger;
+    private List<UserModel> brugere = new();
+    private UserModel? valgtBruger;
     private string søgeord = "";
+    private bool redigeringsMode = false;
+    private string datoFejl = "";
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            brugere = await Http.GetFromJsonAsync<List<UserModel>>("api/users/all");
+            var users = await Http.GetFromJsonAsync<List<UserModel>>("api/users/all");
+            if (users != null)
+                brugere = users;
         }
-        catch
+        catch (Exception ex)
         {
+            Console.WriteLine("Fejl ved indlæsning af brugere: " + ex.Message);
             brugere = new List<UserModel>();
         }
     }
 
-    void VisDetaljer(UserModel bruger) => valgtBruger = bruger;
+    void VisDetaljer(UserModel bruger)
+    {
+        valgtBruger = bruger;
+        redigeringsMode = false;
+        datoFejl = "";
+    }
 
-    void LukDetaljer() => valgtBruger = null;
+    void LukDetaljer()
+    {
+        valgtBruger = null;
+        redigeringsMode = false;
+        datoFejl = "";
+    }
+
+    void ÅbnRediger()
+    {
+        redigeringsMode = true;
+        datoFejl = "";
+    }
+
+    void LukRediger()
+    {
+        redigeringsMode = false;
+        datoFejl = "";
+    }
+
+    private async Task GemDatoer()
+    {
+        datoFejl = "";
+
+        if (valgtBruger != null)
+        {
+            if (valgtBruger.SlutDato != null && valgtBruger.SlutDato < valgtBruger.StartDato)
+            {
+                datoFejl = "Slutdato må ikke være før startdato.";
+                return;
+            }
+
+            try
+            {
+                var response = await Http.PutAsJsonAsync($"api/users/{valgtBruger.Id}", valgtBruger);
+                if (response.IsSuccessStatusCode)
+                {
+                    redigeringsMode = false;
+                    datoFejl = "";
+                }
+                else
+                {
+                    datoFejl = "Der opstod en fejl ved opdatering.";
+                }
+            }
+            catch
+            {
+                datoFejl = "Kunne ikke kontakte serveren.";
+            }
+        }
+    }
 
     private async Task SletBrugerAsync()
     {
@@ -144,7 +242,6 @@
         NavManager.NavigateTo($"/delmaal/{elevplanId}");
     }
 
-    // kan laves i css
     private string GetRoleColor(string role) => role?.ToLower() switch
     {
         "admin" => "bg-danger",
