@@ -91,7 +91,8 @@
                                 {
                                     <p>
                                         <strong>Startdato:</strong> @valgtBruger.StartDato.ToShortDateString()<br />
-                                        <strong>Slutdato:</strong> @(valgtBruger.SlutDato?.ToShortDateString() ?? "Ikke angivet")
+                                        <strong>Slutdato:</strong> @(valgtBruger.SlutDato?.ToShortDateString() ?? "Ikke angivet")<br />
+                                        <strong>Skoleperiode:</strong> @HentSkoleperiode(valgtBruger)
 
                                         <button class="btn btn-sm btn-outline-secondary ms-2" @onclick="ÅbnRediger" title="Rediger">
                                             <i class="bi bi-pencil-square"></i>
@@ -119,6 +120,7 @@
                                     </div>
                                 }
                             }
+
                             else
                             {
                                 <p><strong>Startdato:</strong> @valgtBruger.StartDato.ToShortDateString()</p>
@@ -141,6 +143,7 @@
                 </div>
             </div>
         }
+
     }
 </div>
 
@@ -150,6 +153,9 @@
     private string søgeord = "";
     private bool redigeringsMode = false;
     private string datoFejl = "";
+
+    // Tilføjelse af Elevplan objectet
+    private Dictionary<int, Elevplan> elevplaner = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -164,6 +170,20 @@
             Console.WriteLine("Fejl ved indlæsning af brugere: " + ex.Message);
             brugere = new List<UserModel>();
         }
+        foreach (var elev in brugere.Where(b => b.Role?.ToLower() == "elev"))
+        {
+            try
+            {
+                var plan = await Http.GetFromJsonAsync<Elevplan>($"api/elevplan/{elev.ElevplanId}");
+                if (plan != null)
+                    elevplaner[elev.Id] = plan;
+            }
+            catch
+            {
+                Console.WriteLine($"Kunne ikke hente elevplan for elev {elev.Username}");
+            }
+        }
+
     }
 
     void VisDetaljer(UserModel bruger)
@@ -250,4 +270,12 @@
         "hr" => "bg-info text-dark",
         _ => "bg-secondary"
     };
+    private string HentSkoleperiode(UserModel bruger)
+    {
+        if (bruger.Role?.ToLower() == "elev" && elevplaner.TryGetValue(bruger.Id, out var plan))
+            return plan.Skoleperiode;
+
+        return "Ikke tilgængelig";
+    }
+
 }
