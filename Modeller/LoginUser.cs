@@ -23,7 +23,9 @@ namespace Modeller
 
         public int HotelId { get; set; }
         public DateTime StartDato { get; set; } = DateTime.UtcNow;
+        public DateTime? SlutDato { get; set; }
         public int? ElevplanId { get; set; }
+        public string? HotelNavn { get; set; }
 
     }
 

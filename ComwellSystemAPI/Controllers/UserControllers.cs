@@ -99,7 +99,18 @@ namespace ComwellSystemAPI.Controllers
 
             return Ok("Elevplan tildelt.");
         }
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, [FromBody] UserModel bruger)
+        {
+            var eksisterende = await _userRepo.GetByIdAsync(id);
+            if (eksisterende == null)
+                return NotFound("Bruger ikke fundet.");
 
+            bruger.Id = id; // sikrer korrekt ID
+            await _userRepo.UpdateUserAsync(bruger);
+
+            return Ok("Bruger opdateret.");
+        }
         // GET: api/users/{username}
         [HttpGet("{username}")]
         public async Task<IActionResult> GetByUsername(string username)
