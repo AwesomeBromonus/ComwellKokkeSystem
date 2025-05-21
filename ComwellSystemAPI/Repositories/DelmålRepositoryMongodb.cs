@@ -17,7 +17,49 @@ public class DelmålRepository : IDelmål
     {
         delmaal.Id = await GetNextIdAsync();
         await _collection.InsertOneAsync(delmaal);
+
+        var db = _collection.Database;
+        var underdelSkabelonCollection = db.GetCollection<UnderdelmaalSkabelon>("UnderdelmaalSkabelon");
+        var underdelCollection = db.GetCollection<Underdelmaal>("Underdelmaal");
+
+        if (delmaal.DelmaalSkabelonId == null)
+        {
+            Console.WriteLine("⚠️ DelmaalSkabelonId er null. Underdelmål bliver ikke oprettet.");
+            return;
+        }
+
+        var underSkabeloner = await underdelSkabelonCollection
+            .Find(u => u.DelmaalSkabelonId == delmaal.DelmaalSkabelonId)
+            .ToListAsync();
+
+        if (!underSkabeloner.Any())
+        {
+            Console.WriteLine($"ℹ️ Ingen underdelmålsskabeloner fundet for skabelon ID {delmaal.DelmaalSkabelonId}");
+            return;
+        }
+
+        var sidste = await underdelCollection.Find(_ => true)
+            .SortByDescending(x => x.Id)
+            .Limit(1)
+            .FirstOrDefaultAsync();
+
+        int næsteId = sidste?.Id + 1 ?? 1;
+
+        var underdelmaal = underSkabeloner.Select(s => new Underdelmaal
+        {
+            Id = næsteId++,
+            DelmaalId = delmaal.Id,
+            Beskrivelse = s.Beskrivelse,
+            DeadlineOffsetDage = s.DeadlineOffsetDage,
+            Status = "Ikke fuldført"
+        }).ToList();
+
+        await underdelCollection.InsertManyAsync(underdelmaal);
+        Console.WriteLine($"✅ {underdelmaal.Count} underdelmål oprettet for delmål ID {delmaal.Id}");
     }
+
+
+
 
     private async Task<int> GetNextIdAsync()
     {

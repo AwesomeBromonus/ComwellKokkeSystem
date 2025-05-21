@@ -50,7 +50,12 @@ namespace ComwellSystemAPI.Repositories
         public async Task UpdateUserAsync(UserModel bruger)
         {
             var filter = Builders<UserModel>.Filter.Eq(u => u.Id, bruger.Id);
-            var update = Builders<UserModel>.Update.Set(u => u.ElevplanId, bruger.ElevplanId);
+
+            var update = Builders<UserModel>.Update
+                .Set(u => u.StartDato, bruger.StartDato)
+                .Set(u => u.SlutDato, bruger.SlutDato)
+                .Set(u => u.ElevplanId, bruger.ElevplanId);
+
             await _userCollection.UpdateOneAsync(filter, update);
         }
 

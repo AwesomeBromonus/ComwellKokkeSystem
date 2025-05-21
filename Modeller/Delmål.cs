@@ -18,6 +18,8 @@ namespace Modeller
         public string Elevtur { get; set; } = "";
         public int ElevplanId { get; set; }
         public int ElevId { get; set; }
+        public int? DelmaalSkabelonId { get; set; } 
+
 
     }
 

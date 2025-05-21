@@ -10,6 +10,8 @@
 @inject IAuthService AuthService
 @inject UserState UserState
 @inject IUserService UserService
+@inject IUnderdelmaalService UnderdelmaalService
+
 
 <h1 class="text-3xl font-bold text-center text-dark mb-5">@elevNavn</h1>
 
@@ -59,7 +61,39 @@ else
                         <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
                             <div>
                                 <strong>@d.Beskrivelse</strong><br />
-                                <span class="text-muted">Deadline: @d.Deadline.ToShortDateString()</span>
+
+                                <button class="border-0 bg-transparent text-dark p-0"
+                                        style="font-size: 1.2rem;"
+                                        @onclick="() => ToggleUnderdelmaalVisning(d.Id)">
+                                    @(udvidetDelmaalId == d.Id ? "⬇️" : "➡️")
+                                </button>
+
+
+                                @if (udvidetDelmaalId == d.Id && underdelmaalMap.ContainsKey(d.Id))
+                                {
+                                    <ul class="list-group list-group-flush mt-2">
+                                        @foreach (var u in underdelmaalMap[d.Id])
+                                        {
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <strong>@u.Beskrivelse</strong> 
+                                                </div>
+                                                @if (UserState.Role?.ToLower() != "elev")
+                                                {
+                                                    <div>
+                                                        <button class="btn btn-sm btn-warning me-1" @onclick="() => RedigerUnderdelmaal(u)">✏️</button>
+                                                        <button class="btn btn-sm btn-danger" @onclick="() => SletUnderdelmaal(u.Id, d.Id)">🗑️</button>
+                                                    </div>
+                                                }
+                                            </li>
+                                        }
+                                    </ul>
+                                }
+
+                                @if (UserState.Role?.ToLower() != "elev")
+                                {
+                                    <button class="btn btn-sm btn-outline-success mt-2" @onclick="() => ÅbenUnderdelmaalModal(d.Id)">➕ Tilføj underdelmål</button>
+                                }
                             </div>
 
                             <div>
@@ -79,13 +113,11 @@ else
                                 else
                                 {
                                     <select class="form-select" @onchange="async e => await OpdaterStatus(d, ((ChangeEventArgs)e).Value?.ToString())">
-
                                         <option value="Ikke fuldført" selected="@IsSelected(d, "Ikke fuldført")">❌ Ikke fuldført</option>
                                         <option value="I gang" selected="@IsSelected(d, "I gang")">🔄 I gang</option>
                                         <option value="Fuldført" selected="@IsSelected(d, "Fuldført")">✅ Fuldført</option>
                                     </select>
                                 }
-
                             </div>
 
                             @if (UserState.Role?.ToLower() != "elev")
@@ -95,19 +127,18 @@ else
                                     <button class="btn btn-sm btn-danger" @onclick="() => SletDelmaal(d.Id)">🗑️</button>
                                 </div>
                             }
-
                         </div>
 
                         <!-- Kommentar -->
                         <div class="mt-3">
-                            <label>💬 Kommentar:</label>
+                           
                             <textarea class="form-control"
                                       placeholder="Skriv en kommentar..."
                                       @bind="nyeKommentarer[d.Id]"></textarea>
 
                             <button class="btn btn-sm btn-primary mt-2"
                                     @onclick="() => GemKommentar(d.Id)">
-                                ➕ Gem kommentar
+                                Send
                             </button>
                         </div>
 
@@ -126,6 +157,7 @@ else
                         }
                     </li>
                 }
+
             </ul>
         }
         else
@@ -222,6 +254,42 @@ else
         </div>
     </div>
 }
+<!-- Modal: Underdelmål-->
+
+@if (visUnderdelmaalModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@((redigererUnderdelmaal ? "Rediger underdelmål" : "Tilføj underdelmål"))</h5>
+                    <button type="button" class="btn-close" @onclick="LukUnderdelmaalModal"></button>
+                </div>
+                <div class="modal-body">
+                    <EditForm Model="nyUnderdelmaal" OnValidSubmit="GemUnderdelmaal">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+
+                        <div class="mb-3">
+                            <label>Beskrivelse:</label>
+                            <InputText class="form-control" @bind-Value="nyUnderdelmaal.Beskrivelse" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label>Deadline offset (dage):</label>
+                            <InputNumber class="form-control" @bind-Value="nyUnderdelmaal.DeadlineOffsetDage" />
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-success">@((redigererUnderdelmaal ? "Opdater" : "Tilføj"))</button>
+                            <button type="button" class="btn btn-secondary" @onclick="LukUnderdelmaalModal">Annuller</button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+}
 
 @code {
     [Parameter] public int elevplanId { get; set; }
@@ -241,12 +309,22 @@ else
 
     private string elevNavn = "";
 
+  
+
     // Anmodningsdata
     private bool visAnmodningsModal = false;
     private int valgtDelmaalId = 0;
     private string ønsketStatus = "Fuldført";
     private int valgtModtagerId;
     private List<Modeller.UserModel> muligeModtagere = new();
+
+    //Underdelmål
+    private Dictionary<int, List<Modeller.Underdelmaal>> underdelmaalMap = new();
+    private int? udvidetDelmaalId = null;
+    private bool visUnderdelmaalModal = false;
+    private bool redigererUnderdelmaal = false;
+    private Underdelmaal nyUnderdelmaal = new();
+    private int valgtDelmaalTilUnderdelmaal = 0;
 
 
     protected override async Task OnInitializedAsync()
@@ -278,6 +356,65 @@ else
 
         isLoading = false;
     }
+
+    private void ÅbenUnderdelmaalModal(int delmaalId)
+    {
+        valgtDelmaalTilUnderdelmaal = delmaalId;
+        nyUnderdelmaal = new Underdelmaal { DelmaalId = delmaalId };
+        redigererUnderdelmaal = false;
+        visUnderdelmaalModal = true;
+    }
+
+    private void RedigerUnderdelmaal(Underdelmaal u)
+    {
+        nyUnderdelmaal = new Underdelmaal
+            {
+                Id = u.Id,
+                DelmaalId = u.DelmaalId,
+                Beskrivelse = u.Beskrivelse,
+                DeadlineOffsetDage = u.DeadlineOffsetDage,
+                Status = u.Status
+            };
+        valgtDelmaalTilUnderdelmaal = u.DelmaalId;
+        redigererUnderdelmaal = true;
+        visUnderdelmaalModal = true;
+    }
+
+    private void LukUnderdelmaalModal()
+    {
+        visUnderdelmaalModal = false;
+        nyUnderdelmaal = new();
+    }
+    private async Task GemUnderdelmaal()
+    {
+        if (redigererUnderdelmaal)
+        {
+            await UnderdelmaalService.UpdateAsync(nyUnderdelmaal);
+        }
+        else
+        {
+            await UnderdelmaalService.AddAsync(nyUnderdelmaal);
+        }
+
+        visUnderdelmaalModal = false;
+        nyUnderdelmaal = new();
+
+        underdelmaalMap.Remove(valgtDelmaalTilUnderdelmaal);
+        await ToggleUnderdelmaalVisning(valgtDelmaalTilUnderdelmaal);
+    }
+
+
+    private async Task SletUnderdelmaal(int id, int delmaalId)
+    {
+        await UnderdelmaalService.DeleteAsync(id);
+        underdelmaalMap.Remove(delmaalId);
+        await ToggleUnderdelmaalVisning(delmaalId);
+    }
+
+
+
+
+   
 
 
     private async Task VisDelmaal(int praktikperiodeId)
@@ -424,4 +561,24 @@ else
         redigerMode = false;
         nytDelmaal = new();
     }
+
+    private async Task ToggleUnderdelmaalVisning(int delmaalId)
+    {
+        if (udvidetDelmaalId == delmaalId)
+        {
+            udvidetDelmaalId = null;
+        }
+        else
+        {
+            udvidetDelmaalId = delmaalId;
+
+            if (!underdelmaalMap.ContainsKey(delmaalId))
+            {
+                var result = await UnderdelmaalService.GetByDelmaalIdAsync(delmaalId);
+                underdelmaalMap[delmaalId] = result ?? new();
+            }
+        }
+    }
+
+
 }

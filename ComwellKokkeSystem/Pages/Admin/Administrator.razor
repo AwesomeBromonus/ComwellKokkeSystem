@@ -140,10 +140,13 @@
     {
         try
         {
-            brugere = await Http.GetFromJsonAsync<List<UserModel>>("api/users/all");
+            var users = await Http.GetFromJsonAsync<List<UserModel>>("api/users/all");
+            if (users != null)
+                brugere = users;
         }
-        catch
+        catch (Exception ex)
         {
+            Console.WriteLine("Fejl ved indlæsning af brugere: " + ex.Message);
             brugere = new List<UserModel>();
         }
     }
@@ -180,6 +183,7 @@
     }
 
     private string GetRoleClass(string role) => role?.ToLower() switch
+    private string GetRoleColor(string role) => role?.ToLower() switch
     {
         "admin" => "role-admin",
         "elev" => "role-elev",

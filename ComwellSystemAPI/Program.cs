@@ -35,6 +35,8 @@ builder.Services.AddSingleton<IGenereRapport, GenereRapportMongoDB>();
 builder.Services.AddSingleton<IKommentar, KommentarRepository>();
 builder.Services.AddSingleton<IDelmaalSkabelon, DelmaalSkabelonRepository>();
 builder.Services.AddSingleton<IAnmodningRepository, AnmodningRepositoryMongo>();
+builder.Services.AddSingleton<IUnderdelmaal, UnderdelmaalRepository>();
+builder.Services.AddSingleton<IUnderdelmaalSkabelon, UnderdelmaalSkabelonRepository>();
 
 
 
