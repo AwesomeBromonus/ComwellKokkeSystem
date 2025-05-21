@@ -20,8 +20,7 @@ public class PraktikperiodeService : IPraktikperiodeService
         await _http.GetFromJsonAsync<List<Praktikperiode>>($"api/praktikperiode/elev/{elevId}");
 
     public async Task<List<Praktikperiode>> GetPraktikperioderForElevAsync(int elevId) =>
-        await GetByElevIdAsync(elevId); // Samme funktionalitet
-
+        await GetByElevIdAsync(elevId); // Samme funktionalite
     // ✅ Den du skal bruge i din delmål-side
     public async Task<List<Praktikperiode>> GetByElevplanIdAsync(int elevplanId) =>
         await _http.GetFromJsonAsync<List<Praktikperiode>>($"api/praktikperiode/elevplan/{elevplanId}");
