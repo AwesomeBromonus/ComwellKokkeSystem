@@ -6,10 +6,10 @@
 
 <link href="css/Panel.css" rel="stylesheet" />
 
-<div class="admin-panel-container">
+<div class="dashboard-main">
     @if (!UserState.IsLoggedInChecked)
     {
-        <p>⏳ Indlæser brugerstatus...</p>
+        <p class="loading-text">⏳ Indlæser brugerstatus...</p>
     }
     else if (!UserState.IsLoggedIn)
     {
@@ -21,39 +21,21 @@
     }
     else
     {
-        <!-- Header med ur -->
-        <div class="admin-header">
-            <h2 class="admin-title">🛠️ Administratorpanel – Overblik og Værktøjer</h2>
-            <span class="clock">@currentTime</span>
-        </div>
+        <h1 class="dashboard-title">Administratorpanel</h1>
 
-        <!-- Funktionelle værktøjer -->
-        <div class="panel-grid compact">
+        <!-- Panel med action-kort -->
+        <div class="dashboard-actions">
             @foreach (var panel in panels)
             {
-                <div class="panel-card">
-                    <div class="card-title">@panel.Icon @panel.Title</div>
-                    <p class="card-desc">@panel.Description</p>
-                    <button class="@panel.ButtonClass" @onclick="() => NavManager.NavigateTo(panel.Route)">
-                        @panel.ActionText
-                    </button>
+                <div class="action-card">
+                    <i class="@panel.Icon"></i>
+                    <p>@panel.Title</p>
+                    <button @onclick="() => NavManager.NavigateTo(panel.Route)">@panel.ActionText</button>
                 </div>
             }
         </div>
 
-        <!-- Brugertællere -->
-        <div class="panel-box mb-3">
-            <h5>👥 Brugertællere</h5>
-            <div class="tag-list">
-                <span class="role-tag role-ukendt">Alle: @brugere.Count</span>
-                <span class="role-tag role-elev">Elever: @brugere.Count(x => x.Role?.ToLower() == "elev")</span>
-                <span class="role-tag role-kok">Kokke: @brugere.Count(x => x.Role?.ToLower() == "kok")</span>
-                <span class="role-tag role-admin">Admins: @brugere.Count(x => x.Role?.ToLower() == "admin")</span>
-                <span class="role-tag role-hr">HR: @brugere.Count(x => x.Role?.ToLower() == "hr")</span>
-            </div>
-        </div>
-
-        <!-- Filtrering -->
+        <!-- Brugerliste -->
         <div class="search-filter">
             <input class="search-bar" placeholder="🔍 Søg brugernavn..." @bind="søgeord" />
             <select class="filter-dropdown" @bind="valgtRolle">
@@ -65,11 +47,10 @@
             </select>
         </div>
 
-        <!-- Brugerkort -->
-        <div class="user-grid slim">
+        <div class="user-grid">
             @foreach (var b in brugere.Where(b =>
-           (string.IsNullOrWhiteSpace(søgeord) || b.Username.Contains(søgeord, StringComparison.OrdinalIgnoreCase)) &&
-           (string.IsNullOrWhiteSpace(valgtRolle) || b.Role?.ToLower() == valgtRolle)))
+                   (string.IsNullOrWhiteSpace(søgeord) || b.Username.Contains(søgeord, StringComparison.OrdinalIgnoreCase)) &&
+                   (string.IsNullOrWhiteSpace(valgtRolle) || b.Role?.ToLower() == valgtRolle)))
             {
                 <div class="user-card" @onclick="() => VisDetaljer(b)">
                     <h5 class="card-title">@b.Navn</h5>
@@ -116,24 +97,22 @@
     private UserModel? valgtBruger;
     private string søgeord = "";
     private string valgtRolle = "";
-    private string currentTime = "";
 
-    private record PanelInfo(string Icon, string Title, string Description, string Route, string ActionText, string ButtonClass);
+    private record PanelInfo(string Icon, string Title, string Route, string ActionText);
     private List<PanelInfo> panels = new()
     {
-        new("👤", "Opret Bruger", "Tilføj nye brugere til systemet.", "/opretuser", "Gå til", "btn btn-primary"),
-        new("📝", "Opret Elevplan", "Start ny elevplan og tilknyt praktikperioder.", "/opret-elevplan", "Gå til", "btn btn-primary"),
-        new("📊", "Rapporter", "Få indsigt i progression og statistik.", "/rapportside", "Se rapporter", "btn btn-secondary"),
-        new("📥", "Anmodninger", "Se og håndtér elevanmodninger.", "/anmodninger", "Se anmodninger", "btn btn-secondary"),
-        new("📄", "Delmålsskabeloner", "Redigér skabeloner for praktikmål.", "/delmaalskabeloner", "Se skabeloner", "btn btn-secondary"),
-        new("📚", "Læring", "Oversigt over elevens læringsmål og forløb.", "/laering", "Se læring", "btn btn-secondary"),
-        new("💬", "Chat", "Kommunikér med elever og kolleger.", "/messages", "Åbn chat", "btn btn-secondary")
+        new("fa fa-user-plus", "Opret Bruger", "/opretuser", "Gå til"),
+        new("fa fa-file-alt", "Opret Elevplan", "/opret-elevplan", "Gå til"),
+        new("fa fa-chart-bar", "Rapporter", "/rapportside", "Se rapporter"),
+        new("fa fa-inbox", "Anmodninger", "/anmodninger", "Se anmodninger"),
+        new("fa fa-layer-group", "Delmålsskabeloner", "/delmaalskabeloner", "Se skabeloner"),
+        new("fa fa-book", "Læring", "/laering", "Se læring"),
+        new("fa fa-comments", "Chat", "/messages", "Åbn chat")
     };
 
     protected override async Task OnInitializedAsync()
     {
         await LoadUsers();
-        await UpdateClock();
     }
 
     private async Task LoadUsers()
@@ -148,16 +127,6 @@
         {
             Console.WriteLine("Fejl ved indlæsning af brugere: " + ex.Message);
             brugere = new List<UserModel>();
-        }
-    }
-
-    private async Task UpdateClock()
-    {
-        while (true)
-        {
-            currentTime = DateTime.Now.ToString("HH.mm.ss");
-            StateHasChanged();
-            await Task.Delay(1000);
         }
     }
 
@@ -177,13 +146,9 @@
         }
     }
 
-    private void SeElevplan(int elevplanId)
-    {
-        NavManager.NavigateTo($"/delmaal/{elevplanId}");
-    }
+    private void SeElevplan(int elevplanId) => NavManager.NavigateTo($"/delmaal/{elevplanId}");
 
     private string GetRoleClass(string role) => role?.ToLower() switch
-    private string GetRoleColor(string role) => role?.ToLower() switch
     {
         "admin" => "role-admin",
         "elev" => "role-elev",
