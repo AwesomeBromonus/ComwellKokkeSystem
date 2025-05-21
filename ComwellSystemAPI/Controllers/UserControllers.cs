@@ -121,7 +121,27 @@ namespace ComwellSystemAPI.Controllers
 
             return Ok(user);
         }
+        [HttpGet("elever/{year}")]
+        public async Task<ActionResult<List<UserModel>>> GetEleverByYear(int year)
+        {
+            var allUsers = await _userRepo.GetAllAsync();
+            var elever = allUsers
+                .Where(u => u.Role == "elev" && u.StartDato.Year == year)
+                .ToList();
+            return Ok(elever);
+        }
+        
+        [HttpGet("byid/{id}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            var user = await _userRepo.GetByIdAsync(id);
+            if (user == null)
+                return NotFound("Bruger ikke fundet.");
+            return Ok(user);
+        }
+
     }
+    
 
     public class AssignElevplanRequest
     {

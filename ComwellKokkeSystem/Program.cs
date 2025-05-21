@@ -39,7 +39,8 @@ public class Program
         builder.Services.AddBlazorDownloadFile();
         builder.Services.AddScoped<IAnmodningService, AnmodningService>();
         builder.Services.AddScoped<IUserService, UserService>();
-
+        builder.Services.AddScoped<IUnderdelmaalService, UnderdelmaalService>();
+        builder.Services.AddScoped<IUnderdelmaalSkabelonService, UnderdelmaalSkabelonService>();
 
 
 

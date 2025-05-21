@@ -20,6 +20,7 @@ namespace ComwellSystemAPI.Interfaces
         Task DeleteAsync(int id);
 
       
+        Task<List<Praktikperiode>> GetByElevIdAsync(int elevId); // <-- Add this line!
 
         // Hent alle praktikperioder tilknyttet en specifik elevplan
         Task<List<Praktikperiode>> GetByElevplanIdAsync(int elevplanId);
