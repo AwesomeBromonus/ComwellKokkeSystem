@@ -14,7 +14,6 @@
     <!-- Brugernavn -->
     <div class="form-group">
         <div class="input-with-icon">
-            <span class="input-icon">👤</span>
             <InputText class="form-control" placeholder="Brugernavn" @bind-Value="login.Username" />
         </div>
         <ValidationMessage For="@(() => login.Username)" />
@@ -23,7 +22,6 @@
     <!-- Adgangskode -->
     <div class="form-group">
         <div class="input-with-icon">
-            <span class="input-icon">🔑</span>
             <InputText class="form-control" type="@passwordType" placeholder="Adgangskode" @bind-Value="login.Password" />
             <button class="toggle-password" type="button" @onclick="TogglePassword">
                 @(passwordType == "password" ? "👁️" : "🙈")
@@ -50,11 +48,6 @@
     }
 </EditForm>
 
-<!-- Info -->
-<div class="login-info">
-    ❓ Har du problemer med at logge ind?<br />
-    Kontakt administrator eller HR-afdelingen.
-</div>
 
 @code {
     private LoginModel login = new();
@@ -65,7 +58,8 @@
 
     protected override async Task OnInitializedAsync()
     {
-        // Hvis allerede logget ind – redirect til korrekt side
+        await UserState.InitializeAsync(); // 🧠 Hent tidligere login fra localStorage
+
         if (UserState.IsLoggedIn)
         {
             NavManager.NavigateTo(UserState.Role?.ToLower() switch
@@ -77,7 +71,6 @@
             return;
         }
 
-        // Hent evt. gemt brugernavn
         var storedUser = await localStorage.GetItemAsync<string>("rememberedUsername");
         if (!string.IsNullOrEmpty(storedUser))
         {
