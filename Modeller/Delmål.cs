@@ -19,6 +19,21 @@ namespace Modeller
         public int ElevplanId { get; set; }
         public int ElevId { get; set; }
         public int? DelmaalSkabelonId { get; set; } 
+        
+        // Liste af underdelmål tilknyttet til dette delmål
+        public List<Underdelmaal> UnderdelmaalList { get; set; } = new();
+        
+        // Beregn status baseret på underdelmål 
+        public string CalculatedStatus
+        {
+            get
+            {
+                if (!UnderdelmaalList.Any()) return "Ikke påbegyndt";
+                if (UnderdelmaalList.All(u => u.Status == "Fuldført")) return "Fuldført";
+                if (UnderdelmaalList.Any(u => u.Status == "I gang")) return "I gang";
+                return "Ikke fuldført"; 
+            }
+        }
 
 
     }

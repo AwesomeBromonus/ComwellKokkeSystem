@@ -6,6 +6,7 @@
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime
 @using ComwellKokkeSystem.Pages.Helpers
+@using System.Linq 
 
 <h3>HR Rapport</h3>
 @if (!isAuthorized)
@@ -18,7 +19,6 @@ else if (isLoading)
 }
 else
 {
-    <!-- Year filter -->
     <select @onchange="ChangeYear" class="mb-4 p-2 border rounded">
         @for (int year = 2025; year <= 2030; year++)
         {
@@ -26,9 +26,16 @@ else
         }
     </select>
 
+    <select @onchange="ChangePraktikperiodeFilter" class="mb-4 p-2 border rounded ml-4">
+        <option value="0">Alle Praktikperioder</option>
+        @* NYT: Brug Distinct() for at få unikke praktikperiodenavne og ID'er*@
+        @foreach (var pp in AllPraktikperioderFilterOptions.OrderBy(p => p.Navn)) // Sorter efter navn for pænere visning
+        {
+            <option value="@pp.Id">@pp.Navn</option>
+        }
+    </select>
 
 
-    <!-- Pagination -->
     <div class="flex justify-between items-center mt-4">
         <button class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
                 @onclick="PreviousPage" disabled="@IsFirstPage">Forrige</button>
@@ -37,7 +44,6 @@ else
                 @onclick="NextPage" disabled="@IsLastPage">Næste</button>
     </div>
 
-    <!-- Table -->
     <div class="overflow-x-auto rounded-lg shadow mt-4">
         <table class="min-w-full bg-white text-sm text-left text-gray-700">
             <thead class="bg-gray-100 text-xs uppercase text-gray-600">
@@ -48,8 +54,6 @@ else
                 <th class="px-4 py-2">Status</th>
                 <th class="px-4 py-2">Alle Praktikperioder</th>
                 <th class="px-4 py-2">Delmål Progress</th>
-                <th class="px-4 py-2">Notifikation</th>
-                <th class="px-4 py-2">Detaljer</th>
             </tr>
             </thead>
             <tbody>
@@ -68,31 +72,19 @@ else
                             Se alle praktikperioder
                         </a>
                     </td>
-                    
+
                     <td class="px-4 py-2">
-                        @if (elev.DelmaalTotal > 0)
+                        @if (elev.DelmaalTotalForSelectedPeriod > 0)
                         {
                             <div class="w-full bg-gray-200 rounded h-2.5 mb-1">
-                                <div class="bg-green-500 h-2.5 rounded" style="width:@($"{elev.DelmaalPercent}%")"></div>
+                                <div class="bg-green-500 h-2.5 rounded" style="width:@($"{elev.DelmaalPercentForSelectedPeriod}%")"></div>
                             </div>
-                            <span class="font-mono text-xs">@($"{elev.DelmaalDone}/{elev.DelmaalTotal} ({elev.DelmaalPercent}%)")</span>
+                            <span class="font-mono text-xs">@($"{elev.DelmaalDoneForSelectedPeriod}/{elev.DelmaalTotalForSelectedPeriod} ({elev.DelmaalPercentForSelectedPeriod}%)")</span>
                         }
                         else
                         {
                             <span class="italic text-gray-400">Ingen delmål</span>
                         }
-                    </td>
-                    <td class="px-4 py-2">
-                        @if (elev.DaysToSchool is not null && elev.DaysToSchool <= 14 && elev.DaysToSchool >= 0)
-                        {
-                            <span class="text-red-600 font-bold animate-pulse">Skal i skole om @elev.DaysToSchool dage</span>
-                        }
-                    </td>
-                    <td class="px-4 py-2">
-                        <button class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded transition"
-                                @onclick="() => ShowDetails(elev)">
-                            Detaljer
-                        </button>
                     </td>
                 </tr>
             }
@@ -102,10 +94,8 @@ else
     <div class="flex justify-center gap-4 mt-6 mb-8">
         <div class="overflow-x-auto rounded-lg shadow mt-4">
             <table class="min-w-full bg-white text-sm text-left text-gray-700">
-                <!-- Tabelindhold forbliver uændret -->
             </table>
 
-            <!-- Tilføj knapperne her under tabellen -->
             <div class="flex justify-end gap-4 mt-6 mb-8">
                 <button class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
                         @onclick="ExportToCsv">
@@ -116,19 +106,16 @@ else
                     Eksporter til Excel
                 </button>
             </div>
-        </div>   
         </div>
+    </div>
 
-    
-
-    <!-- Modal for delmål breakdown -->
     <ProgressionModal IsOpen="@isModalOpen" Elev="@selectedElev" OnClose="@CloseModal" />
 }
 
 @code {
     // Data
     private List<StudentViewModel> elever = new();
-    private StudentViewModel selectedElev;
+    private StudentViewModel? selectedElev;
     private bool isModalOpen = false;
 
     // Table state
@@ -140,7 +127,9 @@ else
     private bool isAuthorized = false;
     private bool isLoading = true;
 
-    // Computed property for paginated, sorted students
+    private int selectedPraktikperiodeFilterId = 0;
+    private List<Praktikperiode> AllPraktikperioderFilterOptions = new();
+
     private IEnumerable<StudentViewModel> PagedStudents =>
         elever
             .OrderByDynamic(SortColumn, SortAscending)
@@ -153,10 +142,10 @@ else
 
     private bool AllSelected
     {
-        get => elever.All(e => e.IsSelected);
+        get => PagedStudents.Any() && PagedStudents.All(e => e.IsSelected);
         set
         {
-            foreach (var elev in elever)
+            foreach (var elev in PagedStudents)
                 elev.IsSelected = value;
         }
     }
@@ -182,24 +171,23 @@ else
     {
         var userModels = await RapportService.GetEleverAsync(selectedYear) ?? new List<UserModel>();
         var praktikperioder = await RapportService.GetPraktikPerioderAsync(selectedYear) ?? new List<Praktikperiode>();
-        var delmaal = await RapportService.GetDelmålAsync(selectedYear) ?? new List<Delmål>();
+        // NYT: Hent delmål MED underdelmål via det nye API-endpoint
+        var allDelmaalWithUnderdelmaal = await RapportService.GetDelmålWithUnderdelmaalAsync(selectedYear) ?? new List<Delmål>();
 
-        elever = userModels.Select(user =>
+        var tempElever = new List<StudentViewModel>();
+
+        foreach (var user in userModels)
         {
             var elevPraktikperioder = praktikperioder.Where(p => p.ElevId == user.Id).ToList();
-            var elevDelmaal = delmaal.Where(d => d.ElevId == user.Id).ToList();
-            int done = elevDelmaal.Count(d => d.Status == "Fuldført");
-            int total = elevDelmaal.Count;
+            // NYT: Filtrer fra den aggregerede liste
+            var elevDelmaal = allDelmaalWithUnderdelmaal.Where(d => d.ElevId == user.Id).ToList();
 
             var nextPeriod = elevPraktikperioder
                 .Where(p => p.StartDato >= DateTime.Today)
                 .OrderBy(p => p.StartDato)
                 .FirstOrDefault();
-            int? daysToSchool = nextPeriod != null
-                ? (int?)(nextPeriod.StartDato - DateTime.Today).Days
-                : null;
 
-            return new StudentViewModel
+            var studentVm = new StudentViewModel
             {
                 Id = user.Id,
                 Navn = user.Navn,
@@ -207,15 +195,27 @@ else
                 Status = user.Role,
                 Praktikperioder = elevPraktikperioder,
                 Praktikperiode = nextPeriod,
-                DelmaalList = elevDelmaal,
-                DelmaalDone = done,
-                DelmaalTotal = total,
-                DaysToSchool = daysToSchool,
+                DelmaalList = elevDelmaal, // Denne liste har nu underdelmål
                 ElevplanId = user.ElevplanId,
-
+                SelectedPraktikperiodeId = selectedPraktikperiodeFilterId
             };
-        }).ToList();
-        
+            tempElever.Add(studentVm);
+        }
+        elever = tempElever;
+
+        // Forbered en liste af unikke praktikperioder til filterdropdown
+        // Hvis praktikperiodens ID er unikt på tværs af alle perioder (uanset elev), er dette fint.
+        // Hvis f.eks. "Praktikperiode 1" har ID=1 for alle elever, kan du bruge .DistinctBy(p => p.Id).
+        // Men hvis du vil have alle unikke NAVNE i dropdown'en, skal du gruppere på navn.
+        // Jeg antager, at praktikperiode-ID'er er unikke globalt (f.eks. fra en masterliste over praktikperioder).
+        AllPraktikperioderFilterOptions = praktikperioder
+            .GroupBy(p => p.Id) // Gruppér for at få unikke praktikperioder baseret på ID
+            .Select(g => g.First()) // Vælg den første i hver gruppe
+            .OrderBy(p => p.StartDato) // Sorter for pæn visning
+            .ToList();
+
+        CurrentPage = 1;
+        StateHasChanged();
     }
 
     private void ToggleSelectAll() => AllSelected = !AllSelected;
@@ -255,6 +255,20 @@ else
         }
     }
 
+    private void ChangePraktikperiodeFilter(ChangeEventArgs e)
+    {
+        if (e.Value != null)
+        {
+            selectedPraktikperiodeFilterId = int.Parse(e.Value.ToString());
+            foreach (var elev in elever)
+            {
+                elev.SelectedPraktikperiodeId = selectedPraktikperiodeFilterId;
+            }
+            CurrentPage = 1;
+            StateHasChanged();
+        }
+    }
+
     private async Task ExportToCsv()
     {
         var fileContent = await RapportService.ExportToCsvAsync(selectedYear);
@@ -276,7 +290,4 @@ else
     {
         NavigationManager.NavigateTo($"/delmaal/{elevplanId}");
     }
-    
-    
-
 }
