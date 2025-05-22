@@ -252,9 +252,6 @@ new file mode 100644
 +}
 \ No newline at end of file
 Index: Pages/GenereRapport.razor
-IDEA additional info:
-Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
-<+>UTF-8
 ===================================================================
 diff --git a/Pages/GenereRapport.razor b/Pages/GenereRapport.razor
 new file mode 100644
@@ -499,9 +496,6 @@ new file mode 100644
 +}
 \ No newline at end of file
 Index: ../ComwellSystemAPI/Interfaces/IGenereRapport.cs
-IDEA additional info:
-Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
-<+>UTF-8
 ===================================================================
 diff --git a/../ComwellSystemAPI/Interfaces/IGenereRapport.cs b/../ComwellSystemAPI/Interfaces/IGenereRapport.cs
 new file mode 100644
