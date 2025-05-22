@@ -5,6 +5,9 @@
 @inject IDelmaalService DelmaalService
 @inject UserState UserState
 @inject NavigationManager Nav
+@inject IUnderdelmaalService UnderdelmaalService
+
+
 
 <h3 class="text-xl font-bold mb-4">📩 Indkomne Delmålsanmodninger</h3>
 
@@ -29,13 +32,23 @@ else
     <ul class="list-group">
         @foreach (var a in anmodninger)
         {
-            var delmaal = delmaalMap.ContainsKey(a.DelmaalId) ? delmaalMap[a.DelmaalId] : null;
+            Delmål? delmaal = null;
+            @if (a.DelmaalId != null && delmaalMap.ContainsKey(a.DelmaalId.Value))
+            {
+                <strong>Delmål:</strong> @delmaalMap[a.DelmaalId.Value].Beskrivelse
+                <br />
+            }
+            else if (a.UnderdelmaalId != null && underdelmaalMap.ContainsKey(a.UnderdelmaalId.Value))
+            {
+                <strong>Underdelmål:</strong> @underdelmaalMap[a.UnderdelmaalId.Value].Beskrivelse
+                <br />
+            }
+
 
             <li class="list-group-item mb-3">
                 <strong>Delmål:</strong> @delmaal?.Beskrivelse <br />
                 <strong>Ønsket status:</strong> @a.ØnsketStatus <br />
                 <strong>Anmodet af elev-id:</strong> @a.ElevId <br />
-                
 
                 <div class="mt-2 d-flex gap-2">
                     <button class="btn btn-sm btn-success" @onclick="() => BehandlAnmodning(a.Id, true)">✅ Accepter</button>
@@ -45,9 +58,12 @@ else
         }
     </ul>
 }
+
 @code {
     private List<Anmodning>? anmodninger;
     private Dictionary<int, Delmål> delmaalMap = new();
+    private Dictionary<int, Underdelmaal> underdelmaalMap = new();
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -58,47 +74,41 @@ else
         }
 
         anmodninger = await AnmodningService.GetTilModtagerAsync(UserState.Id.Value);
-
         foreach (var a in anmodninger)
         {
-            var delmaal = await DelmaalService.GetByIdAsync(a.DelmaalId);
-            if (delmaal != null)
-                delmaalMap[delmaal.Id] = delmaal;
+            if (a.DelmaalId != null)
+            {
+                var delmaal = await DelmaalService.GetByIdAsync(a.DelmaalId.Value);
+                if (delmaal != null)
+                    delmaalMap[a.DelmaalId.Value] = delmaal;
+            }
+            else if (a.UnderdelmaalId != null)
+            {
+                var underdelmaal = await UnderdelmaalService.GetByIdAsync(a.UnderdelmaalId.Value);
+                if (underdelmaal != null)
+                    underdelmaalMap[a.UnderdelmaalId.Value] = underdelmaal;
+            }
         }
-    }
 
+    }
     private async Task BehandlAnmodning(int anmodningId, bool accepteret)
     {
-        var anmodning = await AnmodningService.GetByIdAsync(anmodningId);
-        if (anmodning == null) return;
+        await AnmodningService.BehandlAsync(anmodningId, accepteret);
 
-        if (accepteret)
-        {
-            var delmaal = await DelmaalService.GetByIdAsync(anmodning.DelmaalId);
-            if (delmaal != null)
-            {
-                delmaal.Status = anmodning.ØnsketStatus;
-                await DelmaalService.UpdateDelmaalAsync(delmaal);
-            }
-
-            anmodning.Status = "Godkendt";
-        }
-        else
-        {
-            anmodning.Status = "Afvist";
-        }
-
-        await AnmodningService.UpdateAsync(anmodning);
-
-        // Genindlæs
+        // Genindlæs anmodninger og delmål
         anmodninger = await AnmodningService.GetTilModtagerAsync(UserState.Id.Value);
-
         delmaalMap.Clear();
+
         foreach (var a in anmodninger)
         {
-            var delmaal = await DelmaalService.GetByIdAsync(a.DelmaalId);
-            if (delmaal != null)
-                delmaalMap[delmaal.Id] = delmaal;
+            if (a.DelmaalId != null)
+            {
+                var delmaal = await DelmaalService.GetByIdAsync(a.DelmaalId.Value);
+                if (delmaal != null)
+                {
+                    delmaalMap[delmaal.Id] = delmaal;
+                }
+            }
         }
 
         StateHasChanged();

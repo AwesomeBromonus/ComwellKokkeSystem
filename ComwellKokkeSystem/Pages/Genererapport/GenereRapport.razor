@@ -26,9 +26,7 @@ else
         }
     </select>
 
-    <!-- Export buttons -->
-    <button class="btn btn-primary me-2" @onclick="ExportToCsv">Eksporter til CSV</button>
-    <button class="btn btn-success me-2" @onclick="ExportToExcel">Eksporter til Excel</button>
+
 
     <!-- Pagination -->
     <div class="flex justify-between items-center mt-4">
@@ -101,6 +99,27 @@ else
             </tbody>
         </table>
     </div>
+    <div class="flex justify-center gap-4 mt-6 mb-8">
+        <div class="overflow-x-auto rounded-lg shadow mt-4">
+            <table class="min-w-full bg-white text-sm text-left text-gray-700">
+                <!-- Tabelindhold forbliver uændret -->
+            </table>
+
+            <!-- Tilføj knapperne her under tabellen -->
+            <div class="flex justify-end gap-4 mt-6 mb-8">
+                <button class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+                        @onclick="ExportToCsv">
+                    Eksporter til CSV
+                </button>
+                <button class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition"
+                        @onclick="ExportToExcel">
+                    Eksporter til Excel
+                </button>
+            </div>
+        </div>   
+        </div>
+
+    
 
     <!-- Modal for delmål breakdown -->
     <ProgressionModal IsOpen="@isModalOpen" Elev="@selectedElev" OnClose="@CloseModal" />

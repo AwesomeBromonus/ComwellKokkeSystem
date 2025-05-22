@@ -64,5 +64,6 @@ namespace ComwellSystemAPI.Controllers
                 return StatusCode(500, $"Fejl ved eksport til Excel: {ex.Message}");
             }
         }
+        
     }
 }

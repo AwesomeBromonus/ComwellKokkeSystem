@@ -1,12 +1,14 @@
 ﻿using MongoDB.Driver;
 using Modeller;
 using ComwellSystemAPI.Interfaces;
+using ComwellSystemAPI.Repositories;
 
 namespace ComwellSystemAPI.Repositories
 {
     public class AnmodningRepositoryMongo : IAnmodningRepository
     {
         private readonly IMongoCollection<Anmodning> _collection;
+
 
         public AnmodningRepositoryMongo()
         {
@@ -54,9 +56,46 @@ namespace ComwellSystemAPI.Repositories
             var anmodning = await GetByIdAsync(id);
             if (anmodning == null) return;
 
-            anmodning.Status = accepteret ? "Godkendt" : "Afvist";
+            var db = _collection.Database;
+
+            if (accepteret)
+            {
+                if (anmodning.UnderdelmaalId.HasValue)
+                {
+                    var underdelmaalCollection = db.GetCollection<Underdelmaal>("Underdelmaal");
+                    var filter = Builders<Underdelmaal>.Filter.Eq(u => u.Id, anmodning.UnderdelmaalId.Value);
+                    var underdelmaal = await underdelmaalCollection.Find(filter).FirstOrDefaultAsync();
+
+                    if (underdelmaal != null)
+                    {
+                        underdelmaal.Status = anmodning.ØnsketStatus;
+                        await underdelmaalCollection.ReplaceOneAsync(filter, underdelmaal);
+                    }
+                }
+                else if (anmodning.DelmaalId != 0)
+                {
+                    var delmaalCollection = db.GetCollection<Delmål>("Delmål");
+                    var filter = Builders<Delmål>.Filter.Eq(d => d.Id, anmodning.DelmaalId);
+                    var delmaal = await delmaalCollection.Find(filter).FirstOrDefaultAsync();
+
+                    if (delmaal != null)
+                    {
+                        delmaal.Status = anmodning.ØnsketStatus;
+                        await delmaalCollection.ReplaceOneAsync(filter, delmaal);
+                    }
+                }
+
+                anmodning.Status = "Godkendt";
+            }
+            else
+            {
+                anmodning.Status = "Afvist";
+            }
+
             await UpdateAsync(anmodning);
         }
+
+
 
     }
 }
