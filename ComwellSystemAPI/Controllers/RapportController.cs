@@ -15,6 +15,14 @@ namespace ComwellSystemAPI.Controllers
         {
             _rapportService = rapportService;
         }
+       
+        [HttpGet("delmaal-with-underdelmaal/{year}")]
+        public async Task<IActionResult> GetDelmaalWithUnderdelmaal(int year)
+        {
+            var delmaal = await _rapportService.GetAllDelmaalWithUnderdelmaalAsync(year);
+            return Ok(delmaal);
+        }
+        
 
         [HttpGet("praktikperioder/{year}")]
         public async Task<IActionResult> GetPraktikperioder(int year)

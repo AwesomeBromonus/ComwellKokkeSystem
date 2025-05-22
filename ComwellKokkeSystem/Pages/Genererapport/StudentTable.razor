@@ -17,8 +17,6 @@
                 <th>Delmål Progress</th>
                 <th>Start Dato</th>
                 <th>Slut Dato</th>
-                <th>Notifikation</th>
-                <th>Detaljer</th>
             </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
@@ -52,15 +50,6 @@
                     </td>
                     <td>@elev.Praktikperiode?.StartDato.ToString("dd/MM/yyyy")</td>
                     <td>@elev.Praktikperiode?.SlutDato.ToString("dd/MM/yyyy")</td>
-                    <td>
-                        @if (elev.DaysToSchool is not null && elev.DaysToSchool <= 14 && elev.DaysToSchool >= 0)
-                        {
-                            <span class="text-red-600 font-bold">Skal i skole om @elev.DaysToSchool dage</span>
-                        }
-                    </td>
-                    <td>
-                        <button class="btn btn-primary" @onclick="() => ShowDetails(elev)">Detaljer</button>
-                    </td>
                 </tr>
             }
         </tbody>
@@ -129,8 +118,5 @@
         }
     }
 
-    private void ShowDetails(StudentViewModel elev)
-    {
-        OnShowDetails.InvokeAsync(elev);
-    }
+
 }

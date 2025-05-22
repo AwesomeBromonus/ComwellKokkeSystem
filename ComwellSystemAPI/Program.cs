@@ -31,13 +31,13 @@ builder.Services.AddSingleton<IUserRepository, UserRepositoryMongodb>();
 builder.Services.AddSingleton<IDelmål, DelmålRepository>();
 builder.Services.AddSingleton<IBesked, BeskedRepositoryMongoDB>();
 builder.Services.AddSingleton<ILæring, LæringRepositoryMongoDB>();
-builder.Services.AddSingleton<IGenereRapport, GenereRapportMongoDB>();
+builder.Services.AddSingleton<IUnderdelmaal, UnderdelmaalRepository>();
 builder.Services.AddSingleton<IKommentar, KommentarRepository>();
 builder.Services.AddSingleton<IDelmaalSkabelon, DelmaalSkabelonRepository>();
 builder.Services.AddSingleton<IAnmodningRepository, AnmodningRepositoryMongo>();
-builder.Services.AddSingleton<IUnderdelmaal, UnderdelmaalRepository>();
 builder.Services.AddSingleton<IUnderdelmaalSkabelon, UnderdelmaalSkabelonRepository>();
 
+builder.Services.AddSingleton<IGenereRapport, GenereRapportMongoDB>();
 
 
 // OpenAPI/Swagger
