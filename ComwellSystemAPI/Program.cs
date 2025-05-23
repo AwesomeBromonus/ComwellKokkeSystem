@@ -18,7 +18,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowBlazor", policy =>
     {
         policy
-            .WithOrigins("https://localhost:7139") // Din Blazor frontend-port
+            .WithOrigins("https://itakokkesystem.azurewebsites.net") // Din Blazor frontend-port
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
