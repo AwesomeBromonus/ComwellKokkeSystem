@@ -1,4 +1,4 @@
-﻿using ComwellKokkeSystem.Service;
+﻿// ComwellKokkeSystem.Service/GenereRapportService.cs
 using Modeller;
 using System;
 using System.Collections.Generic;
@@ -22,10 +22,29 @@ namespace ComwellKokkeSystem.Service
             return await _httpClient.GetFromJsonAsync<List<Praktikperiode>>($"api/rapport/praktikperioder/{year}");
         }
 
-        public async Task<List<Delmål>?> GetDelmålAsync(int year)
+        // NYT: Denne metode kalder nu det nye/opdaterede API-endpoint
+        public async Task<List<Delmål>?> GetDelmålWithUnderdelmaalAsync(int year)
         {
-            return await _httpClient.GetFromJsonAsync<List<Modeller.Delmål>>($"api/rapport/delmaal/{year}");
+            try
+            {
+                // Kalder det nye API-endpoint
+                return await _httpClient.GetFromJsonAsync<List<Delmål>>($"api/rapport/delmaal-with-underdelmaal/{year}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching delmål with underdelmål for year {year}: {ex.Message}");
+                return new List<Delmål>();
+            }
         }
+
+        // Duplikerede metoder er fjernet herfra: GetPraktikPerioderAsync og GetDelmålAsync (den gamle version)
+
+        // Den gamle GetDelmålAsync er sandsynligvis ikke længere nødvendig, hvis den ikke henter underdelmål
+        // Hvis den bruges andre steder, skal du overveje at omdøbe den eller opdatere de steder.
+        // public async Task<List<Delmål>?> GetDelmålAsync(int year)
+        // {
+        //     return await _httpClient.GetFromJsonAsync<List<Delmål>>($"api/rapport/delmaal/{year}");
+        // }
 
         public async Task<List<UserModel>?> GetBrugereAsync(int year)
         {
@@ -59,7 +78,6 @@ namespace ComwellKokkeSystem.Service
                 Console.WriteLine($"Error fetching elever for year {year}: {ex}");
                 return new List<UserModel>();
             }
-            
         }
     }
 }

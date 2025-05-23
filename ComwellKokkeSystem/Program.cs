@@ -6,8 +6,6 @@ using Blazored.LocalStorage;
 using ComwellKokkeSystem.Service;
 using ComwellKokkeSystem.Service.Elev;
 
-
-
 public class Program
 {
     public static async Task Main(string[] args)
@@ -17,8 +15,7 @@ public class Program
         builder.RootComponents.Add<App>("#app");
         builder.RootComponents.Add<HeadOutlet>("head::after");
 
-        builder.Services.AddScoped<UserState>();
-
+        builder.Services.AddSingleton<UserState>();
 
         builder.Services.AddScoped(sp => new HttpClient
         {
@@ -45,5 +42,10 @@ public class Program
 
 
         await builder.Build().RunAsync();
+
+        var host = builder.Build();
+        var userState = host.Services.GetRequiredService<UserState>();
+        await userState.InitializeAsync(); // <- Henter fra localStorage ved start
+        await host.RunAsync();
     }
 }

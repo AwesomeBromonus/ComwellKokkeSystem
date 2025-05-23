@@ -8,7 +8,7 @@ using System.IO;
 using System.Text;
 using System.Globalization;
 using System.Linq;
-using ClosedXML.Excel; // You'll need to add this NuGet package
+using ClosedXML.Excel;
 
 namespace ComwellSystemAPI.Repositories
 {
@@ -18,8 +18,11 @@ namespace ComwellSystemAPI.Repositories
         private readonly IMongoCollection<Praktikperiode> _praktikperioder;
         private readonly IMongoCollection<Delmål> _delmål;
         private readonly IMongoCollection<UserModel> _brugere;
+        private readonly IDelmål _delmaalRepository;
+        private readonly IUnderdelmaal _underdelmaalRepository;
 
-        public GenereRapportMongoDB()
+        // **KORREKT KONSTRUKTØR**
+        public GenereRapportMongoDB(IDelmål delmaalRepository, IUnderdelmaal underdelmaalRepository)
         {
             var mongoUri = "mongodb+srv://Brobolo:Bromus12344321@cluster0.k4kon.mongodb.net/";
             var client = new MongoClient(mongoUri);
@@ -27,6 +30,10 @@ namespace ComwellSystemAPI.Repositories
             _praktikperioder = database.GetCollection<Praktikperiode>("Praktikperioder");
             _delmål = database.GetCollection<Delmål>("Delmål");
             _brugere = database.GetCollection<UserModel>("Brugere");
+
+            // KORREKT TILDELELSE AF INJECTEDE REPOSITORIES
+            _delmaalRepository = delmaalRepository;
+            _underdelmaalRepository = underdelmaalRepository;
         }
 
         public async Task<List<Praktikperiode>> GetPraktikPerioderAsync(int year)
@@ -37,9 +44,11 @@ namespace ComwellSystemAPI.Repositories
 
         public async Task<List<Delmål>> GetDelmålAsync(int year)
         {
-            return await _delmål.Find(d => d.Deadline.Year == year)
+            return await _delmål
+                .Find(d => d.Deadline.Year == year)
                 .ToListAsync();
         }
+        
 
         public async Task<List<Delmål>> GetDelmålMånedAsync(int year, int month)
         {
@@ -190,6 +199,18 @@ namespace ComwellSystemAPI.Repositories
             using var memoryStream = new MemoryStream();
             workbook.SaveAs(memoryStream);
             return memoryStream.ToArray();
+        }
+        public async Task<List<Delmål>> GetAllDelmaalWithUnderdelmaalAsync(int year)
+        {
+            // Denne linje kalder nu den opdaterede GetAllForYearAsync,
+            // som filtrerer i C#
+            var allDelmaal = await _delmaalRepository.GetAllForYearAsync(year);
+
+            foreach (var dm in allDelmaal)
+            {
+                dm.UnderdelmaalList = await _underdelmaalRepository.GetByDelmaalIdAsync(dm.Id);
+            }
+            return allDelmaal;
         }
     }
 }
