@@ -49,8 +49,8 @@
 
         <div class="user-grid">
             @foreach (var b in brugere.Where(b =>
-                   (string.IsNullOrWhiteSpace(søgeord) || b.Username.Contains(søgeord, StringComparison.OrdinalIgnoreCase)) &&
-                   (string.IsNullOrWhiteSpace(valgtRolle) || b.Role?.ToLower() == valgtRolle)))
+           (string.IsNullOrWhiteSpace(søgeord) || b.Username.Contains(søgeord, StringComparison.OrdinalIgnoreCase)) &&
+           (string.IsNullOrWhiteSpace(valgtRolle) || b.Role?.ToLower() == valgtRolle)))
             {
                 <div class="user-card" @onclick="() => VisDetaljer(b)">
                     <h5 class="card-title">@b.Navn</h5>
@@ -89,7 +89,6 @@
                 </div>
             </div>
         }
-
     }
 </div>
 
@@ -110,9 +109,6 @@
         new("fa fa-book", "Læring", "/laering", "Se læring"),
         new("fa fa-comments", "Chat", "/messages", "Åbn chat")
     };
-
-    // Tilføjelse af Elevplan objectet
-    private Dictionary<int, Elevplan> elevplaner = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -160,12 +156,4 @@
         "hr" => "role-hr",
         _ => "role-ukendt"
     };
-    private string HentSkoleperiode(UserModel bruger)
-    {
-        if (bruger.Role?.ToLower() == "elev" && elevplaner.TryGetValue(bruger.Id, out var plan))
-            return plan.Skoleperiode;
-
-        return "Ikke tilgængelig";
-    }
-
 }
