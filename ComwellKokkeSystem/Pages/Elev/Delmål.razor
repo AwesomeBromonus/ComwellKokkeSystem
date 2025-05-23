@@ -71,29 +71,58 @@ else
 
                                 @if (udvidetDelmaalId == d.Id && underdelmaalMap.ContainsKey(d.Id))
                                 {
-                                    <ul class="list-group list-group-flush mt-2">
-                                        @foreach (var u in underdelmaalMap[d.Id])
-                                        {
-                                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                <div>
-                                                    <strong>@u.Beskrivelse</strong> 
-                                                </div>
-                                                @if (UserState.Role?.ToLower() != "elev")
-                                                {
-                                                    <div>
-                                                        <button class="btn btn-sm btn-warning me-1" @onclick="() => RedigerUnderdelmaal(u)">✏️</button>
-                                                        <button class="btn btn-sm btn-danger" @onclick="() => SletUnderdelmaal(u.Id, d.Id)">🗑️</button>
-                                                    </div>
-                                                }
-                                            </li>
-                                        }
-                                    </ul>
+                                    <table class="table table-bordered table-sm mt-2">
+                                       
+                                        <tbody>
+                                            @foreach (var u in underdelmaalMap[d.Id])
+                                            {
+                                                <tr>
+                                                    <td><strong>@u.Beskrivelse</strong></td>
+                                                    <td>
+                                                        @if (UserState.Role?.ToLower() == "elev")
+                                                        {
+                                                            <select class="form-select form-select-sm" disabled>
+                                                                <option selected="@IsSelected(u.Status, "Ikke fuldført")">❌ Ikke fuldført</option>
+                                                                <option selected="@IsSelected(u.Status, "I gang")">🔄 I gang</option>
+                                                                <option selected="@IsSelected(u.Status, "Fuldført")">✅ Fuldført</option>
+                                                            </select>
+                                                        }
+                                                        else
+                                                        {
+                                                            <select class="form-select form-select-sm"
+                                                                    @onchange="async e => await OpdaterUnderdelmaalStatus(u, ((ChangeEventArgs)e).Value?.ToString())">
+                                                                <option selected="@IsSelected(u.Status, "Ikke fuldført")">❌ Ikke fuldført</option>
+                                                                <option selected="@IsSelected(u.Status, "I gang")">🔄 I gang</option>
+                                                                <option selected="@IsSelected(u.Status, "Fuldført")">✅ Fuldført</option>
+                                                            </select>
+                                                        }
+                                                    </td>
+                                                    <td>
+                                                        @if (UserState.Role?.ToLower() == "elev")
+                                                        {
+                                                            <button class="btn btn-outline-secondary btn-sm" style="min-width: 100px"
+                                                                    @onclick="() => StartUnderdelmaalAnmodning(u.Id)">
+                                                                📩 Anmod
+                                                            </button>
+                                                        }
+                                                    </td>
+                                                    @if (UserState.Role?.ToLower() != "elev")
+                                                    {
+                                                        <td>
+                                                            <div class="d-flex gap-2">
+                                                                <button class="btn btn-sm btn-warning" @onclick="() => RedigerUnderdelmaal(u)">✏️</button>
+                                                                <button class="btn btn-sm btn-danger" @onclick="() => SletUnderdelmaal(u.Id, d.Id)">🗑️</button>
+                                                            </div>
+                                                        </td>
+                                                    }
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+
                                 }
 
-                                @if (UserState.Role?.ToLower() != "elev")
-                                {
-                                    <button class="btn btn-sm btn-outline-success mt-2" @onclick="() => ÅbenUnderdelmaalModal(d.Id)">➕ Tilføj underdelmål</button>
-                                }
+                               
                             </div>
 
                             <div>
@@ -107,26 +136,28 @@ else
 
                                     <button class="btn btn-sm btn-outline-secondary mt-2"
                                             @onclick="() => StartAnmodning(d.Id)">
-                                        📩 Anmod om ændring
+                                        📩 Anmod
                                     </button>
                                 }
                                 else
                                 {
-                                    <select class="form-select" @onchange="async e => await OpdaterStatus(d, ((ChangeEventArgs)e).Value?.ToString())">
-                                        <option value="Ikke fuldført" selected="@IsSelected(d, "Ikke fuldført")">❌ Ikke fuldført</option>
-                                        <option value="I gang" selected="@IsSelected(d, "I gang")">🔄 I gang</option>
-                                        <option value="Fuldført" selected="@IsSelected(d, "Fuldført")">✅ Fuldført</option>
-                                    </select>
+                                    <div class="d-flex gap-2 flex-wrap align-items-center">
+                                        <select class="form-select form-select-sm w-auto"
+                                                @onchange="async e => await OpdaterStatus(d, ((ChangeEventArgs)e).Value?.ToString())">
+                                            <option value="Ikke fuldført" selected="@IsSelected(d, "Ikke fuldført")">❌ Ikke fuldført</option>
+                                            <option value="I gang" selected="@IsSelected(d, "I gang")">🔄 I gang</option>
+                                            <option value="Fuldført" selected="@IsSelected(d, "Fuldført")">✅ Fuldført</option>
+                                        </select>
+
+                                        <button class="btn btn-sm btn-warning" @onclick="() => RedigerDelmaal(d)">✏️</button>
+                                        <button class="btn btn-sm btn-danger" @onclick="() => SletDelmaal(d.Id)">🗑️</button>
+                                        <button class="btn btn-sm btn-outline-success" @onclick="() => ÅbenUnderdelmaalModal(d.Id)">➕ Tilføj underdelmål</button>
+                                    </div>
                                 }
+
                             </div>
 
-                            @if (UserState.Role?.ToLower() != "elev")
-                            {
-                                <div class="d-flex gap-2">
-                                    <button class="btn btn-sm btn-warning" @onclick="() => RedigerDelmaal(d)">✏️</button>
-                                    <button class="btn btn-sm btn-danger" @onclick="() => SletDelmaal(d.Id)">🗑️</button>
-                                </div>
-                            }
+                         
                         </div>
 
                         <!-- Kommentar -->
@@ -254,6 +285,47 @@ else
         </div>
     </div>
 }
+
+
+<!-- Modal: Underdekmåls Anmodning -->
+@if (visUnderdelmaalAnmodningModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Anmod om ændring på underdelmål</h5>
+                    <button type="button" class="btn-close" @onclick="() => visUnderdelmaalAnmodningModal = false"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label>Ønsket status:</label>
+                        <select class="form-select" @bind="ønsketStatus">
+                            <option value="I gang">🔄 I gang</option>
+                            <option value="Fuldført">✅ Fuldført</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Vælg modtager:</label>
+                        <select class="form-select" @bind="valgtModtagerId">
+                            @foreach (var m in muligeModtagere)
+                            {
+                                <option value="@m.Id">@m.Username (@m.Role)</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" @onclick="SendUnderdelmaalAnmodning">Send anmodning</button>
+                        <button class="btn btn-secondary" @onclick="() => visUnderdelmaalAnmodningModal = false">Annuller</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
 <!-- Modal: Underdelmål-->
 
 @if (visUnderdelmaalModal)
@@ -309,7 +381,8 @@ else
 
     private string elevNavn = "";
 
-  
+    private bool IsSelected(string currentStatus, string statusToCheck) => currentStatus == statusToCheck;
+
 
     // Anmodningsdata
     private bool visAnmodningsModal = false;
@@ -317,6 +390,12 @@ else
     private string ønsketStatus = "Fuldført";
     private int valgtModtagerId;
     private List<Modeller.UserModel> muligeModtagere = new();
+
+    //Underdelmåls anmodning
+    private int valgtUnderdelmaalId = 0;
+    private bool visUnderdelmaalAnmodningModal = false;
+   
+
 
     //Underdelmål
     private Dictionary<int, List<Modeller.Underdelmaal>> underdelmaalMap = new();
@@ -578,6 +657,63 @@ else
                 underdelmaalMap[delmaalId] = result ?? new();
             }
         }
+    }
+
+    private async Task StartUnderdelmaalAnmodning(int underdelmaalId)
+    {
+        valgtUnderdelmaalId = underdelmaalId;
+        ønsketStatus = "Fuldført";
+        valgtModtagerId = 0;
+
+        muligeModtagere = await AuthService.GetAdminsOgKokkeAsync();
+
+        if (muligeModtagere == null || !muligeModtagere.Any())
+        {
+            Console.WriteLine("❌ Ingen kokke eller admins fundet.");
+            return;
+        }
+
+        valgtModtagerId = muligeModtagere.First().Id;
+        visUnderdelmaalAnmodningModal = true;
+    }
+
+    private async Task SendUnderdelmaalAnmodning()
+    {
+        if (UserState.Id == null || valgtModtagerId == 0)
+        {
+            Console.WriteLine("❌ Elev eller modtager ikke valgt.");
+            return;
+        }
+
+        var anmodning = new Anmodning
+            {
+                UnderdelmaalId = valgtUnderdelmaalId, // ✅ korrekt
+                ElevId = UserState.Id.Value,
+                ModtagerId = valgtModtagerId,
+                ØnsketStatus = ønsketStatus
+            };
+
+        await AnmodningService.OpretAsync(anmodning);
+        visUnderdelmaalAnmodningModal = false;
+    }
+  
+    private async Task OpdaterUnderdelmaalStatus(Underdelmaal u, string? nyStatus)
+    {
+        if (!string.IsNullOrEmpty(nyStatus) && u.Status != nyStatus)
+        {
+            u.Status = nyStatus;
+            await UnderdelmaalService.UpdateAsync(u);
+
+            // 🔁 Genindlæs listen så UI viser ny status
+            await GenindlæsUnderdelmaal(u.DelmaalId);
+        }
+    }
+
+    private async Task GenindlæsUnderdelmaal(int delmaalId)
+    {
+        var result = await UnderdelmaalService.GetByDelmaalIdAsync(delmaalId);
+        underdelmaalMap[delmaalId] = result ?? new();
+        StateHasChanged(); // Sørger for at UI opdateres
     }
 
 

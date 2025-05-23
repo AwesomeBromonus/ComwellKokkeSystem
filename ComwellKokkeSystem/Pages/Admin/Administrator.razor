@@ -89,6 +89,7 @@
                 </div>
             </div>
         }
+
     }
 </div>
 
@@ -109,6 +110,9 @@
         new("fa fa-book", "Læring", "/laering", "Se læring"),
         new("fa fa-comments", "Chat", "/messages", "Åbn chat")
     };
+
+    // Tilføjelse af Elevplan objectet
+    private Dictionary<int, Elevplan> elevplaner = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -156,4 +160,12 @@
         "hr" => "role-hr",
         _ => "role-ukendt"
     };
+    private string HentSkoleperiode(UserModel bruger)
+    {
+        if (bruger.Role?.ToLower() == "elev" && elevplaner.TryGetValue(bruger.Id, out var plan))
+            return plan.Skoleperiode;
+
+        return "Ikke tilgængelig";
+    }
+
 }

@@ -5,16 +5,19 @@ using MongoDB.Driver;
 public class DelmålRepository : IDelmål
 {
     private readonly IMongoCollection<Delmål> _collection;
+    private readonly IMongoCollection<Underdelmaal> _underdelmaalCollection;
 
     public DelmålRepository()
     {
         var client = new MongoClient("mongodb+srv://Brobolo:Bromus12344321@cluster0.k4kon.mongodb.net/");
         var db = client.GetDatabase("Comwell");
         _collection = db.GetCollection<Delmål>("Delmål");
+        _underdelmaalCollection = db.GetCollection<Underdelmaal>("Underdelmaal");
     }
 
     public async Task AddAsync(Delmål delmaal)
-    {
+    {   
+        
         delmaal.Id = await GetNextIdAsync();
         await _collection.InsertOneAsync(delmaal);
 
@@ -86,8 +89,28 @@ public class DelmålRepository : IDelmål
 
     public async Task<List<Delmål>> GetByElevIdAsync(int elevId)
     {
-        return await _collection.Find(d => d.ElevId == elevId).ToListAsync();
+        var delmaal = await _collection.Find(d => d.ElevId == elevId).ToListAsync();
+        // hent og tilføj underdelmål til hvert hovedmål 
+        foreach (var dm in delmaal)
+        {
+            dm.UnderdelmaalList = await _underdelmaalCollection
+                .Find(ud => ud.DelmaalId == dm.Id)
+                .ToListAsync();
+        }
+        return delmaal;
+
     }
+    public async Task<List<Delmål>> GetAllForYearAsync(int year)
+    {
+        // Henter alle delmål. Hvis du har ekstremt mange delmål,
+        // kan du overveje at filtrere på et bredere datointerval i MongoDB først (f.eks. startdato for året).
+        // For nu henter vi bare alle og filtrerer i hukommelsen.
+        var allDelmaal = await _collection.Find(_ => true).ToListAsync();
+
+        // Filtrer i C# efter året for Deadline
+        return allDelmaal.Where(d => d.Deadline.Year == year).ToList();
+    }
+    
 
     public async Task<Delmål?> GetByIdAsync(int id)
     {
@@ -106,4 +129,8 @@ public class DelmålRepository : IDelmål
         var filter = Builders<Delmål>.Filter.Eq(d => d.Id, id);
         await _collection.DeleteOneAsync(filter);
     }
+
+
+
+ 
 }

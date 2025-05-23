@@ -11,11 +11,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="867a39b7-f00d-4256-9506-36754830a52e" name="Changes" comment="Genere rapport">
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.ComwellKokkeSystem/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.ComwellKokkeSystem/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Pages/GenereRapport.razor" beforeDir="false" afterPath="$PROJECT_DIR$/Pages/GenereRapport.razor" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Pages/Pratikperioder.razor" beforeDir="false" afterPath="$PROJECT_DIR$/Pages/Pratikperioder.razor" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Service/Elev/PraktikPeriodeService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Service/Elev/PraktikPeriodeService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Controllers/RapportController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Controllers/RapportController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.ComwellKokkeSystem/.idea/shelf/Uncommitted_changes_before_rebase_[Changes]/shelved.patch" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.ComwellKokkeSystem/.idea/shelf/Uncommitted_changes_before_rebase_[Changes]/shelved.patch" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wwwroot/css/tailwind.css" beforeDir="false" afterPath="$PROJECT_DIR$/wwwroot/css/tailwind.css" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -28,7 +25,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$/.." value="Lukastjek" />
+        <entry key="$PROJECT_DIR$/.." value="lukas" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
@@ -356,6 +353,7 @@
     <MESSAGE value="Genere rapport - sorry hvis der er problemer..." />
     <MESSAGE value="Git" />
     <MESSAGE value="Genere rapport" />
-    <option name="LAST_COMMIT_MESSAGE" value="Genere rapport" />
+    <MESSAGE value="%" />
+    <option name="LAST_COMMIT_MESSAGE" value="%" />
   </component>
 </project>

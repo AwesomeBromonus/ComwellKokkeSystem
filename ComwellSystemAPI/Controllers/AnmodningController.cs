@@ -70,13 +70,14 @@ namespace ComwellSystemAPI.Controllers
         public async Task<IActionResult> Behandl(int id, [FromBody] bool accepteret)
         {
             var anmodning = await _repo.GetByIdAsync(id);
-            if (anmodning == null) return NotFound();
+            if (anmodning == null)
+                return NotFound();
 
-            anmodning.Status = accepteret ? "Godkendt" : "Afvist";
-            await _repo.UpdateAsync(anmodning);
-
+            await _repo.BehandlAsync(id, accepteret); // ✅ Kald korrekt logik
             return Ok();
         }
+
+
 
     }
 }
