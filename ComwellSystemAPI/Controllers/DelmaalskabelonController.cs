@@ -11,7 +11,7 @@ namespace ComwellSystemAPI.Controllers
     {
         private readonly IDelmaalSkabelon _repo;
 
-        public DelmaalskabelonController(IDelmaalSkabelon repo)
+        public DelmaalskabelonController(IDelmaalSkabelon repo) { 
             _repo = repo;
         }
 
