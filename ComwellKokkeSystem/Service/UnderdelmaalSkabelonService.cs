@@ -1,6 +1,5 @@
-﻿using ComwellKokkeSystem.Service;
+﻿using System.Net.Http.Json;
 using Modeller;
-using System.Net.Http.Json;
 
 public class UnderdelmaalSkabelonService : IUnderdelmaalSkabelonService
 {
@@ -13,22 +12,22 @@ public class UnderdelmaalSkabelonService : IUnderdelmaalSkabelonService
 
     public async Task<List<UnderdelmaalSkabelon>> GetByDelmaalSkabelonIdAsync(int delmaalSkabelonId)
     {
-        return await _http.GetFromJsonAsync<List<UnderdelmaalSkabelon>>($"api/underdelmaalskabelon/delmaalskabelon/{delmaalSkabelonId}")
-               ?? new List<UnderdelmaalSkabelon>();
+        return await _http.GetFromJsonAsync<List<UnderdelmaalSkabelon>>(
+            $"api/underdelmaalskabelon/delmaalskabelon/{delmaalSkabelonId}") ?? new();
     }
 
-    public async Task AddAsync(UnderdelmaalSkabelon skabelon)
+    public async Task AddAsync(UnderdelmaalSkabelon underdelmaal)
     {
-        await _http.PostAsJsonAsync("api/underdelmaalskabelon", skabelon);
+        await _http.PostAsJsonAsync("api/underdelmaalskabelon", underdelmaal);
+    }
+
+    public async Task UpdateAsync(UnderdelmaalSkabelon underdelmaal)
+    {
+        await _http.PutAsJsonAsync($"api/underdelmaalskabelon/{underdelmaal.Id}", underdelmaal);
     }
 
     public async Task DeleteAsync(int id)
     {
         await _http.DeleteAsync($"api/underdelmaalskabelon/{id}");
     }
-    public async Task UpdateAsync(UnderdelmaalSkabelon skabelon)
-    {
-        await _http.PutAsJsonAsync($"api/underdelmaalskabelon/{skabelon.Id}", skabelon);
-    }
-
 }

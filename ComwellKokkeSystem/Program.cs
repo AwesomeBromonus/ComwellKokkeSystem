@@ -37,7 +37,9 @@ public class Program
         builder.Services.AddScoped<IAnmodningService, AnmodningService>();
         builder.Services.AddScoped<IUserService, UserService>();
         builder.Services.AddScoped<IUnderdelmaalService, UnderdelmaalService>();
+        builder.Services.AddScoped<IDelmaalSkabelonService, DelmaalSkabelonService>();
         builder.Services.AddScoped<IUnderdelmaalSkabelonService, UnderdelmaalSkabelonService>();
+
 
 
 
