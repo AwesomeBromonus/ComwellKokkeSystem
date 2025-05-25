@@ -1,16 +1,15 @@
 ﻿@page "/administrator"
-@inject IUserService UserService
+@inject HttpClient Http
 @inject NavigationManager NavManager
 @inject UserState UserState
 @using Modeller
-@using ComwellKokkeSystem.Service
 
-<link href="css/Panel.css" rel="stylesheet" />
+<div class="container mt-4">
+    <h3 class="mb-3">📊 Administratorpanel</h3>
 
-<div class="dashboard-main">
     @if (!UserState.IsLoggedInChecked)
     {
-        <p class="loading-text">⏳ Indlæser brugerstatus...</p>
+        <p>⏳ Indlæser brugerstatus...</p>
     }
     else if (!UserState.IsLoggedIn)
     {
@@ -18,78 +17,163 @@
     }
     else if (UserState.Role?.ToLower() != "admin")
     {
-        <div class="alert alert-danger">🚫 Adgang nægtet – kun administratorer har adgang.</div>
+        <div class="alert alert-danger">🚫 Adgang nægtet – kun administratorer har adgang til denne side.</div>
     }
     else
     {
-        <h1 class="dashboard-title">Administratorpanel</h1>
+        <div class="alert alert-success">
+            ✅ Velkommen, <strong>@UserState.Username</strong>! Du er logget ind som administrator.
+        </div>
 
-        <!-- Panel med action-kort -->
-        <div class="dashboard-actions">
-            @foreach (var panel in panels)
-            {
-                <div class="action-card">
-                    <i class="@panel.Icon"></i>
-                    <p>@panel.Title</p>
-                    <button @onclick="() => NavManager.NavigateTo(panel.Route)">@panel.ActionText</button>
+        <div class="row mt-4 mb-4">
+            <div class="col-md-6">
+                <p class="fw-semibold">🔧 Administrative funktioner:</p>
+                <div class="d-grid gap-3">
+                    <button class="btn btn-primary btn-lg shadow" @onclick='() => NavManager.NavigateTo("/opretuser")'>
+                        <i class="bi bi-person-plus-fill"></i> Opret bruger
+                    </button>
+                    <button class="btn btn-success btn-lg shadow" @onclick='() => NavManager.NavigateTo("/opret-elevplan")'>
+                        <i class="bi bi-journal-plus"></i> Opret elevplan
+                    </button>
                 </div>
-            }
+            </div>
+            <div class="col-md-6">
+                <p class="fw-semibold">📈 Brugertællere:</p>
+                <div class="d-flex flex-wrap gap-2">
+                    <span class="badge bg-secondary">👤 Alle: @brugere.Count</span>
+                    <span class="badge bg-success">🧑‍🎓 Elever: @brugere.Count(x => x.Role?.ToLower() == "elev")</span>
+                    <span class="badge bg-warning text-dark">👨‍🍳 Kokke: @brugere.Count(x => x.Role?.ToLower() == "kok")</span>
+                    <span class="badge bg-danger">🛡️ Admins: @brugere.Count(x => x.Role?.ToLower() == "admin")</span>
+                    <span class="badge bg-info text-dark">🧾 HR: @brugere.Count(x => x.Role?.ToLower() == "hr")</span>
+                </div>
+            </div>
         </div>
 
-        <!-- Brugerliste -->
-        <div class="search-filter">
-            <input class="search-bar" placeholder="🔍 Søg brugernavn..." @bind="søgeord" />
-            <select class="filter-dropdown" @bind="valgtRolle">
-                <option value="">Alle roller</option>
-                <option value="elev">Elev</option>
-                <option value="admin">Admin</option>
-                <option value="kok">Kok</option>
-                <option value="hr">HR</option>
-            </select>
+        <div class="mb-3">
+            <input class="form-control" placeholder="🔍 Søg efter brugernavn..." @bind="søgeord" />
         </div>
 
-        <div class="user-grid">
-            @foreach (var b in brugere.Where(b =>
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <label>Filtrer efter hotel</label>
+                <select class="form-control" @bind="valgtHotelFilter">
+                    <option value="">Alle hoteller</option>
+                    @foreach (var hotel in brugere.Select(b => b.HotelNavn).Where(n => !string.IsNullOrWhiteSpace(n)).Distinct())
+                    {
+                        <option value="@hotel">@hotel</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label>Filtrer efter rolle</label>
+                <select class="form-control" @bind="valgtRolleFilter">
+                    <option value="">Alle roller</option>
+                    @foreach (var rolle in brugere.Select(b => b.Role).Where(r => !string.IsNullOrWhiteSpace(r)).Distinct())
+                    {
+                        <option value="@rolle">@rolle</option>
+                    }
+                </select>
+            </div>
+        </div>
+
+        <div class="row">
+            @foreach (var b in brugere
+           .Where(b =>
            (string.IsNullOrWhiteSpace(søgeord) || b.Username.Contains(søgeord, StringComparison.OrdinalIgnoreCase)) &&
-           (string.IsNullOrWhiteSpace(valgtRolle) || b.Role?.ToLower() == valgtRolle)))
+           (string.IsNullOrWhiteSpace(valgtHotelFilter) || b.HotelNavn == valgtHotelFilter) &&
+           (string.IsNullOrWhiteSpace(valgtRolleFilter) || b.Role?.ToLower() == valgtRolleFilter.ToLower())))
             {
-                <div class="user-card" @onclick="() => VisDetaljer(b)">
-                    <h5 class="card-title">@b.Navn</h5>
-                    <p class="card-text">@b.Username</p>
-                    <span class="role-tag @GetRoleClass(b.Role)">🧷 @b.Role</span>
+                <div class="col-md-6 col-lg-4">
+                    <div class="card user-card mb-3 shadow-sm" @onclick="() => VisDetaljer(b)" style="cursor:pointer;">
+                        <div class="card-body">
+                            <h5 class="card-title">@b.Navn</h5>
+                            <p class="card-text text-muted mb-1">@b.Username</p>
+                            @if (!string.IsNullOrWhiteSpace(b.HotelNavn))
+                            {
+                                <p class="card-text"><i class="bi bi-building"></i> @b.HotelNavn</p>
+                            }
+                            <span class="badge @GetRoleColor(b.Role)">🧷 @b.Role</span>
+                        </div>
+                    </div>
                 </div>
             }
         </div>
 
-        <!-- Modal -->
         @if (valgtBruger != null)
         {
-            <div class="modal-backdrop">
-                <div class="modal-window">
-                    <div class="modal-header">
-                        <h5>👤 Brugerinfo: @valgtBruger.Username</h5>
-                        <button class="btn-close" @onclick="LukDetaljer">×</button>
-                    </div>
-                    <div class="modal-body">
-                        <p><strong>Navn:</strong> @valgtBruger.Navn</p>
-                        <p><strong>Email:</strong> @valgtBruger.Email</p>
-                        <p><strong>Telefon:</strong> @valgtBruger.Tlf</p>
-                        <p><strong>Adresse:</strong> @valgtBruger.Adresse</p>
-                        <p><strong>Hotel ID:</strong> @valgtBruger.HotelId</p>
-                        <p><strong>Startdato:</strong> @valgtBruger.StartDato.ToShortDateString()</p>
-                        <p><strong>Rolle:</strong> <span class="role-tag @GetRoleClass(valgtBruger.Role)">@valgtBruger.Role</span></p>
-                    </div>
-                    <div class="modal-footer">
-                        <button class="btn btn-secondary" @onclick="LukDetaljer">Luk</button>
-                        <button class="btn btn-danger" @onclick="SletBrugerAsync">Slet</button>
-                        @if (valgtBruger.Role?.ToLower() == "elev" && valgtBruger.ElevplanId > 0)
-                        {
-                            <button class="btn btn-info" @onclick="() => SeElevplan(valgtBruger.ElevplanId.Value)">Se elevplan</button>
-                        }
+            <div class="modal show fade d-block" tabindex="-1" style="z-index: 9999; background-color: rgba(0,0,0,0.5);">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">👤 Brugerinfo: @valgtBruger.Username</h5>
+                            <button type="button" class="btn-close" @onclick="LukDetaljer"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p><strong>Navn:</strong> @valgtBruger.Navn</p>
+                            <p><strong>Email:</strong> @valgtBruger.Email</p>
+                            <p><strong>Telefon:</strong> @valgtBruger.Tlf</p>
+                            <p><strong>Adresse:</strong> @valgtBruger.Adresse</p>
+                            <p><strong>Hotel:</strong> @valgtBruger.HotelNavn</p>
+
+                            @if (valgtBruger.Role?.ToLower() == "elev")
+                            {
+                                @if (!redigeringsMode)
+                                {
+                                    <p>
+                                        <strong>Startdato:</strong> @valgtBruger.StartDato.ToShortDateString()<br />
+                                        <strong>Slutdato:</strong> @(valgtBruger.SlutDato?.ToShortDateString() ?? "Ikke angivet")<br />
+                                        <strong>Skoleperiode:</strong> @HentSkoleperiode(valgtBruger)
+
+                                        <button class="btn btn-sm btn-outline-secondary ms-2" @onclick="ÅbnRediger" title="Rediger">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </button>
+                                    </p>
+                                }
+                                else
+                                {
+                                    <div class="mb-2">
+                                        <label class="form-label mb-1">Startdato:</label>
+                                        <input type="date" class="form-control" @bind="valgtBruger.StartDato" />
+
+                                        <label class="form-label mt-3 mb-1">Slutdato:</label>
+                                        <input type="date" class="form-control" @bind="valgtBruger.SlutDato" />
+
+                                        @if (!string.IsNullOrWhiteSpace(datoFejl))
+                                        {
+                                            <div class="text-danger mt-2">@datoFejl</div>
+                                        }
+
+                                        <div class="mt-3">
+                                            <button class="btn btn-success btn-sm" @onclick="GemDatoer">Gem</button>
+                                            <button class="btn btn-secondary btn-sm ms-2" @onclick="LukRediger">Annullér</button>
+                                        </div>
+                                    </div>
+                                }
+                            }
+
+                            else
+                            {
+                                <p><strong>Startdato:</strong> @valgtBruger.StartDato.ToShortDateString()</p>
+                            }
+
+                            <p><strong>Rolle:</strong> <span class="badge @GetRoleColor(valgtBruger.Role)">@valgtBruger.Role</span></p>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-secondary" @onclick="LukDetaljer">Luk</button>
+                            <button class="btn btn-danger" @onclick="SletBrugerAsync">Slet</button>
+
+                            @if (valgtBruger.Role?.ToLower() == "elev" && valgtBruger.ElevplanId > 0)
+                            {
+                                <button class="btn btn-info" @onclick="() => SeElevplan(valgtBruger.ElevplanId.Value)">
+                                    Se elevplan
+                                </button>
+                            }
+                        </div>
                     </div>
                 </div>
             </div>
         }
+
     }
 </div>
 
@@ -97,30 +181,19 @@
     private List<UserModel> brugere = new();
     private UserModel? valgtBruger;
     private string søgeord = "";
-    private string valgtRolle = "";
+    private string valgtHotelFilter = "";
+    private string valgtRolleFilter = "";
+    private bool redigeringsMode = false;
+    private string datoFejl = "";
 
-    private record PanelInfo(string Icon, string Title, string Route, string ActionText);
-    private List<PanelInfo> panels = new()
-    {
-        new("fa fa-user-plus", "Opret Bruger", "/opretuser", "Gå til"),
-        new("fa fa-file-alt", "Opret Elevplan", "/opret-elevplan", "Gå til"),
-        new("fa fa-chart-bar", "Rapporter", "/rapportside", "Se rapporter"),
-        new("fa fa-inbox", "Anmodninger", "/anmodninger", "Se anmodninger"),
-        new("fa fa-layer-group", "Delmålsskabeloner", "/delmaalskabeloner", "Se skabeloner"),
-        new("fa fa-book", "Læring", "/laering", "Se læring"),
-        new("fa fa-comments", "Chat", "/messages", "Åbn chat")
-    };
+    // Tilføjelse af Elevplan objectet
+    private Dictionary<int, Elevplan> elevplaner = new();
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadUsers();
-    }
-
-    private async Task LoadUsers()
-    {
         try
         {
-            var users = await UserService.GetAllAsync();
+            var users = await Http.GetFromJsonAsync<List<UserModel>>("api/users/all");
             if (users != null)
                 brugere = users;
         }
@@ -129,32 +202,103 @@
             Console.WriteLine("Fejl ved indlæsning af brugere: " + ex.Message);
             brugere = new List<UserModel>();
         }
+        foreach (var elev in brugere.Where(b => b.Role?.ToLower() == "elev"))
+        {
+            try
+            {
+                var plan = await Http.GetFromJsonAsync<Elevplan>($"api/elevplan/{elev.ElevplanId}");
+                if (plan != null)
+                    elevplaner[elev.Id] = plan;
+            }
+            catch
+            {
+                Console.WriteLine($"Kunne ikke hente elevplan for elev {elev.Username}");
+            }
+        }
+
     }
 
-    void VisDetaljer(UserModel bruger) => valgtBruger = bruger;
-    void LukDetaljer() => valgtBruger = null;
+    void VisDetaljer(UserModel bruger)
+    {
+        valgtBruger = bruger;
+        redigeringsMode = false;
+        datoFejl = "";
+    }
+
+    void LukDetaljer()
+    {
+        valgtBruger = null;
+        redigeringsMode = false;
+        datoFejl = "";
+    }
+
+    void ÅbnRediger() => redigeringsMode = true;
+    void LukRediger() => redigeringsMode = false;
+
+    private async Task GemDatoer()
+    {
+        datoFejl = "";
+
+        if (valgtBruger != null)
+        {
+            if (valgtBruger.SlutDato != null && valgtBruger.SlutDato < valgtBruger.StartDato)
+            {
+                datoFejl = "Slutdato må ikke være før startdato.";
+                return;
+            }
+
+            try
+            {
+                var response = await Http.PutAsJsonAsync($"api/users/{valgtBruger.Id}", valgtBruger);
+                if (response.IsSuccessStatusCode)
+                {
+                    redigeringsMode = false;
+                    datoFejl = "";
+                }
+                else
+                {
+                    datoFejl = "Der opstod en fejl ved opdatering.";
+                }
+            }
+            catch
+            {
+                datoFejl = "Kunne ikke kontakte serveren.";
+            }
+        }
+    }
 
     private async Task SletBrugerAsync()
     {
         if (valgtBruger != null)
         {
-            await UserService.DeleteAsync(valgtBruger.Id);
-            brugere.Remove(valgtBruger);
-            valgtBruger = null;
-
-
-
+            var response = await Http.DeleteAsync($"api/users/{valgtBruger.Id}");
+            if (response.IsSuccessStatusCode)
+            {
+                brugere.Remove(valgtBruger);
+                valgtBruger = null;
+            }
         }
     }
 
-    private void SeElevplan(int elevplanId) => NavManager.NavigateTo($"/delmaal/{elevplanId}");
-
-    private string GetRoleClass(string role) => role?.ToLower() switch
+    private void SeElevplan(int elevplanId)
     {
-        "admin" => "role-admin",
-        "elev" => "role-elev",
-        "kok" => "role-kok",
-        "hr" => "role-hr",
-        _ => "role-ukendt"
+        NavManager.NavigateTo($"/delmaal/{elevplanId}");
+    }
+
+    private string GetRoleColor(string role) => role?.ToLower() switch
+    {
+        "admin" => "bg-danger",
+        "elev" => "bg-success",
+        "kok" => "bg-warning text-dark",
+        "hr" => "bg-info text-dark",
+        _ => "bg-secondary"
     };
+    private string HentSkoleperiode(UserModel bruger)
+    {
+        if (bruger.Role?.ToLower() == "elev" && elevplaner.TryGetValue(bruger.Id, out var plan))
+            return plan.Skoleperiode;
+
+        return "Ikke tilgængelig";
+    }
+
 }
