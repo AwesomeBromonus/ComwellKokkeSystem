@@ -1,8 +1,9 @@
 ﻿@page "/administrator"
-@inject HttpClient Http
+@inject IUserService UserService
 @inject NavigationManager NavManager
 @inject UserState UserState
 @using Modeller
+@using ComwellKokkeSystem.Service
 
 <link href="css/Panel.css" rel="stylesheet" />
 
@@ -119,7 +120,7 @@
     {
         try
         {
-            var users = await Http.GetFromJsonAsync<List<UserModel>>("api/users/all");
+            var users = await UserService.GetAllAsync();
             if (users != null)
                 brugere = users;
         }
@@ -137,12 +138,12 @@
     {
         if (valgtBruger != null)
         {
-            var response = await Http.DeleteAsync($"api/users/{valgtBruger.Id}");
-            if (response.IsSuccessStatusCode)
-            {
-                brugere.Remove(valgtBruger);
-                valgtBruger = null;
-            }
+            await UserService.DeleteAsync(valgtBruger.Id);
+            brugere.Remove(valgtBruger);
+            valgtBruger = null;
+
+
+
         }
     }
 
