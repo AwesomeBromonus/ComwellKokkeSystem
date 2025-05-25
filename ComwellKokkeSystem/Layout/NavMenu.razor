@@ -35,13 +35,14 @@
         </nav>
     </div>
 
-    <!-- Footer med billede -->
-    <div class="admin-footer text-center">
-        @if (UserState.IsLoggedIn)
+    <!-- Footer med profilbillede -->
+    <div class="admin-footer text-center mt-4 px-3 pb-3">
+        @if (UserState.IsLoggedIn && UserState.Id is not null)
         {
-            <img src="@($"/uploads/{UserState.Id}.jpg")"
+            <img src="@($"https://localhost:7013/uploads/{UserState.Id}.jpg?cache={DateTime.Now.Ticks}")"
                  alt="Profilbillede"
-                 class="sidebar-profile-img mb-2" />
+                 class="rounded-circle shadow-sm mb-2"
+                 style="width: 60px; height: 60px; object-fit: cover; border: 2px solid #fff;" />
 
             <p class="text-white small mb-1">
                 🔐 <strong>@UserState.Username</strong><br />

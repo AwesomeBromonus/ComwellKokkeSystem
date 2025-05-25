@@ -2,7 +2,6 @@
 @inject HttpClient Http
 @inject UserState UserState
 @inject NavigationManager NavManager
-
 @using Microsoft.AspNetCore.Components.Forms
 
 <link href="css/profil.css" rel="stylesheet" />
@@ -21,10 +20,17 @@ else
 {
     <div class="row">
         <div class="col-md-3 text-center">
-            <img src="@ProfileImageUrl"
-                 alt="Profilbillede"
-                 class="profilbillede-preview rounded-circle mb-3 shadow"
-                 width="140" height="140" />
+            @if (UserState.Id.HasValue)
+            {
+                <img src=@($"https://localhost:7013/uploads/{UserState.Id}.jpg?cache={DateTime.Now.Ticks}")
+                     alt="Profilbillede"
+                     class="profilbillede-preview rounded-circle mb-3 shadow"
+                     width="140" height="140" />
+            }
+            else
+            {
+                <p class="text-muted">Ingen billede tilgængelig</p>
+            }
 
             <label class="btn btn-light">
                 📤 Skift billede
@@ -44,9 +50,17 @@ else
             <hr />
 
             <h5 class="mb-3">🔐 Skift adgangskode</h5>
-            <EditForm Model="@this" OnValidSubmit="SkiftAdgangskode">
-                <InputText @bind-Value="nyKode" type="password" class="form-control mb-2" placeholder="Ny adgangskode" />
-                <InputText @bind-Value="bekræftKode" type="password" class="form-control mb-3" placeholder="Bekræft adgangskode" />
+
+            <EditForm Model="this" OnValidSubmit="SkiftAdgangskode">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="mb-2">
+                    <InputText @bind-Value="nyKode" type="password" class="form-control" placeholder="Ny adgangskode" />
+                </div>
+                <div class="mb-3">
+                    <InputText @bind-Value="bekræftKode" type="password" class="form-control" placeholder="Bekræft adgangskode" />
+                </div>
                 <button type="submit" class="btn btn-primary">Gem ændringer</button>
             </EditForm>
 
@@ -65,11 +79,6 @@ else
     private string nyKode = "";
     private string bekræftKode = "";
     private string feedback = "";
-
-    private string ProfileImageUrl =>
-        UserState.Id.HasValue
-            ? $"/uploads/{UserState.Id}.jpg?cache={DateTime.Now.Ticks}"
-            : "/images/default.jpg";
 
     private async Task SkiftAdgangskode()
     {
@@ -125,16 +134,18 @@ else
             }
 
             var file = e.File;
-            var content = new MultipartFormDataContent();
             var stream = file.OpenReadStream(maxAllowedSize: 5_000_000); // max 5MB
-            content.Add(new StreamContent(stream), "file", $"{UserState.Id}.jpg");
+            var content = new MultipartFormDataContent
+            {
+                { new StreamContent(stream), "file", $"{UserState.Id}.jpg" }
+            };
 
             var response = await Http.PostAsync($"api/users/{UserState.Id}/upload-billede", content);
 
             if (response.IsSuccessStatusCode)
             {
                 feedback = "✅ Billede uploadet!";
-                StateHasChanged(); // Opdater UI
+                StateHasChanged();
             }
             else
             {

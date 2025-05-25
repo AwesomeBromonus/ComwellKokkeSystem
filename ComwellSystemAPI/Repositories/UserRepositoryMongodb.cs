@@ -52,12 +52,22 @@ namespace ComwellSystemAPI.Repositories
             var filter = Builders<UserModel>.Filter.Eq(u => u.Id, bruger.Id);
 
             var update = Builders<UserModel>.Update
+                .Set(u => u.Username, bruger.Username)
+                .Set(u => u.Password, bruger.Password)
+                .Set(u => u.Role, bruger.Role)
+                .Set(u => u.Email, bruger.Email)
+                .Set(u => u.Navn, bruger.Navn)
+                .Set(u => u.Tlf, bruger.Tlf)
+                .Set(u => u.Adresse, bruger.Adresse)
                 .Set(u => u.StartDato, bruger.StartDato)
                 .Set(u => u.SlutDato, bruger.SlutDato)
+                .Set(u => u.HotelId, bruger.HotelId)
+                .Set(u => u.HotelNavn, bruger.HotelNavn)
                 .Set(u => u.ElevplanId, bruger.ElevplanId);
 
             await _userCollection.UpdateOneAsync(filter, update);
         }
+
 
         public async Task AssignElevplanToUserAsync(int userId, int elevplanId)
         {
