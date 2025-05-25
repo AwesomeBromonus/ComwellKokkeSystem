@@ -12,5 +12,6 @@ namespace ComwellKokkeSystem.Service
         Task DeleteAsync(int id);
         Task AssignElevplanToUserAsync(int userId, int elevplanId);
         Task<List<UserModel>> GetAdminsOgKokkeAsync();
+        Task UpdateUserAsync(UserModel bruger);
     }
 }

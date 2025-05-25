@@ -53,5 +53,10 @@ namespace ComwellKokkeSystem.Service
         {
             return await _http.GetFromJsonAsync<List<UserModel>>("api/users/admins-og-kokke");
         }
+        public async Task UpdateUserAsync(UserModel bruger)
+        {
+            await _http.PutAsJsonAsync($"api/users/{bruger.Id}", bruger);
+        }
+
     }
 }
