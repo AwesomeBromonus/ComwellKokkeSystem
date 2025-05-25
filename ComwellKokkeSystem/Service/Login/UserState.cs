@@ -10,6 +10,8 @@ public class UserState
     public int? Id { get; private set; }
     public int? HotelId { get; private set; }
     public int? ElevplanId { get; private set; }
+    public string? Navn { get; private set; }
+    public string? Email { get; private set; }
 
     public bool IsLoggedIn => !string.IsNullOrEmpty(Username);
     public bool IsLoggedInChecked { get; private set; } = false;
@@ -36,6 +38,8 @@ public class UserState
                     Id = data.Id;
                     HotelId = data.HotelId;
                     ElevplanId = data.ElevplanId;
+                    Navn = data.Navn;
+                    Email = data.Email;
                 }
             }
             catch { }
@@ -45,13 +49,15 @@ public class UserState
         NotifyStateChanged();
     }
 
-    public async Task SetUserAsync(string username, string role, int id, int? hotelId, int? elevplanId)
+    public async Task SetUserAsync(string username, string role, int id, int? hotelId, int? elevplanId, string navn, string email)
     {
         Username = username;
         Role = role;
         Id = id;
         HotelId = hotelId;
         ElevplanId = elevplanId;
+        Navn = navn;
+        Email = email;
         IsLoggedInChecked = true;
 
         var json = JsonSerializer.Serialize(new UserData
@@ -60,7 +66,9 @@ public class UserState
             Role = role,
             Id = id,
             HotelId = hotelId,
-            ElevplanId = elevplanId
+            ElevplanId = elevplanId,
+            Navn = navn,
+            Email = email
         });
 
         await _js.InvokeVoidAsync("localStorage.setItem", "userState", json);
@@ -74,6 +82,8 @@ public class UserState
         Id = null;
         HotelId = null;
         ElevplanId = null;
+        Navn = null;
+        Email = null;
         IsLoggedInChecked = true;
 
         await _js.InvokeVoidAsync("localStorage.removeItem", "userState");
@@ -89,5 +99,7 @@ public class UserState
         public int Id { get; set; }
         public int? HotelId { get; set; }
         public int? ElevplanId { get; set; }
+        public string Navn { get; set; } = "";
+        public string Email { get; set; } = "";
     }
 }

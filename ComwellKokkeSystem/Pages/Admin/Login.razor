@@ -48,7 +48,6 @@
     }
 </EditForm>
 
-
 @code {
     private LoginModel login = new();
     private string message = "";
@@ -58,7 +57,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await UserState.InitializeAsync(); // 🧠 Hent tidligere login fra localStorage
+        await UserState.InitializeAsync();
 
         if (UserState.IsLoggedIn)
         {
@@ -81,7 +80,7 @@
 
     private void TogglePassword()
     {
-        passwordType = (passwordType == "password") ? "text" : "password";
+        passwordType = passwordType == "password" ? "text" : "password";
     }
 
     private async Task HandleLogin()
@@ -102,7 +101,16 @@
                 var user = await AuthService.GetUserByUsername(login.Username);
                 if (user != null)
                 {
-                    await UserState.SetUserAsync(user.Username, user.Role, user.Id, user.HotelId, user.ElevplanId);
+                    await UserState.SetUserAsync(
+                        user.Username,
+                        user.Role,
+                        user.Id,
+                        user.HotelId,
+                        user.ElevplanId,
+                        user.Navn,
+                        user.Email
+                    );
+
                     NavManager.NavigateTo(user.Role?.ToLower() switch
                     {
                         "admin" => "/administrator",

@@ -22,11 +22,19 @@ public class AuthService : IAuthService
 
             if (result != null)
             {
-                // Fallback hvis HotelId eller ElevplanId mangler
-                int? hotelId = result.HotelId.HasValue ? result.HotelId : null;
-                int? elevplanId = result.ElevplanId.HasValue ? result.ElevplanId : null;
+                int? hotelId = result.HotelId;
+                int? elevplanId = result.ElevplanId;
 
-                await _userState.SetUserAsync(result.Username, result.Role, result.Id, hotelId, elevplanId);
+                await _userState.SetUserAsync(
+                    result.Username,
+                    result.Role,
+                    result.Id,
+                    hotelId,
+                    elevplanId,
+                    result.Navn,
+                    result.Email
+                );
+
                 return true;
             }
         }
@@ -62,10 +70,8 @@ public class AuthService : IAuthService
         await _userState.LogoutAsync();
     }
 
-    // ✅ Ny metode til at hente kokke og admins
     public async Task<List<UserModel>> GetAdminsOgKokkeAsync()
     {
         return await _http.GetFromJsonAsync<List<UserModel>>("api/users/admins-og-kokke");
     }
-
 }

@@ -8,3 +8,13 @@
         </LayoutView>
     </NotFound>
 </Router>
+@code {
+
+    [Inject] public UserState UserState { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await UserState.InitializeAsync();  // ← denne er KRITISK!
+    }
+}
+    

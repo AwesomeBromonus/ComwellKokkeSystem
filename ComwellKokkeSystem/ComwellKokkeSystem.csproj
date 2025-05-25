@@ -41,6 +41,10 @@
 	<ItemGroup>
 		<ProjectReference Include="..\Modeller\Modeller.csproj" />
 	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="wwwroot\uploads\" />
+	</ItemGroup>
     
   
 </Project>
