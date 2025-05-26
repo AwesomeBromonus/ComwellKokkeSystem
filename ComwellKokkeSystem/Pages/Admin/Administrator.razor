@@ -131,23 +131,33 @@
     private UserModel? valgtBruger;
     private string søgeord = "";
     private string valgtRolle = "";
-    private int anmodningerAntal = 0;
 
+    //Modal
     private void VisDetaljer(UserModel bruger) => valgtBruger = bruger;
     private void LukDetaljer() => valgtBruger = null;
 
+    //Anmodninger
+    private int anmodningerAntal = 0;
 
     //Elevplan
-    private Dictionary<int, Elevplan> elevplaner = new(); // key = ElevplanId
+    private List<Elevplan> elevplaner = new();
+    private void SeElevplan(int elevplanId) => NavManager.NavigateTo($"/delmaal/{elevplanId}");
 
     //Hoteller
     private string valgtHotel = "";
+  
+
+    //Filtering
     private List<string> hotelNavne => brugere
-    .Where(b => !string.IsNullOrWhiteSpace(b.HotelNavn))
-    .Select(b => b.HotelNavn)
-    .Distinct()
-    .OrderBy(h => h)
-    .ToList();
+      .Where(b => !string.IsNullOrWhiteSpace(b.HotelNavn))
+      .Select(b => b.HotelNavn)
+      .Distinct()
+      .OrderBy(h => h)
+      .ToList();
+
+    //Profilbillede
+    private string GetImageUrl(int id) => $"https://localhost:7013/uploads/{id}.jpg";
+
 
 
     protected override async Task OnInitializedAsync()
@@ -162,8 +172,9 @@
                 var plan = await ElevplanService.GetElevplanByIdAsync(elev.ElevplanId.Value);
                 if (plan != null)
                 {
-                    elevplaner[elev.ElevplanId.Value] = plan;
+                    elevplaner.Add(plan);
                 }
+
             }
             catch
             {
@@ -200,7 +211,15 @@
         }
     }
 
-
+    //Rolle på modaldialog
+    private string GetRoleClass(string? role) => role?.ToLower() switch
+    {
+        "admin" => "role-admin",
+        "elev" => "role-elev",
+        "kok" => "role-kok",
+        "hr" => "role-hr",
+        _ => "role-ukendt"
+    };
 
 
     private async Task SletBrugerAsync()
@@ -213,26 +232,15 @@
         }
     }
 
-
-    private void SeElevplan(int elevplanId) => NavManager.NavigateTo($"/delmaal/{elevplanId}");
-
-    private string GetImageUrl(int id) => $"https://localhost:7013/uploads/{id}.jpg";
-
-    private string GetRoleClass(string? role) => role?.ToLower() switch
-    {
-        "admin" => "role-admin",
-        "elev" => "role-elev",
-        "kok" => "role-kok",
-        "hr" => "role-hr",
-        _ => "role-ukendt"
-    };
+    // Funktioner der henter skoleperioder og skoleforløb fordi de er i elevplan objectet
     private string HentSkoleperiode(UserModel bruger)
     {
-        if (bruger.Role?.ToLower() == "elev" &&
-            bruger.ElevplanId.HasValue &&
-            elevplaner.TryGetValue(bruger.ElevplanId.Value, out var plan))
+        if (bruger.Role?.ToLower() == "elev" && bruger.ElevplanId.HasValue)
         {
-            return string.IsNullOrWhiteSpace(plan.Skoleperiode) ? "Ikke angivet" : plan.Skoleperiode;
+            var plan = elevplaner.FirstOrDefault(p => p.Id == bruger.ElevplanId.Value);
+            return plan == null || string.IsNullOrWhiteSpace(plan.Skoleperiode)
+                ? "Ikke angivet"
+                : plan.Skoleperiode;
         }
 
         return "Ikke tilgængelig";
@@ -240,15 +248,18 @@
 
     private string HentSkoleforloeb(UserModel bruger)
     {
-        if (bruger.Role?.ToLower() == "elev" &&
-            bruger.ElevplanId.HasValue &&
-            elevplaner.TryGetValue(bruger.ElevplanId.Value, out var plan))
+        if (bruger.Role?.ToLower() == "elev" && bruger.ElevplanId.HasValue)
         {
-            return string.IsNullOrWhiteSpace(plan.SkoleForløb) ? "Ikke angivet" : plan.SkoleForløb;
+            var plan = elevplaner.FirstOrDefault(p => p.Id == bruger.ElevplanId.Value);
+            return plan == null || string.IsNullOrWhiteSpace(plan.SkoleForløb)
+                ? "Ikke angivet"
+                : plan.SkoleForløb;
         }
 
         return "Ikke tilgængelig";
     }
+
+
 
 
 
