@@ -56,10 +56,14 @@ else
         <div class="alert alert-info">Ingen elevplan fundet endnu.</div>
     }
 
+    <br />
+    <h4 class="fw-semibold mb-3 border-bottom pb-2">📊 Dit elevdashboard</h4>
+
     <div class="row g-4 mb-4">
+        <!-- Point & Niveau -->
         <div class="col-md-6">
-            <div class="card border-success shadow rounded-4">
-                <div class="card-header bg-success text-white rounded-top-4">
+            <div class="card border-0 shadow rounded-4 overflow-hidden">
+                <div class="card-header bg-success text-white">
                     🔥 Point & Niveau
                 </div>
                 <div class="card-body">
@@ -69,24 +73,38 @@ else
             </div>
         </div>
 
+        <!-- ComwellConnect -->
         <div class="col-md-6">
-            <div class="card border-primary shadow rounded-4">
-                <div class="card-header bg-primary text-white rounded-top-4">
+            <div class="card border-0 shadow rounded-4 overflow-hidden">
+                <div class="card-header bg-primary text-white">
                     🗨️ ComwellConnect
                 </div>
                 <div class="card-body text-center">
                     <p class="mb-3 text-muted">
                         Deltag i samtaler med andre elever, grupper og undervisere via intern chat.
                     </p>
-                    <a href="/messages" class="btn btn-primary btn-lg shadow rounded-pill px-4">
-                        Åbn ComwellConnect
-                    </a>
+                   
                 </div>
             </div>
         </div>
+
+        <!-- Cooking GIF -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-6">
+                <div class="gif-item">
+                    <img src="/sample-data/CookingGif.gif" class="gif-img" alt="Cooking GIF" />
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="gif-item">
+                    <img src="/sample-data/SanjicookingGif.gif" class="gif-img" alt="Sanji Cooking GIF" />
+                </div>
+            </div>
+        </div>
+
     </div>
 
-    <img src="/sample-data/CookingGif.gif" alt="Animation" class="gif-footer" />
+
 
 }
 
