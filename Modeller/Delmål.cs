@@ -7,6 +7,7 @@ namespace Modeller
 {
     public class Delmål
     {
+        
         public int Id { get; set; }
         public int PraktikperiodeId { get; set; }  // Reference til praktikperiode
         public string Beskrivelse { get; set; } = "";
@@ -22,16 +23,14 @@ namespace Modeller
         
         // Liste af underdelmål tilknyttet til dette delmål
         public List<Underdelmaal> UnderdelmaalList { get; set; } = new();
-        
-        // Beregn status baseret på underdelmål 
-        public string CalculatedStatus
+        public string CalculatedStatus // Hvis du vil have en samlet status for delmålet
         {
             get
             {
-                if (!UnderdelmaalList.Any()) return "Ikke påbegyndt";
+                if (!UnderdelmaalList.Any()) return "Ikke påbegyndt"; // Eller hvad der giver mening
                 if (UnderdelmaalList.All(u => u.Status == "Fuldført")) return "Fuldført";
-                if (UnderdelmaalList.Any(u => u.Status == "I gang")) return "I gang";
-                return "Ikke fuldført"; 
+                if (UnderdelmaalList.Any(u => u.Status == "Påbegyndt")) return "Påbegyndt"; // Eller en anden status
+                return "Ikke fuldført"; // Standard
             }
         }
 

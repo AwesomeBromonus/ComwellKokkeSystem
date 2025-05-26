@@ -5,7 +5,7 @@ using Modeller; // 👈 nødvendigt for Notification
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using ComwellSystemAPI.Repositories;
+using MongoDB.Driver;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,6 +36,8 @@ builder.Services.AddSingleton<IKommentar, KommentarRepository>();
 builder.Services.AddSingleton<IDelmaalSkabelon, DelmaalSkabelonRepository>();
 builder.Services.AddSingleton<IAnmodningRepository, AnmodningRepositoryMongo>();
 builder.Services.AddSingleton<IUnderdelmaalSkabelon, UnderdelmaalSkabelonRepository>();
+builder.Services.AddSingleton<IQuiz, QuizRepositoryMongoDB>();
+builder.Services.AddSingleton<IQuestion, QuestionRepository>();
 
 builder.Services.AddSingleton<IGenereRapport, GenereRapportMongoDB>();
 

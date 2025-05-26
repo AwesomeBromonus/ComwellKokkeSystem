@@ -29,6 +29,7 @@
   <ItemGroup>
     <PackageReference Include="BlazorDownloadFile" Version="2.4.0.2" />
     <PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
+    <PackageReference Include="EPPlus" Version="8.0.5" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="9.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="9.0.2" PrivateAssets="all" />
       <PackageReference Include="MudBlazor" Version="6.10.0" />
@@ -36,10 +37,22 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+
   </ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\Modeller\Modeller.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <_ContentIncludedByDefault Remove="Pages\Genererapport\Components\Pratikperioder.razor" />
+	  <_ContentIncludedByDefault Remove="Pages\Genererapport\Components\RapportFiltre.razor" />
+	  <_ContentIncludedByDefault Remove="Pages\Genererapport\Components\StudentTable.razor" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <AdditionalFiles Include="Pages\Components\Pratikperioder.razor" />
+	  <AdditionalFiles Include="Pages\Components\StudentTable.razor" />
 	</ItemGroup>
     
   

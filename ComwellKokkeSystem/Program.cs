@@ -5,7 +5,7 @@ using ComwellKokkeSystem;
 using Blazored.LocalStorage;
 using ComwellKokkeSystem.Service;
 using ComwellKokkeSystem.Service.Elev;
-
+using ComwellKokkeSystem.Service.QuizService;
 
 
 public class Program
@@ -41,7 +41,7 @@ public class Program
         builder.Services.AddScoped<IUserService, UserService>();
         builder.Services.AddScoped<IUnderdelmaalService, UnderdelmaalService>();
         builder.Services.AddScoped<IUnderdelmaalSkabelonService, UnderdelmaalSkabelonService>();
-
+        builder.Services.AddScoped<IQuizService, QuizService>(); 
 
 
         await builder.Build().RunAsync();
