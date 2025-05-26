@@ -38,7 +38,7 @@
                                     flex items-center justify-center p-5 rounded-lg shadow-md cursor-pointer transition duration-300 transform hover:scale-105
                                     @(selectedOptionIndex == option.index ? "ring-4 ring-purple-500 bg-purple-600 text-white" : "bg-blue-500 hover:bg-blue-600 text-white")"> @* Farverig baggrund og ring ved valg *@
                                     <input type="radio"
-                                           class="hidden" @* Skjul standard radio-knap *@
+                                           class="hidden" 
                                            name="quizOption"
                                            value="@option.index"
                                            @onchange="() => OnOptionSelected(option.index)"
