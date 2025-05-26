@@ -82,9 +82,7 @@
                 <div class="user-card" @onclick="@(() => VisDetaljer(b))">
                     <div class="user-content">
                         <div class="user-info">
-                            <h5>@b.Navn</h5>
-                            <br />
-                          
+                            <h5 class="user-name">@b.Navn</h5>
                             <span class="role-tag @GetRoleClass(b.Role)">@b.Role</span>
                         </div>
                         <img src="@GetImageUrl(b.Id)" class="user-image rounded-circle" width="64" height="64" alt="Profil" />
@@ -92,6 +90,7 @@
                 </div>
             }
         </div>
+
 
 
         <!-- 🧾 Modal -->

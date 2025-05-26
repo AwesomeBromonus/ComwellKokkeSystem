@@ -277,9 +277,22 @@
 .user-info {
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    align-items: flex-start;
+    gap: 4px;
 }
 
-.user-image {
-    margin-left: 10px;
+.user-name {
+    margin: 0;
 }
+
+.role-tag {
+    display: inline-block;
+    padding: 1px 6px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    background-color: #f0f0f0;
+    color: #666;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
