@@ -1,0 +1,180 @@
+﻿/* === Basis styling === */
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: radial-gradient(circle at top left, #003b4a, #002732);
+    color: white;
+    transition: background 0.3s ease;
+}
+
+    /* === Dark/light mode toggle support === */
+    body.light-mode {
+        background: #f5f5f5;
+        color: #000;
+    }
+
+    body.dark-mode {
+        background: radial-gradient(circle at top left, #003b4a, #002732);
+        color: white;
+    }
+
+/* === Login container === */
+.login-page {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+    backdrop-filter: blur(14px);
+    background-color: rgba(0, 0, 0, 0.25);
+}
+
+.login-content {
+    width: 100%;
+    max-width: 420px;
+    padding: 2rem;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.06);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+    color: white;
+    text-align: center;
+    animation: fadeIn 0.7s ease-in-out both;
+}
+
+/* === Fade ind === */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* === Logo og intro === */
+.login-logo {
+    width: 220px;
+    margin: 0 auto 1.5rem auto;
+    display: block;
+}
+
+.login-slogan {
+    font-size: 1rem;
+    opacity: 0.7;
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.5px;
+}
+
+.login-welcome {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 2rem;
+}
+
+/* === Form === */
+.form-group {
+    margin-bottom: 1.2rem;
+    position: relative;
+}
+
+.input-with-icon {
+    position: relative;
+}
+
+.input-icon {
+    position: absolute;
+    top: 50%;
+    left: 1rem;
+    transform: translateY(-50%);
+    font-size: 1.2rem;
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.toggle-password {
+    position: absolute;
+    top: 50%;
+    right: 1rem;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    font-size: 1.1rem;
+    cursor: pointer;
+    color: #ccc;
+}
+
+.form-control {
+    width: 100%;
+    padding: 1rem 2.5rem 1rem 2.5rem;
+    font-size: 1rem;
+    border: none;
+    border-radius: 30px;
+    background-color: #fefefe;
+    color: #333;
+    transition: box-shadow 0.2s ease;
+}
+
+    .form-control::placeholder {
+        color: rgba(0, 0, 0, 0.4);
+    }
+
+    .form-control:focus {
+        outline: none;
+        box-shadow: 0 0 6px rgba(255, 255, 255, 0.4);
+        background-color: #fff;
+    }
+
+/* === Checkbox (Husk mig) === */
+.form-check {
+    text-align: left;
+    margin-bottom: 1.4rem;
+}
+
+.form-check-input {
+    margin-right: 0.5rem;
+}
+
+/* === Login knap === */
+.btn-login {
+    background-color: #ffffff;
+    color: #003b4a;
+    border-radius: 30px;
+    padding: 0.8rem 1.2rem;
+    font-weight: 600;
+    border: none;
+    width: 100%;
+    transition: all 0.2s ease-in-out;
+}
+
+    .btn-login:hover {
+        background-color: #eeeeee;
+        transform: scale(1.02);
+    }
+
+/* === Feedback === */
+.login-error {
+    color: #ffc0c0;
+    text-align: center;
+    margin-top: 1rem;
+}
+
+.login-info {
+    color: #bbb;
+    font-size: 0.9rem;
+    margin-top: 1.5rem;
+    text-align: center;
+}
+
+/* === Responsivt design === */
+@media (max-width: 576px) {
+    .login-logo {
+        width: 160px;
+    }
+
+    .login-content {
+        padding: 1.5rem;
+    }
+}

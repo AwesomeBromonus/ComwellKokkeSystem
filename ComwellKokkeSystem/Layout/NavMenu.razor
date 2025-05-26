@@ -2,103 +2,57 @@
 @inject UserState UserState
 @implements IDisposable
 
-@if (UserState.IsLoggedIn)
-{
-    <div class="sidebar vh-100 shadow-sm d-flex flex-column justify-content-between"
-         style="width: 250px; background: linear-gradient(180deg, #003b4a 0%, #002f3a 100%);">
-
-        <!-- Logo / Top -->
-        <div>
-            <div class="px-4 py-3 border-bottom border-light">
-                <h5 class="m-0 text-white fw-semibold">Comwell</h5>
-            </div>
-
-            <!-- Navigation -->
-            <nav class="nav flex-column mt-3 px-3">
-                <ul class="nav flex-column gap-2">
-
-                    <li class="nav-item">
-                        @if (UserState.Role?.ToLower() == "admin")
-                        {
-                            <NavLink class="nav-link text-white" href="/administrator">
-                                🏠 Hjem
-                            </NavLink>
-                        }
-                        else if (UserState.Role?.ToLower() == "elev")
-                        {
-                            <NavLink class="nav-link text-white" href="/mitoverblik">
-                                🗂️ Elevplan
-                            </NavLink>
-                        }
-                    </li>
-
-                    <li class="nav-item">
-                        <NavLink class="nav-link text-white" href="/messages">
-                            💬 Chat
-                        </NavLink>
-                    </li>
-
-                    <li class="nav-item">
-                        <NavLink class="nav-link text-white" href="/laering">
-                            📚 Læring
-                        </NavLink>
-                    </li>
-
-                    @if (UserState.Role?.ToLower() == "admin" || UserState.Role?.ToLower() == "kok")
-                    {
-                        <li class="nav-item">
-                            <NavLink class="nav-link text-white" href="/anmodninger">
-                                📩 Anmodninger
-                            </NavLink>
-                        </li>
-                    }
-
-                    @if (UserState.Role?.ToLower() == "admin")
-                    {
-                        <li class="nav-item">
-                            <NavLink class="nav-link text-white" href="/rapportside">
-                                📊 Rapport
-                            </NavLink>
-                        </li>
-                    }
-
-                    @if (UserState.Role?.ToLower() == "admin")
-                    {
-                        <li class="nav-item">
-                            <NavLink class="nav-link text-white" href="/delmaalskabeloner">
-                                🧾 Delmålsskabeloner
-                            </NavLink>
-                        </li>
-                    }
-
-                </ul>
-            </nav>
+<div class="admin-sidebar d-flex flex-column justify-content-between">
+    <!-- Logo -->
+    <div>
+        <div class="admin-logo text-center mb-4">
+            <img src="/ComwellLogo2.png" alt="Comwell logo" />
         </div>
 
-        <!-- Footer -->
-        <div class="px-3 pb-3">
-            <hr class="text-white my-3" />
-            <div class="text-white small mb-2">
-                Logget ind som <strong>@UserState.Username</strong> (@UserState.Role)
-            </div>
-            <button class="btn btn-sm btn-outline-light w-100" @onclick="LogoutAsync">Log ud</button>
-        </div>
+        <!-- Navigation -->
+        <nav class="admin-nav">
+            @if (!UserState.IsLoggedInChecked)
+            {
+                <span class="text-white">⏳ Indlæser menu...</span>
+            }
+            else if (UserState.Role?.ToLower() == "admin")
+            {
+                <NavLink class="nav-link" href="/administrator" Match="NavLinkMatch.All">🏠 Adminpanel</NavLink>
+                <NavLink class="nav-link" href="/anmodninger">📬 Anmodninger</NavLink>
+                <NavLink class="nav-link" href="/delmaalskabeloner">🧾 Delmålsskabeloner</NavLink>
+                 <NavLink class="nav-link" href="/rapportside">🧾 Rapport</NavLink>
+            }
+            else if (UserState.Role?.ToLower() == "elev")
+            {
+                <NavLink class="nav-link" href="/mitoverblik" Match="NavLinkMatch.All">🗂️ Mit Overblik</NavLink>
+            }
+
+            @if (UserState.IsLoggedIn)
+            {
+         
+                <NavLink class="nav-link" href="/laering">📚 Læring</NavLink>
+               
+            }
+        </nav>
     </div>
-}
-else
-{
-    <div class="sidebar vh-100 d-flex flex-column justify-content-center align-items-center text-white"
-         style="width: 250px; background: linear-gradient(180deg, #003b4a 0%, #002f3a 100%);">
-        <NavLink class="btn btn-light" href="/login">
-            🔐 Log ind
-        </NavLink>
+
+    <!-- Footer -->
+    <div class="admin-footer">
+        <p class="text-white small mb-2">
+            🔐 Logget ind som <strong>@UserState.Username</strong> (@UserState.Role)
+        </p>
+        <button class="btn btn-outline-light w-100" @onclick="LogoutAsync">Log ud</button>
     </div>
-}
+</div>
 
 @code {
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         UserState.OnChange += StateHasChanged;
+        if (!UserState.IsLoggedInChecked)
+        {
+            await UserState.InitializeAsync();
+        }
     }
 
     public void Dispose()
@@ -109,6 +63,6 @@ else
     private async Task LogoutAsync()
     {
         await UserState.LogoutAsync();
-        NavManager.NavigateTo("/");
+        NavManager.NavigateTo("/login", forceLoad: true);
     }
 }

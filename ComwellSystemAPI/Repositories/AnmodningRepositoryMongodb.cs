@@ -46,11 +46,14 @@ namespace ComwellSystemAPI.Repositories
             return await _collection.Find(_ => true).ToListAsync();
         }
 
+        //En metode som finder den største id af id´erne i databasen og plusser den anmodning man tilføjer med 1
         private async Task<int> GetNextIdAsync()
         {
             var all = await _collection.Find(_ => true).ToListAsync();
             return all.Count == 0 ? 1 : all.Max(a => a.Id) + 1;
         }
+
+        // Metode som behandler anmodningen for under- og delmål 
         public async Task BehandlAsync(int id, bool accepteret)
         {
             var anmodning = await GetByIdAsync(id);

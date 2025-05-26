@@ -1,8 +1,9 @@
 ﻿@page "/administrator"
-@inject HttpClient Http
+@inject IUserService UserService
 @inject NavigationManager NavManager
 @inject UserState UserState
 @using Modeller
+@using ComwellKokkeSystem.Service
 
 <div class="container mt-4">
     <h3 class="mb-3">📊 Administratorpanel</h3>
@@ -189,32 +190,21 @@
     // Tilføjelse af Elevplan objectet
     private Dictionary<int, Elevplan> elevplaner = new();
 
+    private string besked = "";
+    private string beskedType = ""; // "success" eller "danger"
+
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            var users = await Http.GetFromJsonAsync<List<UserModel>>("api/users/all");
-            if (users != null)
-                brugere = users;
+            brugere = await UserService.GetAllAsync();
         }
         catch (Exception ex)
         {
             Console.WriteLine("Fejl ved indlæsning af brugere: " + ex.Message);
             brugere = new List<UserModel>();
         }
-        foreach (var elev in brugere.Where(b => b.Role?.ToLower() == "elev"))
-        {
-            try
-            {
-                var plan = await Http.GetFromJsonAsync<Elevplan>($"api/elevplan/{elev.ElevplanId}");
-                if (plan != null)
-                    elevplaner[elev.Id] = plan;
-            }
-            catch
-            {
-                Console.WriteLine($"Kunne ikke hente elevplan for elev {elev.Username}");
-            }
-        }
+
 
     }
 
@@ -235,48 +225,47 @@
     void ÅbnRediger() => redigeringsMode = true;
     void LukRediger() => redigeringsMode = false;
 
+  
+
     private async Task GemDatoer()
     {
         datoFejl = "";
+        besked = "";
 
         if (valgtBruger != null)
         {
             if (valgtBruger.SlutDato != null && valgtBruger.SlutDato < valgtBruger.StartDato)
             {
-                datoFejl = "Slutdato må ikke være før startdato.";
+                datoFejl = "❌ Slutdato må ikke være før startdato.";
                 return;
             }
 
             try
             {
-                var response = await Http.PutAsJsonAsync($"api/users/{valgtBruger.Id}", valgtBruger);
-                if (response.IsSuccessStatusCode)
-                {
-                    redigeringsMode = false;
-                    datoFejl = "";
-                }
-                else
-                {
-                    datoFejl = "Der opstod en fejl ved opdatering.";
-                }
+                await UserService.UpdateUserAsync(valgtBruger);
+                redigeringsMode = false;
+                besked = "✅ Datoer blev gemt korrekt.";
+                beskedType = "success";
             }
-            catch
+            catch (Exception ex)
             {
-                datoFejl = "Kunne ikke kontakte serveren.";
+                datoFejl = "❌ Der opstod en fejl ved opdatering.";
+                Console.WriteLine($"Fejl i GemDatoer: {ex.Message}");
+                besked = "❌ Fejl under opdatering af brugerdata.";
+                beskedType = "danger";
             }
         }
     }
+
 
     private async Task SletBrugerAsync()
     {
         if (valgtBruger != null)
         {
-            var response = await Http.DeleteAsync($"api/users/{valgtBruger.Id}");
-            if (response.IsSuccessStatusCode)
-            {
-                brugere.Remove(valgtBruger);
-                valgtBruger = null;
-            }
+            await UserService.DeleteAsync(valgtBruger.Id);
+            brugere.Remove(valgtBruger);
+            valgtBruger = null;
+
         }
     }
 

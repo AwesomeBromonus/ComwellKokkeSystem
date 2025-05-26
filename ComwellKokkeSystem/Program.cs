@@ -17,8 +17,7 @@ public class Program
         builder.RootComponents.Add<App>("#app");
         builder.RootComponents.Add<HeadOutlet>("head::after");
 
-        builder.Services.AddScoped<UserState>();
-
+        builder.Services.AddSingleton<UserState>();
 
         builder.Services.AddScoped(sp => new HttpClient
         {
@@ -40,10 +39,17 @@ public class Program
         builder.Services.AddScoped<IAnmodningService, AnmodningService>();
         builder.Services.AddScoped<IUserService, UserService>();
         builder.Services.AddScoped<IUnderdelmaalService, UnderdelmaalService>();
+        builder.Services.AddScoped<IDelmaalSkabelonService, DelmaalSkabelonService>();
         builder.Services.AddScoped<IUnderdelmaalSkabelonService, UnderdelmaalSkabelonService>();
         builder.Services.AddScoped<IQuizService, QuizService>(); 
 
 
+
         await builder.Build().RunAsync();
+
+        var host = builder.Build();
+        var userState = host.Services.GetRequiredService<UserState>();
+        await userState.InitializeAsync(); // <- Henter fra localStorage ved start
+        await host.RunAsync();
     }
 }
