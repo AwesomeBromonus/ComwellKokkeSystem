@@ -21,7 +21,7 @@ public class ElevplanRepository : IElevplan
     }
 
 
-    // Hent én plan ud fra int-ID
+    // Hent Ã©n plan ud fra int-ID
     public async Task<Elevplan?> GetByIdAsync(int id)
     {
         return await _elevplanCollection.Find(p => p.Id == id).FirstOrDefaultAsync();
@@ -35,7 +35,7 @@ public class ElevplanRepository : IElevplan
     }
 
 
-    // Opret ny plan med manuelt tildelt ID (næste ledige heltal)
+    // Opret ny plan med manuelt tildelt ID (nÃ¦ste ledige heltal)
     public async Task AddAsync(Elevplan plan)
     {
         plan.Id = await GetNextIdAsync();
@@ -56,7 +56,7 @@ public class ElevplanRepository : IElevplan
         await _elevplanCollection.DeleteOneAsync(filter);
     }
 
-    // Hent næste ledige ID ved at finde max eksisterende ID og lægge 1 til
+    // Hent nÃ¦ste ledige ID ved at finde max eksisterende ID og lÃ¦gge 1 til
     private async Task<int> GetNextIdAsync()
     {
         var sort = Builders<Elevplan>.Sort.Descending(p => p.Id);
