@@ -1,4 +1,5 @@
 ﻿using Modeller;
+using Microsoft.AspNetCore.Components.Forms;
 
 //
 // Dette interface definerer, hvad en LæringService skal kunne gøre.
@@ -13,5 +14,7 @@ public interface ILæringService
 
     // Tilføjer et nyt læringsmateriale til databasen
     Task TilføjAsync(Læring laering);
-    HttpClient Http { get; }
+
+    // Upload af læringsmateriale med fil
+    Task<bool> UploadAsync(Læring læring, IBrowserFile fil);
 }
