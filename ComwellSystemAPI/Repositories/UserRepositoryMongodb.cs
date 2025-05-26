@@ -26,9 +26,9 @@ namespace ComwellSystemAPI.Repositories
             return await _userCollection.Find(_ => true).ToListAsync();
         }
 
-        public async Task<UserModel?> GetByUsernameAsync(string username)
+        public async Task<UserModel?> GetByEmailAsync(string email)
         {
-            return await _userCollection.Find(u => u.Username == username).FirstOrDefaultAsync();
+            return await _userCollection.Find(u => u.Email == email).FirstOrDefaultAsync();
         }
 
         public async Task<UserModel?> GetByIdAsync(int id)
@@ -41,9 +41,9 @@ namespace ComwellSystemAPI.Repositories
             await _userCollection.DeleteOneAsync(u => u.Id == id);
         }
 
-        public async Task<bool> ValidateLogin(string username, string password)
+        public async Task<bool> ValidateLogin(string email, string password)
         {
-            var user = await GetByUsernameAsync(username);
+            var user = await GetByEmailAsync(email);
             return user != null && user.Password == password;
         }
 
@@ -52,7 +52,6 @@ namespace ComwellSystemAPI.Repositories
             var filter = Builders<UserModel>.Filter.Eq(u => u.Id, bruger.Id);
 
             var update = Builders<UserModel>.Update
-                .Set(u => u.Username, bruger.Username)
                 .Set(u => u.Password, bruger.Password)
                 .Set(u => u.Role, bruger.Role)
                 .Set(u => u.Email, bruger.Email)
@@ -68,7 +67,6 @@ namespace ComwellSystemAPI.Repositories
             await _userCollection.UpdateOneAsync(filter, update);
         }
 
-
         public async Task AssignElevplanToUserAsync(int userId, int elevplanId)
         {
             var filter = Builders<UserModel>.Filter.Eq(u => u.Id, userId);
@@ -81,11 +79,11 @@ namespace ComwellSystemAPI.Repositories
             var allUsers = await _userCollection.Find(_ => true).ToListAsync();
             return allUsers.Count == 0 ? 1 : allUsers.Max(u => u.Id) + 1;
         }
+
         public async Task<List<UserModel>> GetAdminsOgKokkeAsync()
         {
             var filter = Builders<UserModel>.Filter.In(u => u.Role, new[] { "admin", "kok" });
             return await _userCollection.Find(filter).ToListAsync();
         }
-
     }
 }

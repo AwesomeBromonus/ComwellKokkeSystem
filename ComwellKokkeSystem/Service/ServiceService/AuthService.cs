@@ -26,7 +26,7 @@ public class AuthService : IAuthService
                 int? elevplanId = result.ElevplanId;
 
                 await _userState.SetUserAsync(
-                    result.Username,
+                    result.Email,          // Brugt som login-navn
                     result.Role,
                     result.Id,
                     hotelId,
@@ -42,9 +42,9 @@ public class AuthService : IAuthService
         return false;
     }
 
-    public async Task<UserModel?> GetUserByUsername(string username)
+    public async Task<UserModel?> GetUserByEmail(string email)
     {
-        return await _http.GetFromJsonAsync<UserModel>($"api/users/{username}");
+        return await _http.GetFromJsonAsync<UserModel>($"api/users/byemail/{email}");
     }
 
     public async Task<bool> Register(UserModel user)
@@ -56,13 +56,12 @@ public class AuthService : IAuthService
         }
         catch
         {
-            Console.WriteLine($"Fejl ved registrering: {user.Username}");
+            Console.WriteLine($"Fejl ved registrering: {user.Email}");
             return false;
         }
     }
 
     public Task<int?> GetCurrentUserIdAsync() => Task.FromResult(_userState.Id);
-
     public Task<string?> GetCurrentUserRoleAsync() => Task.FromResult(_userState.Role);
 
     public async Task Logout()

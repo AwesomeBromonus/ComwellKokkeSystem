@@ -271,7 +271,7 @@ else
                         <select class="form-select" @bind="valgtModtagerId">
                             @foreach (var m in muligeModtagere)
                             {
-                                <option value="@m.Id">@m.Username (@m.Role)</option>
+                                <option value="@m.Id">@m.Email (@m.Role)</option>
                             }
                         </select>
                     </div>
@@ -311,7 +311,7 @@ else
                         <select class="form-select" @bind="valgtModtagerId">
                             @foreach (var m in muligeModtagere)
                             {
-                                <option value="@m.Id">@m.Username (@m.Role)</option>
+                                <option value="@m.Id">@m.Email (@m.Role)</option>
                             }
                         </select>
                     </div>

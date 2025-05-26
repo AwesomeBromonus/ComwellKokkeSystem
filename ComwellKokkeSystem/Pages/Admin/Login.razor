@@ -11,12 +11,12 @@
     <DataAnnotationsValidator />
     <ValidationSummary />
 
-    <!-- Brugernavn -->
+    <!-- Email -->
     <div class="form-group">
         <div class="input-with-icon">
-            <InputText class="form-control" placeholder="Brugernavn" @bind-Value="login.Username" />
+            <InputText class="form-control" placeholder="Email" @bind-Value="login.Email" />
         </div>
-        <ValidationMessage For="@(() => login.Username)" />
+        <ValidationMessage For="@(() => login.Email)" />
     </div>
 
     <!-- Adgangskode -->
@@ -70,10 +70,10 @@
             return;
         }
 
-        var storedUser = await localStorage.GetItemAsync<string>("rememberedUsername");
-        if (!string.IsNullOrEmpty(storedUser))
+        var storedEmail = await localStorage.GetItemAsync<string>("rememberedEmail");
+        if (!string.IsNullOrEmpty(storedEmail))
         {
-            login.Username = storedUser;
+            login.Email = storedEmail;
             rememberMe = true;
         }
     }
@@ -94,15 +94,15 @@
             if (success)
             {
                 if (rememberMe)
-                    await localStorage.SetItemAsync("rememberedUsername", login.Username);
+                    await localStorage.SetItemAsync("rememberedEmail", login.Email);
                 else
-                    await localStorage.RemoveItemAsync("rememberedUsername");
+                    await localStorage.RemoveItemAsync("rememberedEmail");
 
-                var user = await AuthService.GetUserByUsername(login.Username);
+                var user = await AuthService.GetUserByEmail(login.Email);
                 if (user != null)
                 {
                     await UserState.SetUserAsync(
-                        user.Username,
+                        user.Email,
                         user.Role,
                         user.Id,
                         user.HotelId,
@@ -125,7 +125,7 @@
             }
             else
             {
-                message = "Forkert brugernavn eller adgangskode.";
+                message = "Forkert email eller adgangskode.";
             }
         }
         catch (Exception ex)

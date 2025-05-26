@@ -24,7 +24,7 @@
         <!-- 🔝 Top -->
         <div class="admin-header">
             <div class="admin-header-top">
-                <h2>🛠 Administratorpanel – velkommen, <span class="username">@UserState.Username</span>!</h2>
+                <h2>🛠 Administratorpanel – velkommen, <span class="username">@UserState.Email</span>!</h2>
             </div>
         </div>
 
@@ -49,7 +49,7 @@
 
         <!-- 🔍 Filter -->
         <div class="search-section">
-            <input class="search-input" placeholder="🔍 Søg brugernavn..." @bind="søgeord" />
+            <input class="search-input" placeholder="🔍 Søg email..." @bind="søgeord" />
             <select class="role-filter" @bind="valgtRolle">
                 <option value="">Alle roller</option>
                 <option value="elev">Elev</option>
@@ -62,15 +62,14 @@
         <!-- 👤 Brugerliste -->
         <div class="user-grid">
             @foreach (var b in brugere.Where(b =>
-           (string.IsNullOrWhiteSpace(søgeord) || b.Username.Contains(søgeord, StringComparison.OrdinalIgnoreCase)) &&
+           (string.IsNullOrWhiteSpace(søgeord) || b.Email.Contains(søgeord, StringComparison.OrdinalIgnoreCase)) &&
            (string.IsNullOrWhiteSpace(valgtRolle) || b.Role?.ToLower() == valgtRolle)))
             {
                 <div class="user-card" @onclick="@(() => VisDetaljer(b))">
                     <img src="@GetImageUrl(b.Id)"
-                        
                          class="user-image rounded-circle mb-2" width="64" height="64" alt="Profil" />
                     <h5>@b.Navn</h5>
-                    <p>@b.Username</p>
+                    <p>@b.Email</p>
                     <span class="role-tag @GetRoleClass(b.Role)">@b.Role</span>
                 </div>
             }

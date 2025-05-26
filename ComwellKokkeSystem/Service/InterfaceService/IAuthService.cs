@@ -3,7 +3,7 @@
 public interface IAuthService
 {
     Task<bool> Login(LoginModel login);
-    Task<UserModel?> GetUserByUsername(string username);
+    Task<UserModel?> GetUserByEmail(string email);   // ✅ Email bruges som login-nøgle
     Task<bool> Register(UserModel user);
     Task Logout();
     Task<int?> GetCurrentUserIdAsync();

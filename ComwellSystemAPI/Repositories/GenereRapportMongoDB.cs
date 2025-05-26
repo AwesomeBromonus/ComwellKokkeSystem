@@ -234,7 +234,7 @@ namespace ComwellSystemAPI.Repositories
                 var rowData = new
                 {
                     ElevNavn = user?.Navn ?? "Ukendt elev",
-                    Username = user?.Username ?? "Ukendt",
+                    Username = user?.Email ?? "Ukendt",
                     HotelNavn = user?.HotelNavn ?? "Ukendt hotel",
                     Rolle = user?.Role ?? "Ukendt rolle",
                     PraktikperiodeNavn = praktikperiode?.Navn ?? "Ukendt praktikperiode",

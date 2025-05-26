@@ -20,12 +20,12 @@ namespace ComwellSystemAPI.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] UserModel model)
         {
-            if (string.IsNullOrWhiteSpace(model.Username) || string.IsNullOrWhiteSpace(model.Password))
-                return BadRequest("Brugernavn og adgangskode skal udfyldes.");
+            if (string.IsNullOrWhiteSpace(model.Email) || string.IsNullOrWhiteSpace(model.Password))
+                return BadRequest("Email og adgangskode skal udfyldes.");
 
-            var existing = await _userRepo.GetByUsernameAsync(model.Username);
+            var existing = await _userRepo.GetByEmailAsync(model.Email);
             if (existing != null)
-                return Conflict("Brugernavn findes allerede.");
+                return Conflict("Email findes allerede.");
 
             model.Role = model.Role?.Trim().ToLower();
 
@@ -39,25 +39,33 @@ namespace ComwellSystemAPI.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
-            if (string.IsNullOrWhiteSpace(model.Username) || string.IsNullOrWhiteSpace(model.Password))
-                return BadRequest("Udfyld brugernavn og adgangskode.");
+            if (string.IsNullOrWhiteSpace(model.Email) || string.IsNullOrWhiteSpace(model.Password))
+                return BadRequest("Udfyld email og adgangskode.");
 
-            var user = await _userRepo.GetByUsernameAsync(model.Username);
+            var user = await _userRepo.GetByEmailAsync(model.Email);
             if (user == null || user.Password != model.Password)
-                return Unauthorized("Forkert brugernavn eller adgangskode.");
+                return Unauthorized("Forkert email eller adgangskode.");
 
             var response = new LoginResponse
             {
                 Id = user.Id,
-                Username = user.Username,
+                Email = user.Email,
                 Role = user.Role,
                 HotelId = user.HotelId,
                 ElevplanId = user.ElevplanId,
-                Navn = user.Navn,
-                Email = user.Email
+                Navn = user.Navn
             };
 
             return Ok(response);
+        }
+
+        [HttpGet("byemail/{email}")]
+        public async Task<IActionResult> GetByEmail(string email)
+        {
+            var user = await _userRepo.GetByEmailAsync(email);
+            if (user == null)
+                return NotFound("Bruger ikke fundet.");
+            return Ok(user);
         }
 
         [HttpGet("all")]
@@ -78,15 +86,6 @@ namespace ComwellSystemAPI.Controllers
         public async Task<IActionResult> GetById(int id)
         {
             var user = await _userRepo.GetByIdAsync(id);
-            if (user == null)
-                return NotFound("Bruger ikke fundet.");
-            return Ok(user);
-        }
-
-        [HttpGet("{username}")]
-        public async Task<IActionResult> GetByUsername(string username)
-        {
-            var user = await _userRepo.GetByUsernameAsync(username);
             if (user == null)
                 return NotFound("Bruger ikke fundet.");
             return Ok(user);

@@ -227,7 +227,7 @@ private async Task LoadData()
             var vm = new RapportElevDelmålViewModel
             {
                 ElevId = user.Id,
-                Username = user.Username ?? "Ukendt",
+                Username = user.Email ?? "Ukendt",
                 ElevNavn = user.Navn ?? "Ukendt elev",
                 Rolle = user.Role ?? "Ukendt",
                 HotelNavn = user.HotelNavn ?? "Ukendt",
