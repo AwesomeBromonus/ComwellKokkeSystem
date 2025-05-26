@@ -19,7 +19,7 @@
             {
                 <NavLink class="nav-link" href="/administrator" Match="NavLinkMatch.All">🏠 Adminpanel</NavLink>
                 <NavLink class="nav-link" href="/anmodninger">📬 Anmodninger</NavLink>
-                <NavLink class="nav-link" href="/delmaalskabeloner">🧾 Delmålsskabeloner</NavLink>
+                <NavLink class="nav-link" href="/delmaalskabeloner">🧾 Skabelon</NavLink>
                 <NavLink class="nav-link" href="/rapportside">📊 Rapport</NavLink>
             }
             else if (UserState.Role?.ToLower() == "elev")
@@ -31,31 +31,31 @@
             {
                 <NavLink class="nav-link" href="/laering">📚 Læring</NavLink>
                 <NavLink class="nav-link" href="/minprofil">🙍‍♂️ Min profil</NavLink>
-                <NavLink class="nav-link" href="/quizlist">🙍‍♂️ Quizzes</NavLink>
-                <NavLink class="nav-link" href="/quizcreator">🙍‍♂️ Lav en Quiz</NavLink>
-
-
+                <NavLink class="nav-link" href="/quizlist">🧠 Quizzes</NavLink>
+                <NavLink class="nav-link" href="/quizcreator">✍️ Lav en Quiz</NavLink>
             }
         </nav>
     </div>
 
     <!-- Footer med profilbillede -->
-    <div class="admin-footer text-center mt-4 px-3 pb-3">
+    <div class="admin-footer text-center mt-4 px-3 pb-4">
         @if (UserState.IsLoggedIn && UserState.Id is not null)
         {
-            <img src="@($"https://localhost:7013/uploads/{UserState.Id}.jpg?cache={DateTime.Now.Ticks}")"
-                 alt="Profilbillede"
-                 class="rounded-circle shadow-sm mb-2"
-                 style="width: 60px; height: 60px; object-fit: cover; border: 2px solid #fff;" />
+            <div>
+                <img src="@($"https://localhost:7013/uploads/{UserState.Id}.jpg?cache={DateTime.Now.Ticks}")"
+                     alt="Profilbillede"
+                     class="rounded-circle shadow-sm"
+                     style="width: 110px; height: 110px; object-fit: cover; border: 3px solid #fff;" />
 
-            <p class="text-white small mb-1">
-                🔐 <strong>@UserState.Username</strong><br />
-                <span class="text-white-50">(@UserState.Role)</span>
-            </p>
+                <p class="text-white small mt-2 mb-1">
+                    🔐 <strong>@UserState.Username</strong><br />
+                    <span class="text-white-50" style="font-size: 0.75rem;">(@UserState.Role)</span>
+                </p>
 
-            <button class="btn btn-outline-light btn-sm w-100 mt-1" @onclick="LogoutAsync">
-                Log ud
-            </button>
+                <button class="btn btn-outline-light btn-sm w-100 mt-1" @onclick="LogoutAsync">
+                    Log ud
+                </button>
+            </div>
         }
     </div>
 </div>
