@@ -3,57 +3,45 @@
 @inject NavigationManager NavManager
 @implements IDisposable
 
-<div class="d-flex">
-    <!-- Sidebar -->
-    <div>
-        <NavMenu />
-    </div>
 
-    <!-- Hovedindhold -->
-    <div class="flex-grow-1">
-        <!-- Topbar -->
-       
+<link href="css/Panel.css" rel="stylesheet" />
+<link href="css/admin.css" rel="stylesheet" />
 
-        <!-- Sideindhold -->
-        <div class="p-4 dark-admin-bg">
+<div class="admin-layout">
+    <!-- Brug kun NavMenu direkte -->
+    <NavMenu />
+
+    <main class="admin-content">
+        @if (!UserState.IsLoggedInChecked)
+        {
+            <p class="text-muted">⏳ Indlæser brugerdata...</p>
+        }
+        else
+        {
             @Body
-        </div>
-    </div>
+        }
+    </main>
 </div>
 
 @code {
-    private bool initialized = false;
-
-    private async Task InitializeUser()
-    {
-        if (!initialized)
-        {
-            initialized = true;
-            await UserState.InitializeAsync();
-        }
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            await InitializeUser();
-        }
-    }
-
-    private async void Logout()
-    {
-        await UserState.LogoutAsync();
-        NavManager.NavigateTo("/");
-    }
-
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         UserState.OnChange += StateHasChanged;
+
+        if (!UserState.IsLoggedInChecked)
+        {
+            await UserState.InitializeAsync();
+        }
     }
 
     public void Dispose()
     {
         UserState.OnChange -= StateHasChanged;
+    }
+
+    private async Task Logout()
+    {
+        await UserState.LogoutAsync();
+        NavManager.NavigateTo("/login", true);
     }
 }

@@ -13,5 +13,8 @@ namespace ComwellSystemAPI.Interfaces
         Task UpdateDelmaalAsync(Delmål delmaal);          // Opdater hele delmålet
         Task UpdateStatusAsync(int delmaalId, string nyStatus); // Opdater kun status
         Task DeleteDelmaalAsync(int id);                  // Slet delmål
+        
+        Task<List<Delmål>> GetAllForYearAsync(int year);
     }
 }
+

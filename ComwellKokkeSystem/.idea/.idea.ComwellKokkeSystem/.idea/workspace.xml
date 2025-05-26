@@ -10,12 +10,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="867a39b7-f00d-4256-9506-36754830a52e" name="Changes" comment="Genere rapport">
+    <list default="true" id="867a39b7-f00d-4256-9506-36754830a52e" name="Changes" comment="Tailwind">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.ComwellKokkeSystem/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.ComwellKokkeSystem/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Pages/GenereRapport.razor" beforeDir="false" afterPath="$PROJECT_DIR$/Pages/GenereRapport.razor" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Pages/Pratikperioder.razor" beforeDir="false" afterPath="$PROJECT_DIR$/Pages/Pratikperioder.razor" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Service/Elev/PraktikPeriodeService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Service/Elev/PraktikPeriodeService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Controllers/RapportController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Controllers/RapportController.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -28,7 +24,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$/.." value="Lukastjek" />
+        <entry key="$PROJECT_DIR$/.." value="master" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
@@ -57,9 +53,16 @@
   }
 }</component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/Pages/Components/Pratikperioder.razor" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" root2="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Pages/Components/RapportFiltre.razor" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" root2="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Pages/Genererapport/GenereRapport.razor" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" root2="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Pages/Genererapport/Helpers/EnumerableExtensions.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Service/GenereRapportService.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Service/IAnmodningService.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Service/IGenereRapportService.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/package-lock.json" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://diff.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://diff.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/76803a04e31b4fee99d90bcbfc5a6bdde8e930/7b/0366cfd4/ExceptionDispatchInfo.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/ce37be1a06b16c6faa02038d2cc477dd3bca5b217ceeb41c5f2ad45c1bf9/ServiceProvider.cs" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="true" />
   <component name="ProjectColorInfo">{
@@ -71,24 +74,24 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;.NET Launch Settings Profile.ComwellKokkeSystem: http.executor&quot;: &quot;Run&quot;,
-    &quot;.NET Launch Settings Profile.ComwellKokkeSystem: https.executor&quot;: &quot;Run&quot;,
-    &quot;.NET Launch Settings Profile.ComwellSystemAPI: http.executor&quot;: &quot;Run&quot;,
-    &quot;.NET Launch Settings Profile.ComwellSystemAPI: https.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    ".NET Launch Settings Profile.ComwellKokkeSystem: http.executor": "Run",
+    ".NET Launch Settings Profile.ComwellKokkeSystem: https.executor": "Run",
+    ".NET Launch Settings Profile.ComwellSystemAPI: http.executor": "Run",
+    ".NET Launch Settings Profile.ComwellSystemAPI: https.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "master",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "preferences.lookFeel",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RunManager" selected="Multi-Launch.Kør">
     <configuration name="ComwellKokkeSystem: https" type="LaunchSettings" factoryName=".NET Launch Settings Profile">
       <option name="LAUNCH_PROFILE_PROJECT_FILE_PATH" value="$PROJECT_DIR$/ComwellKokkeSystem.csproj" />
@@ -270,6 +273,7 @@
       <workItem from="1747226849768" duration="335000" />
       <workItem from="1747247658073" duration="15303000" />
       <workItem from="1747701593702" duration="7754000" />
+      <workItem from="1748210088681" duration="2376000" />
     </task>
     <task id="LOCAL-00001" summary="Genere rapport - sorry hvis der er problemer...">
       <option name="closed" value="true" />
@@ -295,7 +299,15 @@
       <option name="project" value="LOCAL" />
       <updated>1747733050394</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Ikke sikker på om dette skal med?? ?">
+      <option name="closed" value="true" />
+      <created>1747917130874</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1747917130895</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -356,6 +368,27 @@
     <MESSAGE value="Genere rapport - sorry hvis der er problemer..." />
     <MESSAGE value="Git" />
     <MESSAGE value="Genere rapport" />
-    <option name="LAST_COMMIT_MESSAGE" value="Genere rapport" />
+    <MESSAGE value="%" />
+    <MESSAGE value="Tailwind" />
+    <option name="LAST_COMMIT_MESSAGE" value="Tailwind" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/../ComwellSystemAPI/Controllers/QuizController.cs</url>
+          <line>152</line>
+          <properties documentPath="C:\Eksamen\ComwellSystemAPI\Controllers\QuizController.cs" containingFunctionPresentation="Method 'DeleteQuiz'">
+            <startOffsets>
+              <option value="5558" />
+            </startOffsets>
+            <endOffsets>
+              <option value="5594" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="17" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

@@ -1,0 +1,51 @@
+﻿@inherits LayoutComponentBase
+@inject UserState UserState
+@inject NavigationManager NavManager
+@implements IDisposable
+
+<link href="css/Panel.css" rel="stylesheet" />
+<link href="css/admin.css" rel="stylesheet" />
+
+<div class="admin-centered-layout">
+    @if (!UserState.IsLoggedInChecked)
+    {
+        <p class="text-muted text-center">⏳ Indlæser brugerdata...</p>
+    }
+    else if (!UserState.IsLoggedIn)
+    {
+        <p class="text-danger text-center">🔒 Du er ikke logget ind.</p>
+    }
+    else if (UserState.Role?.ToLower() != "admin")
+    {
+        <p class="text-danger text-center">🚫 Kun administratorer har adgang til denne side.</p>
+    }
+    else
+    {
+        <main class="dashboard-main">
+            @Body
+        </main>
+    }
+</div>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        UserState.OnChange += StateHasChanged;
+
+        if (!UserState.IsLoggedInChecked)
+        {
+            await UserState.InitializeAsync();
+        }
+    }
+
+    public void Dispose()
+    {
+        UserState.OnChange -= StateHasChanged;
+    }
+
+    private async Task Logout()
+    {
+        await UserState.LogoutAsync();
+        NavManager.NavigateTo("/login", true);
+    }
+}

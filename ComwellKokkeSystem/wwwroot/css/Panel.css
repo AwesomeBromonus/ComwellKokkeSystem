@@ -1,0 +1,270 @@
+﻿body {
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #f5f7fa;
+    margin: 0;
+    padding: 0;
+    color: #1e1e1e;
+}
+
+.admin-container {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: auto;
+}
+
+.admin-header {
+    margin-bottom: 2rem;
+}
+
+    .admin-header h2 {
+        font-size: 1.6rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+
+.badge-line {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+}
+
+.badge {
+    display: inline-block;
+    padding: 0.4rem 1rem;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: white;
+}
+
+    .badge.dark {
+        background-color: #153f4a;
+    }
+
+    .badge.alert {
+        background-color: #0078ff;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+        .badge.alert:hover {
+            background-color: #005ec2;
+        }
+
+/* 🧩 Dashboard kort */
+.dashboard-cards {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 2.5rem;
+}
+
+.dashboard-card {
+    flex: 1;
+    min-width: 220px;
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    transition: transform 0.2s ease;
+    cursor: pointer;
+    text-align: center;
+}
+
+    .dashboard-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+    }
+
+    .dashboard-card .icon {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .dashboard-card h4 {
+        margin: 0;
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+
+    .dashboard-card p {
+        margin-top: 0.3rem;
+        font-size: 0.9rem;
+        color: #555;
+    }
+
+    .dashboard-card.highlight {
+        background-color: #0078ff;
+        color: white;
+    }
+
+        .dashboard-card.highlight .icon,
+        .dashboard-card.highlight h4,
+        .dashboard-card.highlight p {
+            color: white;
+        }
+
+/* 🔍 Søgning og filter */
+.search-section {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.search-input {
+    flex: 1;
+    padding: 0.6rem 1rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+}
+
+.role-filter {
+    padding: 0.6rem 1rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+}
+
+/* 👤 Brugerkort */
+.user-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 1.2rem;
+    margin-bottom: 3rem;
+}
+
+.user-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    transition: transform 0.2s ease;
+    cursor: pointer;
+}
+
+    .user-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    .user-card h5 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+
+.role-tag {
+    display: inline-block;
+    padding: 0.35rem 0.7rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    border-radius: 999px;
+    color: white;
+    margin-top: 0.5rem;
+}
+
+/* 🎨 Rolle-farver */
+.role-admin {
+    background-color: #e74c3c;
+}
+
+.role-elev {
+    background-color: #2ecc71;
+}
+
+.role-kok {
+    background-color: #8e44ad;
+}
+
+.role-hr {
+    background-color: #3498db;
+}
+
+.role-ukendt {
+    background-color: #bdc3c7;
+}
+
+/* 🧾 Modal */
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-window {
+    background: white;
+    padding: 2rem;
+    border-radius: 16px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        transform: scale(0.95);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.modal-body p {
+    margin-bottom: 0.5rem;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: end;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.btn {
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 0.95rem;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-secondary {
+    background-color: #95a5a6;
+    color: white;
+}
+
+.btn-danger {
+    background-color: #e74c3c;
+    color: white;
+}
+
+.btn-info {
+    background-color: #00bcd4;
+    color: white;
+}
+
+.btn-close {
+    background: none;
+    border: none;
+    font-size: 1.4rem;
+    cursor: pointer;
+    margin-left: auto;
+}

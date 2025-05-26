@@ -6,6 +6,8 @@
 @inject UserState UserState
 @inject NavigationManager Nav
 @inject IUnderdelmaalService UnderdelmaalService
+@inject IUserService UserService
+
 
 
 
@@ -30,25 +32,29 @@ else if (!anmodninger.Any())
 else
 {
     <ul class="list-group">
-        @foreach (var a in anmodninger)
+       
+           @foreach (var a in anmodninger)
         {
+           
             Delmål? delmaal = null;
+            <li class="list-group-item mb-3">
             @if (a.DelmaalId != null && delmaalMap.ContainsKey(a.DelmaalId.Value))
             {
-                <strong>Delmål:</strong> @delmaalMap[a.DelmaalId.Value].Beskrivelse
+                <strong>Delmål: </strong> @delmaalMap[a.DelmaalId.Value].Beskrivelse
                 <br />
             }
             else if (a.UnderdelmaalId != null && underdelmaalMap.ContainsKey(a.UnderdelmaalId.Value))
             {
-                <strong>Underdelmål:</strong> @underdelmaalMap[a.UnderdelmaalId.Value].Beskrivelse
+                <strong>Underdelmål: </strong> @underdelmaalMap[a.UnderdelmaalId.Value].Beskrivelse
                 <br />
             }
 
 
-            <li class="list-group-item mb-3">
-                <strong>Delmål:</strong> @delmaal?.Beskrivelse <br />
-                <strong>Ønsket status:</strong> @a.ØnsketStatus <br />
-                <strong>Anmodet af elev-id:</strong> @a.ElevId <br />
+            
+                <strong>Ønsket status: </strong> @a.ØnsketStatus <br />
+                <strong>Anmodet af: </strong> @brugerMap[a.ElevId].Navn <br />
+
+
 
                 <div class="mt-2 d-flex gap-2">
                     <button class="btn btn-sm btn-success" @onclick="() => BehandlAnmodning(a.Id, true)">✅ Accepter</button>
@@ -56,6 +62,7 @@ else
                 </div>
             </li>
         }
+      
     </ul>
 }
 
@@ -63,6 +70,8 @@ else
     private List<Anmodning>? anmodninger;
     private Dictionary<int, Delmål> delmaalMap = new();
     private Dictionary<int, Underdelmaal> underdelmaalMap = new();
+    private Dictionary<int, UserModel> brugerMap = new();
+
 
 
     protected override async Task OnInitializedAsync()
@@ -74,6 +83,7 @@ else
         }
 
         anmodninger = await AnmodningService.GetTilModtagerAsync(UserState.Id.Value);
+
         foreach (var a in anmodninger)
         {
             if (a.DelmaalId != null)
@@ -88,9 +98,18 @@ else
                 if (underdelmaal != null)
                     underdelmaalMap[a.UnderdelmaalId.Value] = underdelmaal;
             }
-        }
 
+            if (!brugerMap.ContainsKey(a.ElevId))
+            {
+                var bruger = await UserService.GetByIdAsync(a.ElevId);
+                if (bruger != null)
+                {
+                    brugerMap[a.ElevId] = bruger;
+                }
+            }
+        }
     }
+
     private async Task BehandlAnmodning(int anmodningId, bool accepteret)
     {
         await AnmodningService.BehandlAsync(anmodningId, accepteret);

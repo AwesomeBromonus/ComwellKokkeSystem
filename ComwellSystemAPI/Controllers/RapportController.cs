@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using System;
+using Modeller;
 
 namespace ComwellSystemAPI.Controllers
 {
@@ -15,6 +16,14 @@ namespace ComwellSystemAPI.Controllers
         {
             _rapportService = rapportService;
         }
+       
+        [HttpGet("delmaal-with-underdelmaal/{year}")]
+        public async Task<IActionResult> GetDelmaalWithUnderdelmaal(int year)
+        {
+            var delmaal = await _rapportService.GetAllDelmaalWithUnderdelmaalAsync(year);
+            return Ok(delmaal);
+        }
+        
 
         [HttpGet("praktikperioder/{year}")]
         public async Task<IActionResult> GetPraktikperioder(int year)
@@ -35,20 +44,6 @@ namespace ComwellSystemAPI.Controllers
         {
             var brugere = await _rapportService.GetBrugereAsync(year);
             return Ok(brugere);
-        }
-
-        [HttpGet("export/csv/{year}")]
-        public async Task<IActionResult> ExportToCsv(int year)
-        {
-            try
-            {
-                var fileContent = await _rapportService.ExportToCsvAsync(year);
-                return File(fileContent, "text/csv", $"rapport_{year}.csv");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Fejl ved eksport til CSV: {ex.Message}");
-            }
         }
 
         [HttpGet("export/excel/{year}")]
