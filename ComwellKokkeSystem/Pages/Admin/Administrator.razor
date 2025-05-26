@@ -1,17 +1,15 @@
 ﻿@page "/administrator"
-@inject IUserService UserService
+@inject HttpClient Http
 @inject NavigationManager NavManager
 @inject UserState UserState
 @using Modeller
-@using ComwellKokkeSystem.Service
 
-<div class="container mt-4">
-    <h3 class="mb-3">📊 Administratorpanel</h3>
+<link href="css/Panel.css" rel="stylesheet" />
 
 <div class="admin-container">
     @if (!UserState.IsLoggedInChecked)
     {
-        <p>⏳ Indlæser brugerstatus...</p>
+        <p class="loading-text">⏳ Indlæser brugerstatus...</p>
     }
     else if (!UserState.IsLoggedIn)
     {
@@ -19,7 +17,7 @@
     }
     else if (UserState.Role?.ToLower() != "admin")
     {
-        <div class="alert alert-danger">🚫 Adgang nægtet – kun administratorer har adgang til denne side.</div>
+        <div class="alert alert-danger">🚫 Adgang nægtet – kun administratorer har adgang.</div>
     }
     else
     {
@@ -65,12 +63,11 @@
         <div class="user-grid">
             @foreach (var b in brugere.Where(b =>
            (string.IsNullOrWhiteSpace(søgeord) || b.Username.Contains(søgeord, StringComparison.OrdinalIgnoreCase)) &&
-           (string.IsNullOrWhiteSpace(valgtHotelFilter) || b.HotelNavn == valgtHotelFilter) &&
-           (string.IsNullOrWhiteSpace(valgtRolleFilter) || b.Role?.ToLower() == valgtRolleFilter.ToLower())))
+           (string.IsNullOrWhiteSpace(valgtRolle) || b.Role?.ToLower() == valgtRolle)))
             {
                 <div class="user-card" @onclick="@(() => VisDetaljer(b))">
                     <img src="@GetImageUrl(b.Id)"
-                         onerror="this.src='/images/default.jpg'"
+                        
                          class="user-image rounded-circle mb-2" width="64" height="64" alt="Profil" />
                     <h5>@b.Navn</h5>
                     <p>@b.Username</p>
@@ -108,7 +105,6 @@
                 </div>
             </div>
         }
-
     }
 </div>
 
@@ -119,7 +115,7 @@
     private string valgtRolle = "";
     private int anmodningerAntal = 0;
 
-    void LukDetaljer()
+    protected override async Task OnInitializedAsync()
     {
         await LoadUsers();
         await HentAntalAnmodninger();
@@ -160,34 +156,25 @@
     {
         if (valgtBruger != null)
         {
-            await UserService.DeleteAsync(valgtBruger.Id);
-            brugere.Remove(valgtBruger);
-            valgtBruger = null;
-
+            var response = await Http.DeleteAsync($"api/users/{valgtBruger.Id}");
+            if (response.IsSuccessStatusCode)
+            {
+                brugere.Remove(valgtBruger);
+                valgtBruger = null;
+            }
         }
     }
 
-    private void SeElevplan(int elevplanId)
-    {
-        NavManager.NavigateTo($"/delmaal/{elevplanId}");
-    }
+    private void SeElevplan(int elevplanId) => NavManager.NavigateTo($"/delmaal/{elevplanId}");
 
     private string GetImageUrl(int id) => $"https://localhost:7013/uploads/{id}.jpg";
 
     private string GetRoleClass(string? role) => role?.ToLower() switch
     {
-        "admin" => "bg-danger",
-        "elev" => "bg-success",
-        "kok" => "bg-warning text-dark",
-        "hr" => "bg-info text-dark",
-        _ => "bg-secondary"
+        "admin" => "role-admin",
+        "elev" => "role-elev",
+        "kok" => "role-kok",
+        "hr" => "role-hr",
+        _ => "role-ukendt"
     };
-    private string HentSkoleperiode(UserModel bruger)
-    {
-        if (bruger.Role?.ToLower() == "elev" && elevplaner.TryGetValue(bruger.Id, out var plan))
-            return plan.Skoleperiode;
-
-        return "Ikke tilgængelig";
-    }
-
 }
