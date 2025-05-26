@@ -93,7 +93,8 @@
                         <p><strong>Hotel:</strong> @valgtBruger.HotelNavn</p>
                         <p><strong>Startdato:</strong> @valgtBruger.StartDato.ToShortDateString()</p>
                         <p><strong>Slutdato:</strong> @valgtBruger.SlutDato?.ToShortDateString()</p>
-                        <strong>Skoleperiode:</strong> @HentSkoleperiode(valgtBruger)
+                        <p><strong>Skoleperiode:</strong> @HentSkoleperiode(valgtBruger)</p>
+                        <p><strong>Skoleforløb:</strong> @HentSkoleforloeb(valgtBruger)</p>
                         <p><strong>Rolle:</strong> <span class="role-tag @GetRoleClass(valgtBruger.Role)">@valgtBruger.Role</span></p>
                     </div>
                     <div class="modal-footer">
@@ -197,7 +198,6 @@
         "hr" => "role-hr",
         _ => "role-ukendt"
     };
-
     private string HentSkoleperiode(UserModel bruger)
     {
         if (bruger.Role?.ToLower() == "elev" &&
@@ -209,6 +209,19 @@
 
         return "Ikke tilgængelig";
     }
+
+    private string HentSkoleforloeb(UserModel bruger)
+    {
+        if (bruger.Role?.ToLower() == "elev" &&
+            bruger.ElevplanId.HasValue &&
+            elevplaner.TryGetValue(bruger.ElevplanId.Value, out var plan))
+        {
+            return string.IsNullOrWhiteSpace(plan.SkoleForløb) ? "Ikke angivet" : plan.SkoleForløb;
+        }
+
+        return "Ikke tilgængelig";
+    }
+
 
 
 }
