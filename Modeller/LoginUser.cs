@@ -26,7 +26,7 @@ namespace Modeller
         public DateTime? SlutDato { get; set; }
         public int? ElevplanId { get; set; }
         public string? HotelNavn { get; set; }
-
+        
     }
 
     public class LoginModel
@@ -49,6 +49,8 @@ namespace Modeller
         public string Role { get; set; } = "";
         public int? HotelId { get; set; }
         public int? ElevplanId { get; set; }
+        public string Navn { get; set; } = "";    
+        public string Email { get; set; } = "";
     }
 
 

@@ -11,7 +11,7 @@ namespace Modeller
     {
         public int Id { get; set; }
         public int? DelmaalId { get; set; }
-        public int? UnderdelmaalId { get; set; } // ✅ NYT felt
+        public int? UnderdelmaalId { get; set; }
         public int ElevId { get; set; }
         public int ModtagerId { get; set; }
         public string ØnsketStatus { get; set; } = "";

@@ -6,9 +6,11 @@
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime
 @using ComwellKokkeSystem.Pages.Helpers
-@using System.Linq 
+@using ComwellKokkeSystem.Pages.Components
+@using System.Linq
 
 <h3>HR Rapport</h3>
+
 @if (!isAuthorized)
 {
     <p>Adgang nægtet. Kun admin, HR eller kok kan se denne side.</p>
@@ -19,22 +21,37 @@ else if (isLoading)
 }
 else
 {
-    <select @onchange="ChangeYear" class="mb-4 p-2 border rounded">
-        @for (int year = 2025; year <= 2030; year++)
-        {
-            <option value="@year" selected="@(selectedYear == year)">@year</option>
-        }
-    </select>
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <label class="form-label">Vælg år:</label>
+            <select @onchange="ChangeYear" class="form-select">
+                @for (int year = 2025; year <= 2030; year++)
+                {
+                    <option value="@year" selected="@(selectedYear == year)">@year</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Praktikperiode:</label>
+            <select @onchange="ChangePraktikperiodeFilter" class="form-select">
+                <option value="0">Alle Praktikperioder</option>
+                @foreach (var pp in AllPraktikperioderFilterOptions)
+                {
+                    <option value="@pp.Id">@pp.Navn</option>
+                }
+            </select>
+        </div>
+    </div>
 
-    <select @onchange="ChangePraktikperiodeFilter" class="mb-4 p-2 border rounded ml-4">
-        <option value="0">Alle Praktikperioder</option>
-        @* NYT: Brug Distinct() for at få unikke praktikperiodenavne og ID'er*@
-        @foreach (var pp in AllPraktikperioderFilterOptions.OrderBy(p => p.Navn)) // Sorter efter navn for pænere visning
-        {
-            <option value="@pp.Id">@pp.Navn</option>
-        }
-    </select>
-
+    <RapportFiltre
+        @bind-SearchQuery="søgeord"
+        @bind-SelectedStatusFilter="valgtStatusFilter"
+        StatusOptions="UnikkeStatusser"
+        @bind-SelectedRoleFilter="valgtRolleFilter"
+        RoleOptions="UnikkeRoller"
+        @bind-SelectedHotelFilter="valgtHotelFilter"
+        HotelOptions="UnikkeHoteller"
+    />
 
     <div class="flex justify-between items-center mt-4">
         <button class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
@@ -49,104 +66,134 @@ else
             <thead class="bg-gray-100 text-xs uppercase text-gray-600">
             <tr>
                 <th class="px-4 py-2"><input type="checkbox" @onclick="ToggleSelectAll" checked="@AllSelected" /></th>
-                <th class="px-4 py-2 cursor-pointer" @onclick="() => SortBy(nameof(StudentViewModel.Navn))">Navn</th>
-                <th class="px-4 py-2 cursor-pointer" @onclick="() => SortBy(nameof(StudentViewModel.Email))">Email</th>
-                <th class="px-4 py-2">Status</th>
-                <th class="px-4 py-2">Alle Praktikperioder</th>
-                <th class="px-4 py-2">Delmål Progress</th>
+                <th class="px-4 py-2 cursor-pointer" @onclick="() => SortBy(nameof(RapportElevDelmålViewModel.ElevNavn))">Elev Navn</th>
+                <th class="px-4 py-2 cursor-pointer" @onclick="() => SortBy(nameof(RapportElevDelmålViewModel.Username))">Username</th>
+                <th class="px-4 py-2 cursor-pointer" @onclick="() => SortBy(nameof(RapportElevDelmålViewModel.HotelNavn))">Hotel</th>
+                <th class="px-4 py-2 cursor-pointer" @onclick="() => SortBy(nameof(RapportElevDelmålViewModel.Rolle))">Rolle</th>
+                <th class="px-4 py-2 cursor-pointer" @onclick="() => SortBy(nameof(RapportElevDelmålViewModel.PraktikperiodeNavn))">Praktikperiode</th>
+                <th class="px-4 py-2 cursor-pointer" @onclick="() => SortBy(nameof(RapportElevDelmålViewModel.DelmålBeskrivelse))">Delmål Beskrivelse</th>
+                <th class="px-4 py-2 cursor-pointer" @onclick="() => SortBy(nameof(RapportElevDelmålViewModel.DelmålAnsvarlig))">Ansvarlig</th>
+                <th class="px-4 py-2 cursor-pointer" @onclick="() => SortBy(nameof(RapportElevDelmålViewModel.DelmålCalculatedStatus))">Delmål Status</th>
+                <th class="px-4 py-2">Progress</th>
+                <th class="px-4 py-2 cursor-pointer" @onclick="() => SortBy(nameof(RapportElevDelmålViewModel.DelmålDeadline))">Deadline</th>
             </tr>
             </thead>
             <tbody>
-            @foreach (var elev in PagedStudents)
+            @foreach (var item in FilteredAndSortedRapportData)
             {
                 <tr class="border-b hover:bg-gray-50 transition">
-                    <td class="px-4 py-2"><input type="checkbox" @bind="elev.IsSelected" /></td>
-                    <td class="px-4 py-2">@elev.Navn</td>
-                    <td class="px-4 py-2">@elev.Email</td>
+                    <td class="px-4 py-2"><input type="checkbox" @bind="item.IsSelected" /></td>
+                    <td class="px-4 py-2">@item.ElevNavn</td>
+                    <td class="px-4 py-2">@item.Username</td>
+                    <td class="px-4 py-2">@item.HotelNavn</td>
+                    <td class="px-4 py-2">@item.Rolle</td>
+                    <td class="px-4 py-2">@item.PraktikperiodeNavn</td>
+                    <td class="px-4 py-2">@item.DelmålBeskrivelse</td>
+                    <td class="px-4 py-2">@item.DelmålAnsvarlig</td>
                     <td class="px-4 py-2">
-                        <span class="inline-block px-2 py-1 rounded bg-blue-100 text-blue-700">@elev.Status</span>
+                        <span class="inline-block px-2 py-1 rounded @GetStatusColor(item.DelmålCalculatedStatus)">@item.DelmålCalculatedStatus</span>
                     </td>
                     <td class="px-4 py-2">
-                        <a class="text-blue-600 underline cursor-pointer"
-                           @onclick="() => GoToPraktikperioder(elev.Id)">
-                            Se alle praktikperioder
-                        </a>
-                    </td>
-
-                    <td class="px-4 py-2">
-                        @if (elev.DelmaalTotalForSelectedPeriod > 0)
+                        @if (item.UnderdelmaalList != null && item.UnderdelmaalList.Any())
                         {
                             <div class="w-full bg-gray-200 rounded h-2.5 mb-1">
-                                <div class="bg-green-500 h-2.5 rounded" style="width:@($"{elev.DelmaalPercentForSelectedPeriod}%")"></div>
+                                <div class="bg-green-500 h-2.5 rounded" style="width:@($"{item.DelmålProgressPercent}%")"></div>
                             </div>
-                            <span class="font-mono text-xs">@($"{elev.DelmaalDoneForSelectedPeriod}/{elev.DelmaalTotalForSelectedPeriod} ({elev.DelmaalPercentForSelectedPeriod}%)")</span>
+                            <span class="font-mono text-xs">@item.DelmålProgressText</span>
                         }
                         else
                         {
-                            <span class="italic text-gray-400">Ingen delmål</span>
+                            <span class="italic text-gray-400">Ingen underdelmål</span>
                         }
                     </td>
+                    <td class="px-4 py-2">@item.DelmålDeadline.ToShortDateString()</td>
                 </tr>
             }
             </tbody>
         </table>
     </div>
+
     <div class="flex justify-center gap-4 mt-6 mb-8">
-        <div class="overflow-x-auto rounded-lg shadow mt-4">
-            <table class="min-w-full bg-white text-sm text-left text-gray-700">
-            </table>
-
-            <div class="flex justify-end gap-4 mt-6 mb-8">
-                <button class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
-                        @onclick="ExportToCsv">
-                    Eksporter til CSV
-                </button>
-                <button class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition"
-                        @onclick="ExportToExcel">
-                    Eksporter til Excel
-                </button>
-            </div>
-        </div>
+        <button class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition"
+                @onclick="ExportToExcel">
+            Eksporter til Excel
+        </button>
     </div>
-
-    <ProgressionModal IsOpen="@isModalOpen" Elev="@selectedElev" OnClose="@CloseModal" />
 }
+
 
 @code {
     // Data
-    private List<StudentViewModel> elever = new();
-    private StudentViewModel? selectedElev;
-    private bool isModalOpen = false;
+    private List<RapportElevDelmålViewModel> rapportData = new();
+    private bool isAuthorized = false;
+    private bool isLoading = true;
 
     // Table state
     private int PageSize = 10;
     private int CurrentPage = 1;
-    private string SortColumn = nameof(StudentViewModel.Navn);
+    private string SortColumn = nameof(RapportElevDelmålViewModel.ElevNavn);
     private bool SortAscending = true;
-    private int selectedYear = 2025;
-    private bool isAuthorized = false;
-    private bool isLoading = true;
 
+    private int selectedYear = DateTime.Now.Year;
+    // Filter variabler, bundet til RapportFiltre komponent
+    private string søgeord = string.Empty;
+    private string valgtStatusFilter = string.Empty;
+    private string valgtRolleFilter = string.Empty;
+    private string valgtHotelFilter = string.Empty;
+
+    // Praktikperiode filter (denne beholdes som den er)
     private int selectedPraktikperiodeFilterId = 0;
     private List<Praktikperiode> AllPraktikperioderFilterOptions = new();
 
-    private IEnumerable<StudentViewModel> PagedStudents =>
-        elever
-            .OrderByDynamic(SortColumn, SortAscending)
-            .Skip((CurrentPage - 1) * PageSize)
-            .Take(PageSize);
+    // Computed properties for dropdown options (genereres fra den indlæste data)
+    private List<string> UnikkeStatusser => rapportData.Select(d => d.DelmålCalculatedStatus).Where(s => !string.IsNullOrWhiteSpace(s)).Distinct().OrderBy(s => s).ToList();
+    private List<string> UnikkeRoller => rapportData.Select(d => d.Rolle).Where(r => !string.IsNullOrWhiteSpace(r)).Distinct().OrderBy(r => r).ToList();
+    private List<string> UnikkeHoteller => rapportData.Select(d => d.HotelNavn).Where(h => !string.IsNullOrWhiteSpace(h)).Distinct().OrderBy(h => h).ToList();
 
-    private int TotalPages => (int)Math.Ceiling(elever.Count / (double)PageSize);
+
+    // Filtreret og sorteret liste til visning (erstatter PagedStudents)
+    private IEnumerable<RapportElevDelmålViewModel> FilteredAndSortedRapportData =>
+        rapportData
+            .Where(item =>
+                (string.IsNullOrWhiteSpace(søgeord) ||
+                 item.ElevNavn.Contains(søgeord, StringComparison.OrdinalIgnoreCase) ||
+                 item.Username.Contains(søgeord, StringComparison.OrdinalIgnoreCase) ||
+                 item.DelmålBeskrivelse.Contains(søgeord, StringComparison.OrdinalIgnoreCase) ||
+                 item.DelmålAnsvarlig.Contains(søgeord, StringComparison.OrdinalIgnoreCase)) &&
+                (string.IsNullOrWhiteSpace(valgtStatusFilter) || item.DelmålCalculatedStatus.Equals(valgtStatusFilter, StringComparison.OrdinalIgnoreCase)) &&
+                (string.IsNullOrWhiteSpace(valgtRolleFilter) || item.Rolle.Equals(valgtRolleFilter, StringComparison.OrdinalIgnoreCase)) &&
+                (string.IsNullOrWhiteSpace(valgtHotelFilter) || item.HotelNavn.Equals(valgtHotelFilter, StringComparison.OrdinalIgnoreCase)) &&
+                (selectedPraktikperiodeFilterId == 0 || item.PraktikperiodeId == selectedPraktikperiodeFilterId)
+            )
+            .OrderByDynamic(SortColumn, SortAscending)
+            .Skip((CurrentPage - 1) * PageSize) // Anvend pagination
+            .Take(PageSize) // Anvend pagination
+            .ToList();
+
+    private int TotalPages => (int)Math.Ceiling(
+        rapportData
+            .Where(item =>
+                (string.IsNullOrWhiteSpace(søgeord) ||
+                 item.ElevNavn.Contains(søgeord, StringComparison.OrdinalIgnoreCase) ||
+                 item.Username.Contains(søgeord, StringComparison.OrdinalIgnoreCase) ||
+                 item.DelmålBeskrivelse.Contains(søgeord, StringComparison.OrdinalIgnoreCase) ||
+                 item.DelmålAnsvarlig.Contains(søgeord, StringComparison.OrdinalIgnoreCase)) &&
+                (string.IsNullOrWhiteSpace(valgtStatusFilter) || item.DelmålCalculatedStatus.Equals(valgtStatusFilter, StringComparison.OrdinalIgnoreCase)) &&
+                (string.IsNullOrWhiteSpace(valgtRolleFilter) || item.Rolle.Equals(valgtRolleFilter, StringComparison.OrdinalIgnoreCase)) &&
+                (string.IsNullOrWhiteSpace(valgtHotelFilter) || item.HotelNavn.Equals(valgtHotelFilter, StringComparison.OrdinalIgnoreCase)) &&
+                (selectedPraktikperiodeFilterId == 0 || item.PraktikperiodeId == selectedPraktikperiodeFilterId)
+            )
+            .Count() / (double)PageSize); // Tæl total sider baseret på den fulde filtrerede, men ikke paginerede liste
     private bool IsFirstPage => CurrentPage == 1;
-    private bool IsLastPage => CurrentPage == TotalPages;
+    private bool IsLastPage => CurrentPage >= TotalPages;
 
     private bool AllSelected
     {
-        get => PagedStudents.Any() && PagedStudents.All(e => e.IsSelected);
+        get => FilteredAndSortedRapportData.Any() && FilteredAndSortedRapportData.All(e => e.IsSelected);
         set
         {
-            foreach (var elev in PagedStudents)
-                elev.IsSelected = value;
+            foreach (var item in FilteredAndSortedRapportData) // Togglet på den **paginerede** liste
+                item.IsSelected = value;
         }
     }
 
@@ -167,60 +214,86 @@ else
         isLoading = false;
     }
 
+    private string errorMessage = string.Empty;
+
     private async Task LoadData()
     {
-        var userModels = await RapportService.GetEleverAsync(selectedYear) ?? new List<UserModel>();
-        var praktikperioder = await RapportService.GetPraktikPerioderAsync(selectedYear) ?? new List<Praktikperiode>();
-        // NYT: Hent delmål MED underdelmål via det nye API-endpoint
-        var allDelmaalWithUnderdelmaal = await RapportService.GetDelmålWithUnderdelmaalAsync(selectedYear) ?? new List<Delmål>();
-
-        var tempElever = new List<StudentViewModel>();
-
-        foreach (var user in userModels)
+        try
         {
-            var elevPraktikperioder = praktikperioder.Where(p => p.ElevId == user.Id).ToList();
-            // NYT: Filtrer fra den aggregerede liste
-            var elevDelmaal = allDelmaalWithUnderdelmaal.Where(d => d.ElevId == user.Id).ToList();
+            isLoading = true;
+            rapportData = new List<RapportElevDelmålViewModel>();
 
-            var nextPeriod = elevPraktikperioder
-                .Where(p => p.StartDato >= DateTime.Today)
-                .OrderBy(p => p.StartDato)
-                .FirstOrDefault();
+            var userModels = await RapportService.GetEleverAsync(selectedYear) ?? new List<UserModel>();
+            Console.WriteLine($"Hentede {userModels.Count} elever for år {selectedYear}");
 
-            var studentVm = new StudentViewModel
+            var praktikperioder = await RapportService.GetPraktikPerioderAsync(selectedYear) ?? new List<Praktikperiode>();
+            Console.WriteLine($"Hentede {praktikperioder.Count} praktikperioder for år {selectedYear}");
+
+            var allDelmaalWithUnderdelmaal = await RapportService.GetDelmålWithUnderdelmaalAsync(selectedYear) ?? new List<Delmål>();
+            Console.WriteLine($"Hentede {allDelmaalWithUnderdelmaal.Count} delmål for år {selectedYear}");
+
+            foreach (var delmaal in allDelmaalWithUnderdelmaal)
             {
-                Id = user.Id,
-                Navn = user.Navn,
-                Email = user.Email,
-                Status = user.Role,
-                Praktikperioder = elevPraktikperioder,
-                Praktikperiode = nextPeriod,
-                DelmaalList = elevDelmaal, // Denne liste har nu underdelmål
-                ElevplanId = user.ElevplanId,
-                SelectedPraktikperiodeId = selectedPraktikperiodeFilterId
-            };
-            tempElever.Add(studentVm);
+                var user = userModels.FirstOrDefault(u => u.Id == delmaal.ElevId) ?? new UserModel { Id = delmaal.ElevId, Navn = "Ukendt elev" };
+                var praktikperiode = praktikperioder.FirstOrDefault(pp => pp.Id == delmaal.PraktikperiodeId) ?? new Praktikperiode { Id = delmaal.PraktikperiodeId, Navn = "Ukendt periode" };
+
+                Console.WriteLine($"Behandler delmål ID {delmaal.Id}: Elev ID {delmaal.ElevId} ({user.Navn}), Praktikperiode ID {delmaal.PraktikperiodeId} ({praktikperiode.Navn})");
+
+                var vm = new RapportElevDelmålViewModel
+                {
+                    ElevId = user.Id,
+                    Username = user.Username ?? "Ukendt",
+                    ElevNavn = user.Navn ?? "Ukendt elev",
+                    Rolle = user.Role ?? "Ukendt",
+                    HotelNavn = user.HotelNavn ?? "Ukendt",
+                    DelmålId = delmaal.Id,
+                    DelmålBeskrivelse = delmaal.Beskrivelse,
+                    DelmålStatus = delmaal.Status,
+                    DelmålCalculatedStatus = delmaal.CalculatedStatus ?? delmaal.Status ?? "Ukendt",
+                    DelmålAnsvarlig = delmaal.Ansvarlig ?? "Ukendt",
+                    DelmålIgangsætter = delmaal.Igangsætter ?? "Ukendt",
+                    DelmålDeadline = delmaal.Deadline,
+                    UnderdelmaalList = delmaal.UnderdelmaalList,
+                    PraktikperiodeId = praktikperiode.Id,
+                    PraktikperiodeNavn = praktikperiode.Navn ?? "Ukendt periode"
+                };
+
+                if (vm.UnderdelmaalList != null && vm.UnderdelmaalList.Any())
+                {
+                    int done = vm.UnderdelmaalList.Count(ud => ud.Status == "Fuldført");
+                    int total = vm.UnderdelmaalList.Count;
+                    vm.DelmålProgressPercent = (total > 0) ? Math.Round((double)done / total * 100, 0) : 0;
+                    vm.DelmålProgressText = $"{done}/{total} ({vm.DelmålProgressPercent}%)";
+                }
+                else
+                {
+                    vm.DelmålProgressPercent = 0;
+                    vm.DelmålProgressText = "Ingen underdelmål";
+                }
+
+                rapportData.Add(vm);
+            }
+
+            Console.WriteLine($"Udfyldte {rapportData.Count} rækker i rapportData");
         }
-        elever = tempElever;
-
-        // Forbered en liste af unikke praktikperioder til filterdropdown
-        // Hvis praktikperiodens ID er unikt på tværs af alle perioder (uanset elev), er dette fint.
-        // Hvis f.eks. "Praktikperiode 1" har ID=1 for alle elever, kan du bruge .DistinctBy(p => p.Id).
-        // Men hvis du vil have alle unikke NAVNE i dropdown'en, skal du gruppere på navn.
-        // Jeg antager, at praktikperiode-ID'er er unikke globalt (f.eks. fra en masterliste over praktikperioder).
-        AllPraktikperioderFilterOptions = praktikperioder
-            .GroupBy(p => p.Id) // Gruppér for at få unikke praktikperioder baseret på ID
-            .Select(g => g.First()) // Vælg den første i hver gruppe
-            .OrderBy(p => p.StartDato) // Sorter for pæn visning
-            .ToList();
-
-        CurrentPage = 1;
-        StateHasChanged();
+        catch (Exception ex)
+        {
+            errorMessage = $"Fejl ved indlæsning af data: {ex.Message}";
+            Console.WriteLine(errorMessage);
+        }
+        finally
+        {
+            AllPraktikperioderFilterOptions = (await RapportService.GetPraktikPerioderAsync(selectedYear) ?? new List<Praktikperiode>()).DistinctBy(p => p.Id).OrderBy(p => p.Navn).ToList();
+            CurrentPage = 1;
+            isLoading = false;
+            StateHasChanged();
+        }
     }
 
     private void ToggleSelectAll() => AllSelected = !AllSelected;
     private void NextPage() { if (!IsLastPage) CurrentPage++; }
     private void PreviousPage() { if (!IsFirstPage) CurrentPage--; }
+
     private void SortBy(string column)
     {
         if (SortColumn == column)
@@ -232,26 +305,12 @@ else
         }
     }
 
-    private void ShowDetails(StudentViewModel elev)
-    {
-        Console.WriteLine($"ShowDetails called for {elev.Navn}");
-        selectedElev = elev;
-        isModalOpen = true;
-    }
-    private void CloseModal()
-    {
-        isModalOpen = false;
-        selectedElev = null;
-    }
-
     private async Task ChangeYear(ChangeEventArgs e)
     {
         if (e.Value != null)
         {
             selectedYear = int.Parse(e.Value.ToString());
-            isLoading = true;
-            await LoadData();
-            isLoading = false;
+            await LoadData(); // Genindlæs data for det nye år
         }
     }
 
@@ -260,34 +319,29 @@ else
         if (e.Value != null)
         {
             selectedPraktikperiodeFilterId = int.Parse(e.Value.ToString());
-            foreach (var elev in elever)
-            {
-                elev.SelectedPraktikperiodeId = selectedPraktikperiodeFilterId;
-            }
-            CurrentPage = 1;
-            StateHasChanged();
+            CurrentPage = 1; // Nulstil pagination ved filterændring
+            StateHasChanged(); // For at sikre UI opdateres med de nye procenter
         }
     }
 
-    private async Task ExportToCsv()
-    {
-        var fileContent = await RapportService.ExportToCsvAsync(selectedYear);
-        if (fileContent.Length > 0)
-            await JSRuntime.InvokeVoidAsync("BlazorDownloadFile", "rapport.csv", "text/csv", fileContent);
-    }
     private async Task ExportToExcel()
     {
+        // Bemærk: Denne metode eksporterer lige nu ALLE data for det valgte år.
+        // Hvis du vil eksportere kun de FAKTIKSE FILTREREDE OG SORTEREDE data,
+        // skal du ændre din RapportService.ExportToExcelAsync til at acceptere en liste
+        // af RapportElevDelmålViewModel og kalde den med FilteredAndSortedRapportData.ToList().
         var fileContent = await RapportService.ExportToExcelAsync(selectedYear);
         if (fileContent.Length > 0)
             await JSRuntime.InvokeVoidAsync("BlazorDownloadFile", "rapport.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileContent);
     }
 
-    private void GoToPraktikperioder(int elevId)
+    // Helper metode til statusfarver
+    private string GetStatusColor(string status) => status?.ToLower() switch
     {
-        NavigationManager.NavigateTo($"/praktikperioder/{elevId}");
-    }
-    private void GoToDelmaal(int elevplanId)
-    {
-        NavigationManager.NavigateTo($"/delmaal/{elevplanId}");
-    }
+        "fuldført" => "bg-green-500 text-white",
+        "i gang" => "bg-yellow-400 text-black",
+        "ikke påbegyndt" => "bg-gray-400 text-white",
+        "ikke fuldført" => "bg-red-500 text-white",
+        _ => "bg-blue-400 text-white" // Standard
+    };
 }

@@ -1,6 +1,8 @@
 ﻿@page "/delmaalskabeloner"
-@inject HttpClient Http
+@inject IDelmaalSkabelonService DelmaalSkabelonService
+@inject IUnderdelmaalSkabelonService UnderdelmaalSkabelonService
 @using Modeller
+@using System.Linq
 
 <h3>🧾 Elevplanskabelon</h3>
 
@@ -26,7 +28,6 @@ else
                             <th>Handlinger</th>
                         </tr>
                     </thead>
-
                     <tbody>
                         @foreach (var s in periodeSkabeloner)
                         {
@@ -37,40 +38,37 @@ else
                                         @(udvidetDelmaalId == s.Id ? "⬆️ Skjul" : "⬇️ Vis")
                                     </button>
                                 </td>
-
-                               
-                              
                                 <td>
                                     <button class="btn btn-sm btn-warning me-1" @onclick="() => RedigerSkabelon(s)">✏️</button>
                                     <button class="btn btn-sm btn-danger me-1" @onclick="() => SletSkabelon(s.Id)">🗑️</button>
                                     <button class="btn btn-sm btn-success" @onclick="() => ÅbenUnderdelmaalModal(s.Id)">➕ Underdelmål</button>
                                 </td>
                             </tr>
-
-                            @if (udvidetDelmaalId == s.Id && underdelmaalMap.ContainsKey(s.Id))
+                            @if (udvidetDelmaalId == s.Id)
                             {
-                                <tr>
-                                    <td colspan="6">
-                                        <ul class="list-group list-group-flush">
-                                            @foreach (var u in underdelmaalMap[s.Id])
-                                            {
-                                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                    <div>
-                                                        <strong>@u.Beskrivelse</strong>
-                                                    </div>
-                                                    <div>
-                                                        <button class="btn btn-sm btn-warning me-1" @onclick="() => RedigerUnderdelmaal(u)">✏️</button>
-                                                        <button class="btn btn-sm btn-danger" @onclick="() => SletUnderdelmaal(u.Id, s.Id)">🗑️</button>
-                                                    </div>
-                                                </li>
-                                            }
-                                        </ul>
-                                    </td>
-                                </tr>
+                                var relevanteUnderdelmaal = underdelmaalListe.Where(u => u.DelmaalSkabelonId == s.Id).ToList();
+                                if (relevanteUnderdelmaal.Any())
+                                {
+                                    <tr>
+                                        <td colspan="6">
+                                            <ul class="list-group list-group-flush">
+                                                @foreach (var u in relevanteUnderdelmaal)
+                                                {
+                                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                        <div><strong>@u.Beskrivelse</strong></div>
+                                                        <div>
+                                                            <button class="btn btn-sm btn-warning me-1" @onclick="() => RedigerUnderdelmaal(u)">✏️</button>
+                                                            <button class="btn btn-sm btn-danger" @onclick="() => SletUnderdelmaal(u.Id, s.Id)">🗑️</button>
+                                                        </div>
+                                                    </li>
+                                                }
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                }
                             }
+
                         }
-
-
                     </tbody>
                 </table>
             </div>
@@ -81,7 +79,7 @@ else
 <!-- Tilføj delmål-knap -->
 <button class="btn btn-primary mb-4" @onclick="ÅbenTilføjModal">➕ Tilføj delmål</button>
 
-<!-- Modal til tilføjelse/redigering af delmålsskabelon -->
+<!-- Modal: Tilføj/rediger delmålsskabelon -->
 <div class="modal fade @(visModal ? "show d-block" : "")" tabindex="-1" style="background-color: rgba(0,0,0,0.5);" role="dialog">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -93,32 +91,11 @@ else
                 <EditForm Model="nySkabelon" OnValidSubmit="GemSkabelon">
                     <DataAnnotationsValidator />
                     <ValidationSummary />
-
-                    <div class="mb-2">
-                        <label>Praktikperiode:</label>
-                        <InputNumber class="form-control" @bind-Value="nySkabelon.PraktikperiodeNummer" />
-                    </div>
-
-                    <div class="mb-2">
-                        <label>Beskrivelse:</label>
-                        <InputText class="form-control" @bind-Value="nySkabelon.Beskrivelse" />
-                    </div>
-
-                    <div class="mb-2">
-                        <label>Deadline offset (dage):</label>
-                        <InputNumber class="form-control" @bind-Value="nySkabelon.DeadlineOffsetDage" />
-                    </div>
-
-                    <div class="mb-2">
-                        <label>Ansvarlig:</label>
-                        <InputText class="form-control" @bind-Value="nySkabelon.Ansvarlig" />
-                    </div>
-
-                    <div class="mb-2">
-                        <label>Igangsætter:</label>
-                        <InputText class="form-control" @bind-Value="nySkabelon.Igangsætter" />
-                    </div>
-
+                    <InputNumber class="form-control mb-2" @bind-Value="nySkabelon.PraktikperiodeNummer" />
+                    <InputText class="form-control mb-2" @bind-Value="nySkabelon.Beskrivelse" />
+                    <InputNumber class="form-control mb-2" @bind-Value="nySkabelon.DeadlineOffsetDage" />
+                    <InputText class="form-control mb-2" @bind-Value="nySkabelon.Ansvarlig" />
+                    <InputText class="form-control mb-2" @bind-Value="nySkabelon.Igangsætter" />
                     <div class="modal-footer">
                         <button type="submit" class="btn btn-success">@((redigerMode) ? "Opdater" : "Tilføj")</button>
                         <button type="button" class="btn btn-secondary" @onclick="LukModal">Annuller</button>
@@ -129,7 +106,7 @@ else
     </div>
 </div>
 
-<!-- Modal til tilføjelse af underdelmålsskabelon -->
+<!-- Modal: Tilføj/rediger underdelmålsskabelon -->
 <div class="modal fade @(visUnderdelmaalModal ? "show d-block" : "")" tabindex="-1" style="background-color: rgba(0,0,0,0.5);" role="dialog">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -141,22 +118,10 @@ else
                 <EditForm Model="nyUnderdelmaal" OnValidSubmit="GemUnderdelmaalSkabelon">
                     <DataAnnotationsValidator />
                     <ValidationSummary />
-
-                    <div class="mb-2">
-                        <label>Beskrivelse:</label>
-                        <InputText class="form-control" @bind-Value="nyUnderdelmaal.Beskrivelse" />
-                    </div>
-
-                    <div class="mb-2">
-                        <label>Deadline offset (dage):</label>
-                        <InputNumber class="form-control" @bind-Value="nyUnderdelmaal.DeadlineOffsetDage" />
-                    </div>
-
+                    <InputText class="form-control mb-2" @bind-Value="nyUnderdelmaal.Beskrivelse" />
+                    <InputNumber class="form-control mb-2" @bind-Value="nyUnderdelmaal.DeadlineOffsetDage" />
                     <div class="modal-footer">
-                        <button type="submit" class="btn btn-success">
-                            @(redigererUnderdelmaal ? "Opdater" : "Tilføj")
-                        </button>
-
+                        <button type="submit" class="btn btn-success">@((redigererUnderdelmaal) ? "Opdater" : "Tilføj")</button>
                         <button type="button" class="btn btn-secondary" @onclick="LukUnderdelmaalModal">Annuller</button>
                     </div>
                 </EditForm>
@@ -170,40 +135,29 @@ else
     private DelmaalSkabelon nySkabelon = new();
     private bool redigerMode = false;
     private bool visModal = false;
-
     private bool visUnderdelmaalModal = false;
     private int valgtDelmaalSkabelonId;
     private UnderdelmaalSkabelon nyUnderdelmaal = new();
     private int? udvidetDelmaalId = null;
-    private Dictionary<int, List<UnderdelmaalSkabelon>> underdelmaalMap = new();
+    private List<UnderdelmaalSkabelon> underdelmaalListe = new();
     private bool redigererUnderdelmaal = false;
-
 
     protected override async Task OnInitializedAsync()
     {
-        await HentAlle();
-    }
-
-    private async Task HentAlle()
-    {
-        skabeloner = await Http.GetFromJsonAsync<List<DelmaalSkabelon>>("api/delmaalskabelon");
+        skabeloner = await DelmaalSkabelonService.GetAllAsync();
     }
 
     private async Task GemSkabelon()
     {
         if (redigerMode)
-        {
-            await Http.PutAsJsonAsync($"api/delmaalskabelon/{nySkabelon.Id}", nySkabelon);
-        }
+            await DelmaalSkabelonService.UpdateAsync(nySkabelon);
         else
-        {
-            await Http.PostAsJsonAsync("api/delmaalskabelon", nySkabelon);
-        }
+            await DelmaalSkabelonService.AddAsync(nySkabelon);
 
         visModal = false;
         redigerMode = false;
         nySkabelon = new();
-        await HentAlle();
+        skabeloner = await DelmaalSkabelonService.GetAllAsync();
     }
 
     private void RedigerSkabelon(DelmaalSkabelon s)
@@ -221,34 +175,20 @@ else
         visModal = true;
     }
 
+
     private async Task SletSkabelon(int id)
     {
-        await Http.DeleteAsync($"api/delmaalskabelon/{id}");
-        await HentAlle();
+        await DelmaalSkabelonService.DeleteAsync(id);
+        skabeloner = await DelmaalSkabelonService.GetAllAsync();
     }
 
-    private void ÅbenTilføjModal()
-    {
-        redigerMode = false;
-        nySkabelon = new();
-        visModal = true;
-    }
-
-    private void LukModal()
-    {
-        visModal = false;
-        redigerMode = false;
-        nySkabelon = new();
-    }
-
+    private void ÅbenTilføjModal() => (nySkabelon, visModal, redigerMode) = (new(), true, false);
+    private void LukModal() => (visModal, redigerMode, nySkabelon) = (false, false, new());
 
     private void ÅbenUnderdelmaalModal(int delmaalSkabelonId)
     {
         valgtDelmaalSkabelonId = delmaalSkabelonId;
-        nyUnderdelmaal = new UnderdelmaalSkabelon
-            {
-                DelmaalSkabelonId = delmaalSkabelonId
-            };
+        nyUnderdelmaal = new UnderdelmaalSkabelon { DelmaalSkabelonId = delmaalSkabelonId };
         redigererUnderdelmaal = false;
         visUnderdelmaalModal = true;
     }
@@ -267,28 +207,19 @@ else
         visUnderdelmaalModal = true;
     }
 
-    private void LukUnderdelmaalModal()
-    {
-        visUnderdelmaalModal = false;
-        nyUnderdelmaal = new();
-    }
+
+    private void LukUnderdelmaalModal() => (visUnderdelmaalModal, nyUnderdelmaal) = (false, new());
 
     private async Task GemUnderdelmaalSkabelon()
     {
         if (redigererUnderdelmaal)
-        {
-            await Http.PutAsJsonAsync($"api/underdelmaalskabelon/{nyUnderdelmaal.Id}", nyUnderdelmaal);
-        }
+            await UnderdelmaalSkabelonService.UpdateAsync(nyUnderdelmaal);
         else
-        {
-            await Http.PostAsJsonAsync("api/underdelmaalskabelon", nyUnderdelmaal);
-        }
+            await UnderdelmaalSkabelonService.AddAsync(nyUnderdelmaal);
 
         visUnderdelmaalModal = false;
-        nyUnderdelmaal = new();
 
-        // 🔁 Genindlæs underdelmål for det valgte delmål – det opdaterer UI'et
-        underdelmaalMap.Remove(valgtDelmaalSkabelonId); // sørg for at den henter igen
+        underdelmaalListe.RemoveAll(u => u.DelmaalSkabelonId == valgtDelmaalSkabelonId);
         await ToggleUnderdelmaalVisning(valgtDelmaalSkabelonId);
     }
 
@@ -297,29 +228,25 @@ else
     {
         if (udvidetDelmaalId == delmaalSkabelonId)
         {
-            udvidetDelmaalId = null; // fold sammen
+            udvidetDelmaalId = null;
         }
         else
         {
             udvidetDelmaalId = delmaalSkabelonId;
 
-            if (!underdelmaalMap.ContainsKey(delmaalSkabelonId))
+            if (!underdelmaalListe.Any(u => u.DelmaalSkabelonId == delmaalSkabelonId))
             {
-                var result = await Http.GetFromJsonAsync<List<UnderdelmaalSkabelon>>(
-                    $"api/underdelmaalskabelon/delmaalskabelon/{delmaalSkabelonId}");
-
-                underdelmaalMap[delmaalSkabelonId] = result ?? new List<UnderdelmaalSkabelon>();
+                var result = await UnderdelmaalSkabelonService.GetByDelmaalSkabelonIdAsync(delmaalSkabelonId);
+                underdelmaalListe.AddRange(result);
             }
         }
     }
+
+
     private async Task SletUnderdelmaal(int id, int delmaalSkabelonId)
     {
-        await Http.DeleteAsync($"api/underdelmaalskabelon/{id}");
-
-        //  Fjern cachet data så det genindlæses
-        underdelmaalMap.Remove(delmaalSkabelonId);
-
-        // Genhent opdateret liste
+        await UnderdelmaalSkabelonService.DeleteAsync(id);
+        underdelmaalListe.RemoveAll(u => u.Id == id);
         await ToggleUnderdelmaalVisning(delmaalSkabelonId);
     }
 

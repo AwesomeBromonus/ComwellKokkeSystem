@@ -1,0 +1,98 @@
+﻿@page "/quizdetails/{QuizId:int}"
+
+@using ComwellKokkeSystem.Service.QuizService
+@using Modeller
+@inject IQuizService QuizService
+@inject NavigationManager NavigationManager
+
+<div class="min-h-screen bg-gray-100 flex items-center justify-center p-6 font-sans"> @* Subtil grå baggrund, centrerer indholdet *@
+    <div class="max-w-4xl w-full bg-white rounded-lg shadow-2xl p-8 border border-gray-200"> @* Større og mere fremtrædende hvid boks *@
+        <h3 class="text-4xl font-extrabold text-center mb-8 text-purple-700">Quiz Detaljer 📋</h3> @* Kahoot-agtig farve og emoji *@
+
+        @if (quiz == null)
+        {
+            @if (isLoading)
+            {
+                <p class="text-center text-lg text-gray-600"><em>Loading quiz...</em></p>
+            }
+            else
+            {
+                <p class="text-center text-lg text-red-500">Quiz ikke fundet.</p>
+            }
+        }
+        else
+        {
+            <div class="bg-gray-50 p-6 rounded-lg shadow-inner mb-6 border border-gray-100"> @* Renere informationsboks *@
+                <h4 class="text-3xl font-bold mb-2 text-blue-700">@quiz.Quiz.Title</h4>
+                @* Husk: Din Quizzes model har ikke en 'Description' egenskab som standard. Hvis du vil vise den, skal du tilføje den til Modeller.Quizzes.
+                   <p class="text-gray-600 text-lg mb-2">Beskrivelse: <span class="font-semibold">@quiz.Quiz.Description</span></p> *@
+                <p class="text-gray-600 text-lg mb-2">Skaber: <span class="font-semibold text-gray-800">@quiz.Quiz.CreatorName</span></p>
+                <p class="text-gray-600 text-lg">Oprettet: <span class="font-semibold text-gray-800">@quiz.Quiz.CreatedDate.ToShortDateString()</span></p>
+            </div>
+
+            <h5 class="text-2xl font-bold mb-5 text-purple-700">Spørgsmål: 🤔</h5>
+            @if (quiz.Questions != null && quiz.Questions.Any())
+            {
+                <ol class="list-decimal list-inside space-y-4">
+                    @foreach (var question in quiz.Questions)
+                    {
+                        <li class="bg-white p-5 rounded-xl shadow-md border border-gray-200">
+                            <strong class="text-xl text-gray-800">@question.Text</strong>
+                            <ul class="list-disc list-inside ml-6 mt-3 space-y-2"> @* Mere plads mellem valgmuligheder *@
+                                @foreach (var option in question.Options)
+                                {
+                                    <li class="text-gray-700">@option</li>
+                                }
+                            </ul>
+                        </li>
+                    }
+                </ol>
+            }
+            else
+            {
+                <p class="text-center text-lg text-gray-600">Denne quiz har ingen spørgsmål endnu.</p>
+            }
+
+            <div class="flex justify-center mt-8 space-x-4">
+                <button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 transform hover:scale-105">Tilbage til Quiz Liste</button>
+                <button class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 transform hover:scale-105" @onclick="() => StartQuiz(quiz.Quiz.Id.ToString())">Start Quiz 🚀</button>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int QuizId { get; set; }
+
+    private Modeller.QuizWithQuestions? quiz;
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            isLoading = true;
+            quiz = await QuizService.GetQuizWithQuestionsAsync(QuizId.ToString());
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading quiz {QuizId}: {ex.Message}");
+            quiz = null;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void GoBackToQuizList()
+    {
+        NavigationManager.NavigateTo("/quizlist");
+    }
+
+    private void StartQuiz(string quizId)
+    {
+        NavigationManager.NavigateTo($"/taketquiz/{quizId}");
+    }
+}

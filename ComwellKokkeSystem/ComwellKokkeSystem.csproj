@@ -36,10 +36,16 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+
   </ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\Modeller\Modeller.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="wwwroot\Uploads\" />
+	  <Folder Include="wwwroot\uploads\" />
 	</ItemGroup>
     
   

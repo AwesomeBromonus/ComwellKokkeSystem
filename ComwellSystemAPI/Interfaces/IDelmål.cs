@@ -17,3 +17,4 @@ namespace ComwellSystemAPI.Interfaces
         Task<List<Delmål>> GetAllForYearAsync(int year);
     }
 }
+

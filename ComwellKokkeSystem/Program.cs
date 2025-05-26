@@ -5,6 +5,8 @@ using ComwellKokkeSystem;
 using Blazored.LocalStorage;
 using ComwellKokkeSystem.Service;
 using ComwellKokkeSystem.Service.Elev;
+using ComwellKokkeSystem.Service.QuizService;
+
 
 public class Program
 {
@@ -37,9 +39,13 @@ public class Program
         builder.Services.AddScoped<IAnmodningService, AnmodningService>();
         builder.Services.AddScoped<IUserService, UserService>();
         builder.Services.AddScoped<IUnderdelmaalService, UnderdelmaalService>();
+        builder.Services.AddScoped<IDelmaalSkabelonService, DelmaalSkabelonService>();
         builder.Services.AddScoped<IUnderdelmaalSkabelonService, UnderdelmaalSkabelonService>();
+        builder.Services.AddScoped<IQuizService, QuizService>(); 
 
 
+
+        builder.Services.AddAuthorizationCore(); // Gør det muligt at bruge [Authorize] og AuthenticationStateProvider
 
         await builder.Build().RunAsync();
 
