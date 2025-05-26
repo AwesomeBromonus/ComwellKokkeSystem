@@ -2,51 +2,57 @@
 using MongoDB.Driver;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using ComwellSystemAPI.Interfaces; // Bruger din IQuestion interface
+using ComwellSystemAPI.Interfaces;
+using System.Linq; // Nødvendig for .FirstOrDefault() og .Max() i GetNextQuestionIdAsync
 
 namespace ComwellSystemAPI.Repositories;
 
-// Implementering af IQuestion interfacet, der interagerer med MongoDB for Questions
-public class QuestionRepository : IQuestion // Korrigeret: Implementerer nu IQuestion
+public class QuestionRepository : IQuestion
 {
-    private readonly IMongoCollection<Question> _questions; // MongoDB collection til questions
+    private readonly IMongoCollection<Question> _questions;
 
-    // Konstruktør: IMongoDatabase injiceres her fra Dependency Injection
-    public QuestionRepository() // <--- Ingen parameter her
+    public QuestionRepository()
     {
-        // Genindsæt manuel oprettelse af klient og database
-        var client = new MongoClient("mongodb+srv://Bromus:Bromus12344321@cluster0.k4kon.mongodb.net/"); // Din egen forbindelsesstreng
-        var db = client.GetDatabase("Comwell"); // Din egen database
+        var client = new MongoClient("mongodb+srv://Bromus:Bromus12344321@cluster0.k4kon.mongodb.net/");
+        var db = client.GetDatabase("Comwell");
         _questions = db.GetCollection<Question>("Questions");
     }
 
-    // Henter alle spørgsmål fra databasen
     public async Task<List<Question>> GetAllQuestionsAsync()
     {
         return await _questions.Find(_ => true).ToListAsync();
     }
 
-    // Henter et enkelt spørgsmål ud fra dens ID
-    public async Task<Question> GetQuestionByIdAsync(string id)
+    // RETTET: id parameter er nu int
+    public async Task<Question> GetQuestionByIdAsync(int id)
     {
-        return await _questions.Find(q => q._id == id).FirstOrDefaultAsync();
+        return await _questions.Find(q => q.Id == id).FirstOrDefaultAsync(); // Sammenligner int med int
     }
 
-    // Opretter et nyt spørgsmål i databasen
     public async Task CreateQuestionAsync(Question question)
     {
+        question.Id = await GetNextQuestionIdAsync(); // Generer ID her
         await _questions.InsertOneAsync(question);
     }
 
-    // Opdaterer et eksisterende spørgsmål i databasen
+    // RETTET: question.Id er int, filter er på int. Fjernede `_id` reference.
     public async Task UpdateQuestionAsync(Question question)
     {
-        await _questions.ReplaceOneAsync(q => q._id == question._id, question);
+        await _questions.ReplaceOneAsync(q => q.Id == question.Id, question); // Sammenligner int med int
     }
 
-    // Sletter et spørgsmål ud fra dens ID
-    public async Task DeleteQuestionAsync(string id)
+    // RETTET: id parameter er nu int
+    public async Task DeleteQuestionAsync(int id)
     {
-        await _questions.DeleteOneAsync(q => q._id == id);
+        await _questions.DeleteOneAsync(q => q.Id == id); // Sammenligner int med int
     }
+
+    // NY METODE: GetNextQuestionIdAsync - Denne hører kun til QuestionRepository
+    private async Task<int> GetNextQuestionIdAsync()
+    {
+        var sort = Builders<Question>.Sort.Descending(q => q.Id);
+        var lastQuestion = await _questions.Find(_ => true).Sort(sort).Limit(1).FirstOrDefaultAsync();
+        return lastQuestion == null ? 1 : lastQuestion.Id + 1;
+    }
+    
 }

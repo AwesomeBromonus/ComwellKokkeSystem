@@ -1,52 +1,57 @@
-﻿using ComwellSystemAPI.Interfaces; // Bruger din IQuiz interface
+﻿using ComwellSystemAPI.Interfaces;
 using Modeller;
 using MongoDB.Driver;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Linq; // Nødvendig for .FirstOrDefault() og .Max() i GetNextQuizIdAsync
 
 namespace ComwellSystemAPI.Repositories;
 
-// Implementering af IQuiz interfacet, der interagerer med MongoDB for Quizzes
-public class QuizRepositoryMongoDB : IQuiz // Implementerer IQuiz, som du ønskede
+public class QuizRepositoryMongoDB : IQuiz
 {
-    private readonly IMongoCollection<Quizzes> _quizzes; // MongoDB collection til quizzes
+    private readonly IMongoCollection<Quizzes> _quizzes;
 
-    // Konstruktør: IMongoDatabase injiceres her fra Dependency Injection (opsat i API'ets Program.cs)
-    public QuizRepositoryMongoDB() // <--- Ingen parameter her
+    public QuizRepositoryMongoDB()
     {
-        // Genindsæt manuel oprettelse af klient og database
-        var client = new MongoClient("mongodb+srv://Bromus:Bromus12344321@cluster0.k4kon.mongodb.net/"); // Din egen forbindelsesstreng
-        var db = client.GetDatabase("Comwell"); // Din egen database
+        var client = new MongoClient("mongodb+srv://Bromus:Bromus12344321@cluster0.k4kon.mongodb.net/");
+        var db = client.GetDatabase("Comwell");
         _quizzes = db.GetCollection<Quizzes>("Quizzes");
     }
 
-    // Henter alle quizzes fra databasen
-    public async Task<List<Quizzes>> GetQuizzesAsync() // Navnet matcher IQuiz
+    public async Task<List<Quizzes>> GetQuizzesAsync()
     {
-        return await _quizzes.Find(quiz => true).ToListAsync();
+        return await _quizzes.Find(_ => true).ToListAsync();
     }
     
-    // Henter en enkelt quiz ud fra dens ID
-    public async Task<Quizzes> GetQuizByIdAsync(string id) // ID er string
+    // RETTET: id parameter er nu int
+    public async Task<Quizzes> GetQuizByIdAsync(int id)
     {
-        return await _quizzes.Find(q => q._id == id).FirstOrDefaultAsync();
+        return await _quizzes.Find(q => q.Id == id).FirstOrDefaultAsync(); // Sammenligner int med int
     }
     
-    // Opretter en ny quiz i databasen
-    public async Task CreateQuizAsync(Quizzes quizDto)
+    public async Task CreateQuizAsync(Quizzes quiz) // Parameter er quiz (ikke quizDto)
     {
-        await _quizzes.InsertOneAsync(quizDto);
+        quiz.Id = await GetNextQuizIdAsync(); // Generer ID her
+        await _quizzes.InsertOneAsync(quiz);
     }
 
-    // Opdaterer en eksisterende quiz i databasen
+    // RETTET: quizDto.Id er int, filter er på int
     public async Task UpdateQuizAsync(Quizzes quizDto)
     {
-        await _quizzes.ReplaceOneAsync(q => q._id == quizDto._id, quizDto);
+        await _quizzes.ReplaceOneAsync(q => q.Id == quizDto.Id, quizDto); // Sammenligner int med int
     }
 
-    // Sletter en quiz ud fra dens ID
-    public async Task DeleteQuizAsync(string id)
+    // Korrekt GetNextQuizIdAsync metode
+    private async Task<int> GetNextQuizIdAsync()
     {
-        await _quizzes.DeleteOneAsync(q => q._id == id);
+        var sort = Builders<Quizzes>.Sort.Descending(q => q.Id);
+        var lastQuiz = await _quizzes.Find(_ => true).Sort(sort).Limit(1).FirstOrDefaultAsync();
+        return lastQuiz == null ? 1 : lastQuiz.Id + 1;
+    }
+    
+    // RETTET: id parameter er nu int
+    public async Task DeleteQuizAsync(int id)
+    {
+        await _quizzes.DeleteOneAsync(q => q.Id == id); // Sammenligner int med int
     }
 }

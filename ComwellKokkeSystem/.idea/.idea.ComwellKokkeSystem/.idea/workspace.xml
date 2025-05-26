@@ -11,7 +11,26 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="867a39b7-f00d-4256-9506-36754830a52e" name="Changes" comment="Tailwind">
+      <change afterPath="$PROJECT_DIR$/Pages/Quiz/QuizInformation.razor" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Pages/Quiz/TagQuiz.razor" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.ComwellKokkeSystem/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.ComwellKokkeSystem/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Layout/NavMenu.razor" beforeDir="false" afterPath="$PROJECT_DIR$/Layout/NavMenu.razor" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Pages/Quiz.razor" beforeDir="false" afterPath="$PROJECT_DIR$/Pages/Quiz/QuizOpret.razor" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Pages/QuizList.razor" beforeDir="false" afterPath="$PROJECT_DIR$/Pages/Quiz/QuizList.razor" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Program.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Service/IQuizService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Service/IQuizService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Service/InterfaceService/IUserService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Service/InterfaceService/IUserService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Service/QuizService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Service/QuizService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Service/ServiceService/UserService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Service/ServiceService/UserService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/ComwellSystemAPI.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/ComwellSystemAPI.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Controllers/QuizController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Controllers/QuizController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Interfaces/IQuestion.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Interfaces/IQuestion.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Interfaces/IQuiz.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Interfaces/IQuiz.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Program.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Repositories/QuestionsRepositoryMongoDB.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Repositories/QuestionsRepositoryMongoDB.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Repositories/QuizRepositoryMongoDB.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Repositories/QuizRepositoryMongoDB.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/appsettings.json" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/appsettings.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Modeller/QuizDTO.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Modeller/QuizDTO.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -57,10 +76,20 @@
     <setting file="file://$PROJECT_DIR$/Pages/Components/RapportFiltre.razor" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" root2="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Pages/Genererapport/GenereRapport.razor" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" root2="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Pages/Genererapport/Helpers/EnumerableExtensions.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Service/GenereRapportService.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Service/IAnmodningService.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Service/IGenereRapportService.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock://C:/Eksamen/ComwellKokkeSystem/Program.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://C:/Eksamen/ComwellKokkeSystem/Program.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://C:/Eksamen/ComwellKokkeSystem/Program.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://C:/Eksamen/ComwellKokkeSystem/Program.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://C:/Eksamen/ComwellKokkeSystem/Program.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://C:/Eksamen/ComwellKokkeSystem/Program.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/package-lock.json" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../ComwellSystemAPI/Controllers/QuizController.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../ComwellSystemAPI/Interfaces/IQuestion.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../ComwellSystemAPI/Interfaces/IQuiz.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../ComwellSystemAPI/Interfaces/IUser.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../ComwellSystemAPI/Repositories/QuestionsRepositoryMongoDB.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../ComwellSystemAPI/Repositories/QuizRepositoryMongoDB.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../ComwellSystemAPI/Repositories/UserRepositoryMongodb.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/76803a04e31b4fee99d90bcbfc5a6bdde8e930/7b/0366cfd4/ExceptionDispatchInfo.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/ce37be1a06b16c6faa02038d2cc477dd3bca5b217ceeb41c5f2ad45c1bf9/ServiceProvider.cs" root0="FORCE_HIGHLIGHTING" />
   </component>
@@ -82,7 +111,7 @@
     ".NET Launch Settings Profile.ComwellSystemAPI: https.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "master",
+    "git-widget-placeholder": "lukas",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -131,6 +160,7 @@
       <option name="USE_EXTERNAL_CONSOLE" value="0" />
       <option name="USE_MONO" value="0" />
       <option name="RUNTIME_ARGUMENTS" value="" />
+      <browser name="98ca6316-2f89-46d9-a9e5-fa9e2b0625b3" />
       <option name="GENERATE_APPLICATIONHOST_CONFIG" value="1" />
       <option name="SHOW_IIS_EXPRESS_OUTPUT" value="0" />
       <option name="SEND_DEBUG_REQUEST" value="1" />
@@ -307,7 +337,15 @@
       <option name="project" value="LOCAL" />
       <updated>1747917130895</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="workspace.xml">
+      <option name="closed" value="true" />
+      <created>1748245043156</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1748245043156</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -370,25 +408,7 @@
     <MESSAGE value="Genere rapport" />
     <MESSAGE value="%" />
     <MESSAGE value="Tailwind" />
-    <option name="LAST_COMMIT_MESSAGE" value="Tailwind" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/../ComwellSystemAPI/Controllers/QuizController.cs</url>
-          <line>152</line>
-          <properties documentPath="C:\Eksamen\ComwellSystemAPI\Controllers\QuizController.cs" containingFunctionPresentation="Method 'DeleteQuiz'">
-            <startOffsets>
-              <option value="5558" />
-            </startOffsets>
-            <endOffsets>
-              <option value="5594" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="17" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
+    <MESSAGE value="workspace.xml" />
+    <option name="LAST_COMMIT_MESSAGE" value="workspace.xml" />
   </component>
 </project>

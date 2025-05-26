@@ -45,6 +45,8 @@ public class Program
 
 
 
+        builder.Services.AddAuthorizationCore(); // Gør det muligt at bruge [Authorize] og AuthenticationStateProvider
+
         await builder.Build().RunAsync();
 
         var host = builder.Build();

@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Modeller; // Indeholder Quizzes, Question, QuizWithQuestions, CreateQuizRequest
-using ComwellSystemAPI.Interfaces; // For IQuiz og IQuestion
+using ComwellSystemAPI.Interfaces; // For IQuiz, IQuestion, IUserRepository
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Linq; // Nødvendig for .FirstOrDefault() og .RemoveAll() hvis brugt
+using System.Linq;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization; // Nødvendig for at få brugerens information
 
 namespace ComwellSystemAPI.Controllers;
 
@@ -11,147 +13,163 @@ namespace ComwellSystemAPI.Controllers;
 [Route("api/[controller]")]
 public class QuizController : ControllerBase
 {
-    // INGEN QUIZSERVICE HER. Direkte injektion af repositories.
     private readonly IQuiz _quizRepo;
     private readonly IQuestion _questionRepo;
+    private readonly IUserRepository _userRepo;
 
-    // Konstruktør injicerer nu IQuiz og IQuestion
-    public QuizController(IQuiz quizRepo, IQuestion questionRepo)
+    public QuizController(IQuiz quizRepo, IQuestion questionRepo, IUserRepository userRepo)
     {
         _quizRepo = quizRepo;
         _questionRepo = questionRepo;
+        _userRepo = userRepo; 
     }
 
-    // HTTP GET for at hente alle quizzes
     [HttpGet]
     public async Task<IActionResult> GetAllQuizzes()
     {
-        // Kalder direkte repository
         var quizzes = await _quizRepo.GetQuizzesAsync();
-        return Ok(quizzes); // Returnerer 200 OK med listen af quizzes
+        return Ok(quizzes);
     }
 
-    // HTTP GET for at hente en enkelt quiz med dens spørgsmål ud fra ID
-    // GET /api/Quiz/{id}
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetQuiz(string id)
+    // RETTET: id parameter er nu int. Rute constraint er :int
+    [HttpGet("{id:int}")]
+    public async Task<IActionResult> GetQuiz(int id) // <--- RETTET til int
     {
-        // Henter quiz direkte fra repository
         var quiz = await _quizRepo.GetQuizByIdAsync(id);
         if (quiz == null)
         {
-            return NotFound(); // Returnerer 404 Not Found, hvis quizzen ikke findes
+            return NotFound();
         }
 
-        // Henter tilknyttede spørgsmål direkte fra repository
         var questions = new List<Question>();
-        foreach (var questionId in quiz.QuestionsIds)
+        // RETTET: questionId er nu int
+        foreach (var questionId in quiz.QuestionsIds) // quiz.QuestionsIds er nu List<int>
         {
-            var question = await _questionRepo.GetQuestionByIdAsync(questionId);
+            var question = await _questionRepo.GetQuestionByIdAsync(questionId); // Brug int questionId
             if (question != null)
             {
                 questions.Add(question);
             }
         }
 
-        // Samler det i QuizWithQuestions DTO'en (som skal ligge i Modeller)
         var quizWithQuestions = new QuizWithQuestions
         {
             Quiz = quiz,
             Questions = questions
         };
 
-        return Ok(quizWithQuestions); // Returnerer 200 OK med quizzen og dens spørgsmål
+        return Ok(quizWithQuestions);
     }
 
-    // DTO til at oprette en quiz med dens spørgsmål (SKAL LIGGE I MODELLER)
-    // using Modeller; skal sikre at denne er tilgængelig
-    // public class CreateQuizRequest { ... } // Denne er nu i Modeller-projektet
-
-    // HTTP POST for at oprette en ny quiz med dens spørgsmål
-    // POST /api/Quiz
+   
     [HttpPost]
+
     public async Task<IActionResult> CreateQuiz([FromBody] CreateQuizRequest request)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         if (request == null || request.Quiz == null || request.Questions == null)
         {
             return BadRequest("Quiz og spørgsmålsdata er påkrævet.");
         }
-
-        // Håndterer oprettelse af individuelle spørgsmål først, og linker dem derefter til quizzen.
-        // Denne logik er flyttet fra "QuizService" (backend) direkte ind i controlleren,
-        // da du ikke har et service-lag.
-        if (string.IsNullOrEmpty(request.Quiz._id))
-        {
-            request.Quiz._id = MongoDB.Bson.ObjectId.GenerateNewId().ToString();
-        }
-        // Sikrer, at vi kun linker nye spørgsmål.
-        // Håndter null-tjek, hvis QuestionsIds kan være null fra klienten.
-        if (request.Quiz.QuestionsIds == null)
-        {
-            request.Quiz.QuestionsIds = new List<string>();
-        }
-        else
-        {
-            request.Quiz.QuestionsIds.Clear();
-        }
         
+        
+        // --- Håndtering af QuestionIds i Quiz ---
+        request.Quiz.QuestionsIds = new List<int>();
 
+        // --- Opret spørgsmål og tilføj deres ID'er til quizzen ---
         foreach (var question in request.Questions)
         {
-            if (string.IsNullOrEmpty(question._id))
+            if (string.IsNullOrWhiteSpace(question.Text) || !question.Options.Any())
             {
-                question._id = MongoDB.Bson.ObjectId.GenerateNewId().ToString();
+                return BadRequest("Spørgsmålstekst og mindst én mulighed er påkrævet for hvert spørgsmål.");
             }
-            await _questionRepo.CreateQuestionAsync(question); // Opret spørgsmålet i databasen
-            request.Quiz.QuestionsIds.Add(question._id); // Tilføj spørgsmålets ID til quizzen
+
+            await _questionRepo.CreateQuestionAsync(question);
+            request.Quiz.QuestionsIds.Add(question.Id);
         }
 
-        await _quizRepo.CreateQuizAsync(request.Quiz); // Opret quizzen i databasen
+        // --- Opret quizzen ---
+        await _quizRepo.CreateQuizAsync(request.Quiz);
 
-        // Returnerer 201 Created med placeringen af den nye quiz
-        return CreatedAtAction(nameof(GetQuiz), new { id = request.Quiz._id }, request.Quiz);
+        return CreatedAtAction(nameof(GetQuiz), new { id = request.Quiz.Id }, request.Quiz);
     }
 
     // HTTP PUT for at opdatere en eksisterende quiz
-    // PUT /api/Quiz/{id}
-    [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateQuiz(string id, [FromBody] Quizzes quiz)
+    [HttpPut("{id:int}")]
+    public async Task<IActionResult> UpdateQuiz(int id, [FromBody] Quizzes quiz)
     {
-        if (id != quiz._id)
+        if (id != quiz.Id)
         {
             return BadRequest("Quiz ID stemmer ikke overens.");
         }
 
-        // Tjekker eksistens ved at hente fra repository
-        var existingQuiz = await _quizRepo.GetQuizByIdAsync(id); // Direkte kald til _quizRepo
+        var existingQuiz = await _quizRepo.GetQuizByIdAsync(id);
         if (existingQuiz == null)
         {
             return NotFound();
         }
 
-        // Opdaterer quiz direkte via repository
-        await _quizRepo.UpdateQuizAsync(quiz);
-        return NoContent(); // 204 No Content for succesfuld opdatering
+        // --- AUTORISATIONSLOGIK START ---
+        string? currentUserIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        if (string.IsNullOrEmpty(currentUserIdString))
+        {
+            return Unauthorized("Brugeren er ikke logget ind.");
+        }
+
+        // Kontroller om den loggede bruger er skaberen af quizzen
+        if (existingQuiz.CreatorUserId != currentUserIdString)
+        {
+            // Hvis brugeren ikke er skaberen, returneres Forbid (403 Forbidden)
+            return Forbid("Du har ikke tilladelse til at opdatere denne quiz.");
+        }
+        // --- AUTORISATIONSLOGIK SLUT ---
+
+        // Kun opdater felter der kan ændres af brugeren, ikke CreatorUserId/Name eller CreatedDate
+        existingQuiz.Title = quiz.Title;
+        existingQuiz.QuestionsIds = quiz.QuestionsIds; // Hvis du vil tillade at opdatere spørgsmål direkte via quizzen
+
+        await _quizRepo.UpdateQuizAsync(existingQuiz); // Opdater den eksisterende quiz-objekt
+        return NoContent();
     }
 
-    // HTTP DELETE for at slette en quiz og dens tilknyttede spørgsmål
-    // DELETE /api/Quiz/{id}
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteQuiz(string id)
+     [HttpDelete("{id:int}")]
+    public async Task<IActionResult> DeleteQuiz(int id)
     {
-        // Henter quiz for at finde tilknyttede spørgsmål
-        var quiz = await _quizRepo.GetQuizByIdAsync(id); // Direkte kald til _quizRepo
-        if (quiz != null)
+        var quiz = await _quizRepo.GetQuizByIdAsync(id);
+        if (quiz == null)
         {
-            // Slet først de tilknyttede spørgsmål
-            foreach (var questionId in quiz.QuestionsIds)
-            {
-                await _questionRepo.DeleteQuestionAsync(questionId); // Direkte kald til _questionRepo
-            }
-            // Slet derefter selve quizzen
-            await _quizRepo.DeleteQuizAsync(id); // Direkte kald til _quizRepo
+            return NotFound(); // Quizzen findes ikke
         }
-        return NoContent(); // 204 No Content for succesfuld sletning
+
+        // --- AUTORISATIONSLOGIK START ---
+        string? currentUserIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        if (string.IsNullOrEmpty(currentUserIdString))
+        {
+            return Unauthorized("Brugeren er ikke logget ind.");
+        }
+
+        // Kontroller om den loggede bruger er skaberen af quizzen
+        if (quiz.CreatorUserId != currentUserIdString)
+        {
+            // Hvis brugeren ikke er skaberen, returneres Forbid (403 Forbidden)
+            return Forbid("Du har ikke tilladelse til at slette denne quiz.");
+        }
+        // --- AUTORISATIONSLOGIK SLUT ---
+
+        // Slet først de tilknyttede spørgsmål
+        foreach (var questionId in quiz.QuestionsIds)
+        {
+            await _questionRepo.DeleteQuestionAsync(questionId);
+        }
+        // Slet derefter selve quizzen
+        await _quizRepo.DeleteQuizAsync(id);
+        
+        return NoContent();
     }
 }
