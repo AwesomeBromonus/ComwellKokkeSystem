@@ -11,39 +11,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="867a39b7-f00d-4256-9506-36754830a52e" name="Changes" comment="Tailwind">
-      <change afterPath="$PROJECT_DIR$/Pages/Components/RapportFiltre.razor" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Pages/Quiz.razor" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Pages/QuizList.razor" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Service/IQuizService.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Service/QuizService.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Controllers/QuizController.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Interfaces/IQuestion.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Interfaces/IQuiz.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Repositories/QuestionsRepositoryMongoDB.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Repositories/QuizRepositoryMongoDB.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../Modeller/QuizDTO.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../Modeller/RapportElevDelmålViewModel.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.ComwellKokkeSystem/.idea/shelf/Uncommitted_changes_before_Merge_at_14-05-2025_08_57_[Changes]/shelved.patch" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.ComwellKokkeSystem/.idea/shelf/Uncommitted_changes_before_Merge_at_14-05-2025_08_57__Changes_.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.ComwellKokkeSystem/.idea/shelf/Uncommitted_changes_before_Merge_at_14-05-2025_10_53_[Changes]1/shelved.patch" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.ComwellKokkeSystem/.idea/shelf/Uncommitted_changes_before_Merge_at_14-05-2025_10_53__Changes_1.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.ComwellKokkeSystem/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.ComwellKokkeSystem/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ComwellKokkeSystem.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/ComwellKokkeSystem.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Pages/Genererapport/GenereRapport.razor" beforeDir="false" afterPath="$PROJECT_DIR$/Pages/Genererapport/GenereRapport.razor" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Pages/Genererapport/Pratikperioder.razor" beforeDir="false" afterPath="$PROJECT_DIR$/Pages/Components/Pratikperioder.razor" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Pages/Genererapport/StudentTable.razor" beforeDir="false" afterPath="$PROJECT_DIR$/Pages/Components/StudentTable.razor" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Service/GenereRapportService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Service/GenereRapportService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Service/IGenereRapportService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Service/IGenereRapportService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/ComwellSystemAPI.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/ComwellSystemAPI.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Controllers/RapportController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Controllers/RapportController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Interfaces/IDelmål.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Interfaces/IDelmål.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Interfaces/IGenereRapportService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Interfaces/IGenereRapportService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Repositories/GenereRapportMongoDB.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Repositories/GenereRapportMongoDB.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Modeller/Delmål.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Modeller/Delmål.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Modeller/StudentViewModels.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Modeller/StudentViewModels.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Modeller/Underdelmaal.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Modeller/Underdelmaal.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -114,7 +82,7 @@
     ".NET Launch Settings Profile.ComwellSystemAPI: https.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "lukas",
+    "git-widget-placeholder": "master",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
