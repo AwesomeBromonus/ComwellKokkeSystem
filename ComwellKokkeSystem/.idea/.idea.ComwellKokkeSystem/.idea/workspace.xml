@@ -296,7 +296,7 @@
       <workItem from="1747247658073" duration="15303000" />
       <workItem from="1747701593702" duration="7754000" />
       <workItem from="1748210088681" duration="2376000" />
-      <workItem from="1748278595011" duration="5549000" />
+      <workItem from="1748278595011" duration="5765000" />
     </task>
     <task id="LOCAL-00001" summary="Genere rapport - sorry hvis der er problemer...">
       <option name="closed" value="true" />
@@ -354,7 +354,15 @@
       <option name="project" value="LOCAL" />
       <updated>1748278468325</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="I håb om at fikse rapportside">
+      <option name="closed" value="true" />
+      <created>1748285159781</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1748285159781</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -420,6 +428,7 @@
     <MESSAGE value="workspace.xml" />
     <MESSAGE value="XML n TAILWIND" />
     <MESSAGE value="HMm" />
-    <option name="LAST_COMMIT_MESSAGE" value="HMm" />
+    <MESSAGE value="I håb om at fikse rapportside" />
+    <option name="LAST_COMMIT_MESSAGE" value="I håb om at fikse rapportside" />
   </component>
 </project>
