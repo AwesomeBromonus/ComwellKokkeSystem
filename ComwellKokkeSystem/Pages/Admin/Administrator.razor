@@ -50,6 +50,7 @@
         <!-- 🔍 Filter -->
         <div class="search-section">
             <input class="search-input" placeholder="🔍 Søg brugernavn..." @bind="søgeord" />
+
             <select class="role-filter" @bind="valgtRolle">
                 <option value="">Alle roller</option>
                 <option value="elev">Elev</option>
@@ -57,13 +58,23 @@
                 <option value="kok">Kok</option>
                 <option value="hr">HR</option>
             </select>
+
+            <select class="role-filter" @bind="valgtHotel">
+                <option value="">Alle hoteller</option>
+                @foreach (var hotel in hotelNavne)
+                {
+                    <option value="@hotel">@hotel</option>
+                }
+            </select>
         </div>
+
 
         <!-- 👤 Brugerliste -->
         <div class="user-grid">
             @foreach (var b in brugere.Where(b =>
            (string.IsNullOrWhiteSpace(søgeord) || b.Username.Contains(søgeord, StringComparison.OrdinalIgnoreCase)) &&
-           (string.IsNullOrWhiteSpace(valgtRolle) || b.Role?.ToLower() == valgtRolle)))
+           (string.IsNullOrWhiteSpace(valgtRolle) || b.Role?.ToLower() == valgtRolle) &&
+           (string.IsNullOrWhiteSpace(valgtHotel) || b.HotelNavn == valgtHotel)))
             {
                 <div class="user-card" @onclick="@(() => VisDetaljer(b))">
                     <img src="@GetImageUrl(b.Id)"
@@ -118,6 +129,13 @@
     private string valgtRolle = "";
     private int anmodningerAntal = 0;
     private Dictionary<int, Elevplan> elevplaner = new(); // key = ElevplanId
+    private string valgtHotel = "";
+    private List<string> hotelNavne => brugere
+    .Where(b => !string.IsNullOrWhiteSpace(b.HotelNavn))
+    .Select(b => b.HotelNavn)
+    .Distinct()
+    .OrderBy(h => h)
+    .ToList();
 
 
     protected override async Task OnInitializedAsync()
