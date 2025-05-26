@@ -37,12 +37,10 @@ namespace ComwellKokkeSystem.Service
             }
         }
 
-        // NYT: Denne metode kalder nu det nye/opdaterede API-endpoint
         public async Task<List<Delmål>?> GetDelmålWithUnderdelmaalAsync(int year)
         {
             try
             {
-                // Kalder det nye API-endpoint
                 return await _httpClient.GetFromJsonAsync<List<Delmål>>($"api/rapport/delmaal-with-underdelmaal/{year}");
             }
             catch (Exception ex)
@@ -52,27 +50,19 @@ namespace ComwellKokkeSystem.Service
             }
         }
 
-        // Duplikerede metoder er fjernet herfra: GetPraktikPerioderAsync og GetDelmålAsync (den gamle version)
-
-        // Den gamle GetDelmålAsync er sandsynligvis ikke længere nødvendig, hvis den ikke henter underdelmål
-        // Hvis den bruges andre steder, skal du overveje at omdøbe den eller opdatere de steder.
-        // public async Task<List<Delmål>?> GetDelmålAsync(int year)
-        // {
-        //     return await _httpClient.GetFromJsonAsync<List<Delmål>>($"api/rapport/delmaal/{year}");
-        // }
-
         public async Task<List<UserModel>?> GetBrugereAsync(int year)
         {
             return await _httpClient.GetFromJsonAsync<List<UserModel>>($"api/rapport/brugere/{year}");
         }
 
-        public async Task<byte[]> ExportToExcelAsync(int year)
+        // Denne metode er korrekt for at sende data til API'en
+        public async Task<byte[]> ExportToExcelAsync(List<Modeller.RapportElevDelmålViewModel> dataToExport)
         {
-            var response = await _httpClient.GetAsync($"api/rapport/export/excel/{year}");
-            response.EnsureSuccessStatusCode();
+            var response = await _httpClient.PostAsJsonAsync("api/rapport/export/excel", dataToExport);
+            response.EnsureSuccessStatusCode(); // Kaster en HttpRequestException ved 500-fejl
             return await response.Content.ReadAsByteArrayAsync();
         }
-        
+
         public async Task<List<UserModel>> GetEleverAsync(int year)
         {
             try

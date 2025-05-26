@@ -9,7 +9,7 @@ namespace ComwellKokkeSystem.Service
         Task<List<Praktikperiode>?> GetPraktikPerioderAsync(int year);
         Task<List<Delmål>?> GetDelmålWithUnderdelmaalAsync(int year);
         Task<List<UserModel>?> GetBrugereAsync(int year);
-        Task<byte[]> ExportToExcelAsync(int year);
+        Task<byte[]> ExportToExcelAsync(List<RapportElevDelmålViewModel> dataToExport);
 
         Task<List<UserModel>> GetEleverAsync(int year);
 

@@ -1,6 +1,6 @@
 ﻿// ComwellSystemAPI/Repositories/GenereRapportMongoDB.cs
 using ComwellSystemAPI.Interfaces;
-using Modeller;
+using Modeller; // Sørg for at denne using er her
 using MongoDB.Driver;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -8,8 +8,8 @@ using System;
 using System.IO;
 using System.Text;
 using System.Globalization;
-using System.Linq;
-using ClosedXML.Excel; // VIGTIGT: Sørg for denne er her og ikke OfficeOpenXml
+using System.Linq; // Vigtig for GroupBy og ToDictionary
+using ClosedXML.Excel;
 
 namespace ComwellSystemAPI.Repositories
 {
@@ -18,7 +18,7 @@ namespace ComwellSystemAPI.Repositories
         private readonly IMongoCollection<Praktikperiode> _praktikperioder;
         private readonly IMongoCollection<Delmål> _delmål;
         private readonly IMongoCollection<UserModel> _brugere;
-        private readonly IMongoCollection<Underdelmaal> _underdelmaal;
+        private readonly IMongoCollection<Underdelmaal> _underdelmaal; // Tilføj denne, hvis den mangler
 
         public GenereRapportMongoDB()
         {
@@ -29,8 +29,54 @@ namespace ComwellSystemAPI.Repositories
             _praktikperioder = database.GetCollection<Praktikperiode>("Praktikperioder");
             _delmål = database.GetCollection<Delmål>("Delmål");
             _brugere = database.GetCollection<UserModel>("Brugere");
-            _underdelmaal = database.GetCollection<Underdelmaal>("Underdelmaal");
+            _underdelmaal = database.GetCollection<Underdelmaal>("Underdelmaal"); // Sørg for at den samles op her
         }
+
+        // --- Grå metoder (implementeret, men ikke kaldt af Blazor UI lige nu) ---
+        // Du ønsker dem implementeret, og det er de! De forbliver grå, fordi ingen kalder dem i den aktuelle flow.
+        // Hvis du vil bruge dem, skal du tilføje logik i din Blazor UI eller andre dele af din API.
+        public async Task<List<Delmål>> GetDelmålMånedAsync(int year, int month)
+        {
+            try
+            {
+                return await _delmål.Find(d => d.Deadline != default(DateTime) && d.Deadline.Year == year && d.Deadline.Month == month)
+                    .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in GetDelmålMånedAsync: {ex.Message}");
+                return new List<Delmål>();
+            }
+        }
+
+        public async Task<List<Delmål>> GetFuldførteDelmålAsync(int year)
+        {
+            try
+            {
+                return await _delmål.Find(d => d.Deadline != default(DateTime) && d.Deadline.Year == year && d.Status == "Fuldført")
+                    .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in GetFuldførteDelmålAsync: {ex.Message}");
+                return new List<Delmål>();
+            }
+        }
+
+        public async Task<List<Praktikperiode>> GetPraktikPerioderPerElevAsync(int elevId, int year)
+        {
+            try
+            {
+                return await _praktikperioder.Find(p => p.ElevId == elevId && p.StartDato != default(DateTime) && p.StartDato.Year == year)
+                    .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in GetPraktikPerioderPerElevAsync: {ex.Message}");
+                return new List<Praktikperiode>();
+            }
+        }
+        // --- Slut på grå metoder ---
 
         public async Task<List<Praktikperiode>> GetPraktikPerioderAsync(int year)
         {
@@ -57,27 +103,13 @@ namespace ComwellSystemAPI.Repositories
         {
             try
             {
-                var result = await _delmål.Find(d => d.Deadline.Year == year).ToListAsync();
+                var result = await _delmål.Find(d => d.Deadline != default(DateTime) && d.Deadline.Year == year).ToListAsync();
                 Console.WriteLine($"Found {result.Count} delmål for year {year}");
                 return result;
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error in GetDelmålAsync: {ex.Message}");
-                return new List<Delmål>();
-            }
-        }
-
-        public async Task<List<Delmål>> GetDelmålMånedAsync(int year, int month)
-        {
-            try
-            {
-                return await _delmål.Find(d => d.Deadline.Year == year && d.Deadline.Month == month)
-                    .ToListAsync();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error in GetDelmålMånedAsync: {ex.Message}");
                 return new List<Delmål>();
             }
         }
@@ -101,40 +133,13 @@ namespace ComwellSystemAPI.Repositories
                 Console.WriteLine($"Error in GetBrugereAsync: {ex.Message}");
                 try
                 {
+                    // Fallback to fetch all users if year filter fails, or return empty
                     return await _brugere.Find(_ => true).ToListAsync();
                 }
                 catch
                 {
                     return new List<UserModel>();
                 }
-            }
-        }
-
-        public async Task<List<Delmål>> GetFuldførteDelmålAsync(int year)
-        {
-            try
-            {
-                return await _delmål.Find(d => d.Deadline.Year == year && d.Status == "Fuldført")
-                    .ToListAsync();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error in GetFuldførteDelmålAsync: {ex.Message}");
-                return new List<Delmål>();
-            }
-        }
-
-        public async Task<List<Praktikperiode>> GetPraktikPerioderPerElevAsync(int elevId, int year)
-        {
-            try
-            {
-                return await _praktikperioder.Find(p => p.ElevId == elevId && p.StartDato.Year == year)
-                    .ToListAsync();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error in GetPraktikPerioderPerElevAsync: {ex.Message}");
-                return new List<Praktikperiode>();
             }
         }
 
@@ -153,16 +158,17 @@ namespace ComwellSystemAPI.Repositories
                 Console.WriteLine($"Connected to MongoDB. Collections: {string.Join(", ", databaseNames)}");
 
                 Console.WriteLine($"Fetching delmål for year: {year}");
-                var allDelmaal = await _delmål.Find(d => d.Deadline.Year == year).ToListAsync();
+                var allDelmaal = await _delmål.Find(d => d.Deadline != default(DateTime) && d.Deadline.Year == year).ToListAsync();
                 Console.WriteLine($"Found {allDelmaal.Count} delmål");
 
                 Console.WriteLine($"Fetching all underdelmål");
-                var allUnderdelmaal = await _underdelmaal.Find(_ => true).ToListAsync();
+                var allUnderdelmaal = await _underdelmaal.Find(_ => true).ToListAsync(); // Fetch all for grouping
                 Console.WriteLine($"Found {allUnderdelmaal.Count} underdelmål");
 
+                // RETTET: Brug korrekt property navn 'DelmaalId'
                 var groupedUnderdelmaal = allUnderdelmaal
-                    .GroupBy(ud => ud.DelmålId)
-                    .ToDictionary(g => g.Key, g => g.ToList());
+                    .GroupBy(ud => ud.DelmaalId) // <--- FEJL RETTET HER!
+                    .ToDictionary(g => g.Key, g => g.ToList()); // <--- Ingen grund til eksplicitte typer her
 
                 foreach (var dm in allDelmaal)
                 {
@@ -185,74 +191,23 @@ namespace ComwellSystemAPI.Repositories
             }
         }
 
-        public async Task<byte[]> ExportToExcelAsync(int year)
+        // Denne metode implementerer det, der forventes af IGenereRapport
+        public async Task<byte[]> ExportToExcelAsync(List<Modeller.RapportElevDelmålViewModel> dataToExport)
         {
             try
             {
-                Console.WriteLine($"Starting Excel export for year: {year} using ClosedXML.");
+                Console.WriteLine($"Starting Excel export for {dataToExport.Count} rows using ClosedXML.");
 
-                var allDelmaal = await GetAllDelmaalWithUnderdelmaalAsync(year);
-                Console.WriteLine($"Retrieved {allDelmaal?.Count ?? 0} delmål");
-
-                var userModels = await GetBrugereAsync(year);
-                Console.WriteLine($"Retrieved {userModels?.Count ?? 0} users");
-
-                var praktikperioder = await GetPraktikPerioderAsync(year);
-                Console.WriteLine($"Retrieved {praktikperioder?.Count ?? 0} praktikperioder");
-
-                allDelmaal ??= new List<Delmål>();
-                userModels ??= new List<UserModel>();
-                praktikperioder ??= new List<Praktikperiode>();
-
-                // Opret en liste af din ViewModel for at matche den data, du vil eksportere
-                var rapportData = new List<RapportElevDelmålViewModel>();
-
-                foreach (var delmaal in allDelmaal)
+                if (!dataToExport.Any())
                 {
-                    try
-                    {
-                        var user = userModels.FirstOrDefault(u => u.Id == delmaal.ElevId);
-                        var praktikperiode = praktikperioder.FirstOrDefault(pp => pp.Id == delmaal.PraktikperiodeId);
-
-                        string progressText = "Ingen underdelmål";
-                        double progressPercent = 0;
-
-                        if (delmaal.UnderdelmaalList != null && delmaal.UnderdelmaalList.Any())
-                        {
-                            int done = delmaal.UnderdelmaalList.Count(ud => ud.Status == "Fuldført");
-                            int total = delmaal.UnderdelmaalList.Count;
-                            progressPercent = (total > 0) ? Math.Round((double)done / total * 100, 0) : 0;
-                            progressText = $"{done}/{total} ({progressPercent}%)";
-                        }
-
-                        // Opret en instans af din ViewModel og fyld den
-                        rapportData.Add(new RapportElevDelmålViewModel
-                        {
-                            ElevNavn = user?.Navn ?? "Ukendt elev",
-                            Username = user?.Username ?? "Ukendt",
-                            HotelNavn = user?.HotelNavn ?? "Ukendt hotel",
-                            Rolle = user?.Role ?? "Ukendt rolle",
-                            PraktikperiodeNavn = praktikperiode?.Navn ?? "Ukendt praktikperiode",
-                            DelmålBeskrivelse = delmaal.Beskrivelse ?? "Ingen beskrivelse",
-                            DelmålAnsvarlig = delmaal.Ansvarlig ?? "Ukendt",
-                            DelmålCalculatedStatus = delmaal.CalculatedStatus ?? delmaal.Status ?? "Ukendt", // Brug CalculatedStatus
-                            DelmålProgressText = progressText, // Brug den beregnede tekst
-                            DelmålDeadline = delmaal.Deadline != default ? delmaal.Deadline : DateTime.MinValue // Sørg for at deadline er gyldig
-                        });
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"Error processing delmål {delmaal.Id} for export: {ex.Message}\nStackTrace: {ex.StackTrace}");
-                    }
+                    Console.WriteLine("No data provided for export. Returning empty byte array.");
+                    return Array.Empty<byte>();
                 }
-
-                Console.WriteLine($"Processed {rapportData.Count} rows for ClosedXML export.");
 
                 using (var workbook = new XLWorkbook())
                 {
                     var worksheet = workbook.Worksheets.Add("HR Rapport");
 
-                    // Tilføj kolonnehoveder
                     worksheet.Cell(1, 1).Value = "Elev Navn";
                     worksheet.Cell(1, 2).Value = "Username";
                     worksheet.Cell(1, 3).Value = "Hotel";
@@ -264,10 +219,22 @@ namespace ComwellSystemAPI.Repositories
                     worksheet.Cell(1, 9).Value = "Progress";
                     worksheet.Cell(1, 10).Value = "Deadline";
 
-                    // Indsæt data
-                    worksheet.Cell(2, 1).InsertData(rapportData);
+                    int row = 2;
+                    foreach (var item in dataToExport)
+                    {
+                        worksheet.Cell(row, 1).Value = item.ElevNavn;
+                        worksheet.Cell(row, 2).Value = item.Username;
+                        worksheet.Cell(row, 3).Value = item.HotelNavn;
+                        worksheet.Cell(row, 4).Value = item.Rolle;
+                        worksheet.Cell(row, 5).Value = item.PraktikperiodeNavn;
+                        worksheet.Cell(row, 6).Value = item.DelmålBeskrivelse;
+                        worksheet.Cell(row, 7).Value = item.DelmålAnsvarlig;
+                        worksheet.Cell(row, 8).Value = item.DelmålCalculatedStatus;
+                        worksheet.Cell(row, 9).Value = item.DelmålProgressText;
+                        worksheet.Cell(row, 10).Value = item.DelmålDeadline != DateTime.MinValue ? item.DelmålDeadline.ToShortDateString() : "Ukendt";
+                        row++;
+                    }
 
-                    // Tilpas kolonnernes bredde
                     worksheet.Columns().AdjustToContents();
 
                     using (var stream = new MemoryStream())
@@ -282,7 +249,7 @@ namespace ComwellSystemAPI.Repositories
             catch (Exception ex)
             {
                 Console.WriteLine($"Critical error in ExportToExcelAsync (ClosedXML): {ex.Message}\nStackTrace: {ex.StackTrace}");
-                throw; // Kast exception for at få den fanget i controlleren
+                throw;
             }
         }
     }
