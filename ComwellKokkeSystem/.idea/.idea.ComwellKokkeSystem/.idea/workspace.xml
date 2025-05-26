@@ -10,16 +10,18 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="867a39b7-f00d-4256-9506-36754830a52e" name="Changes" comment="XML n TAILWIND">
-      <change afterPath="$PROJECT_DIR$/Pages/Genererapport/Genererapport.razor.cs" afterDir="false" />
+    <list default="true" id="867a39b7-f00d-4256-9506-36754830a52e" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/Pages/Genererapport/DelmaalOversigt.razor" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Pages/Genererapport/ElevOversigt.razor" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.ComwellKokkeSystem/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.ComwellKokkeSystem/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Pages/Genererapport/GenereRapport.razor" beforeDir="false" afterPath="$PROJECT_DIR$/Pages/Genererapport/GenereRapport.razor" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Service/InterfaceService/IGenereRapportService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Service/InterfaceService/IGenereRapportService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Service/ServiceService/GenereRapportService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Service/ServiceService/GenereRapportService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/wwwroot/css/tailwind.css" beforeDir="false" afterPath="$PROJECT_DIR$/wwwroot/css/tailwind.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Controllers/RapportController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Controllers/RapportController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Interfaces/IGenereRapportService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Interfaces/IGenereRapportService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ComwellKokkeSystem.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/ComwellKokkeSystem.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Pages/Components/Pratikperioder.razor" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Pages/Components/RapportFiltre.razor" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Pages/Components/StudentTable.razor" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Pages/Genererapport/GenereRapport.razor" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Pages/Genererapport/Genererapport.razor.cs" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Repositories/GenereRapportMongoDB.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Repositories/GenereRapportMongoDB.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Modeller/Delmål.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Modeller/Delmål.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Modeller/Underdelmaal.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Modeller/Underdelmaal.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -97,7 +99,7 @@
   "keyToString": {
     ".NET Launch Settings Profile.ComwellKokkeSystem: http.executor": "Run",
     ".NET Launch Settings Profile.ComwellKokkeSystem: https.executor": "Run",
-    ".NET Launch Settings Profile.ComwellSystemAPI: http.executor": "Run",
+    ".NET Launch Settings Profile.ComwellSystemAPI: http.executor": "Debug",
     ".NET Launch Settings Profile.ComwellSystemAPI: https.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
@@ -294,6 +296,7 @@
       <workItem from="1747247658073" duration="15303000" />
       <workItem from="1747701593702" duration="7754000" />
       <workItem from="1748210088681" duration="2376000" />
+      <workItem from="1748278595011" duration="5549000" />
     </task>
     <task id="LOCAL-00001" summary="Genere rapport - sorry hvis der er problemer...">
       <option name="closed" value="true" />
@@ -343,7 +346,15 @@
       <option name="project" value="LOCAL" />
       <updated>1748269010307</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="HMm">
+      <option name="closed" value="true" />
+      <created>1748278468325</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1748278468325</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -408,6 +419,7 @@
     <MESSAGE value="Tailwind" />
     <MESSAGE value="workspace.xml" />
     <MESSAGE value="XML n TAILWIND" />
-    <option name="LAST_COMMIT_MESSAGE" value="XML n TAILWIND" />
+    <MESSAGE value="HMm" />
+    <option name="LAST_COMMIT_MESSAGE" value="HMm" />
   </component>
 </project>

@@ -1,0 +1,257 @@
+﻿@page "/elever"
+@inject HttpClient Http
+@using Modeller // Sørg for at dit Modeller namespace er korrekt
+
+<PageTitle>Elev Oversigt</PageTitle>
+
+<h3>Alle Elever med Delmål</h3>
+
+<div class="row mb-3">
+    <div class="col-md-3">
+        <label for="yearSelect" class="form-label">Vælg år:</label>
+        <select id="yearSelect" class="form-select" @bind="selectedYear">
+            @foreach (var year in Enumerable.Range(DateTime.Now.Year - 5, 10).OrderByDescending(y => y))
+            {
+                <option value="@year">@year</option>
+            }
+        </select>
+    </div>
+</div>
+
+@if (isLoading)
+{
+    <p><em>Indlæser elevdata og delmål...</em></p>
+}
+else if (elevDelmålList.Any())
+{
+    <p>Antal elever fundet: @elevDelmålList.Count</p>
+
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered">
+            <thead class="thead-dark">
+            <tr>
+                <th>Elev ID</th>
+                <th>Navn</th>
+                <th>Hotel</th>
+                <th>Rolle</th>
+                <th>Delmål</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var elev in elevDelmålList)
+            {
+                <tr>
+                    <td>@elev.Id</td>
+                    <td>@elev.Navn</td>
+                    <td>@elev.HotelNavn</td>
+                    <td>@elev.Role</td>
+                    <td>
+                        <button class="btn btn-info btn-sm" @onclick="() => ToggleDelmål(elev.Id)">
+                            @(expandedElevId == elev.Id ? "Skjul Delmål" : "Vis Delmål") (@elev.Delmål.Count)
+                        </button>
+                    </td>
+                </tr>
+                @if (expandedElevId == elev.Id)
+                {
+                    <tr>
+                        <td colspan="5">
+                            <div class="delmål-container p-3">
+                                <h4>Delmål for @elev.Navn</h4>
+                                @if (elev.Delmål.Any())
+                                {
+                                    <table class="table table-sm table-hover">
+                                        <thead>
+                                        <tr>
+                                            <th>Praktikperiode</th>
+                                            <th>Beskrivelse</th>
+                                            <th>Ansvarlig</th>
+                                            <th>Deadline</th>
+                                            <th>Status</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        @foreach (var delmål in elev.Delmål)
+                                        {
+                                            <tr>
+                                                <td>@delmål.PraktikperiodeNavn</td>
+                                                <td>@delmål.Beskrivelse</td>
+                                                <td>@delmål.Ansvarlig</td>
+                                                <td>@delmål.Deadline.ToShortDateString()</td>
+                                                <td>@delmål.Status</td>
+                                            </tr>
+                                        }
+                                        </tbody>
+                                    </table>
+                                }
+                                else
+                                {
+                                    <p>Ingen delmål fundet for denne elev i det valgte år.</p>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+            </tbody>
+        </table>
+    </div>
+}
+else
+{
+    <p>Ingen elever fundet for det valgte år.</p>
+    @if (errorMessage != null)
+    {
+        <div class="alert alert-danger">
+            <p>Fejl under indlæsning: @errorMessage</p>
+            <p>Kontroller din API-forbindelse og browserkonsollen (F12) for detaljer.</p>
+        </div>
+    }
+}
+
+@code {
+    private List<ElevDelmålViewModel> elevDelmålList = new();
+    private bool isLoading = true;
+    private string? errorMessage;
+    private int selectedYear = DateTime.Now.Year; // Standard år for select
+    private int? expandedElevId = null; // Holder styr på hvilken elevs delmål der er foldet ud
+
+    // Dette er en midlertidig ViewModel til denne side. I et større projekt ville den ligge i Modeller.
+    public class ElevDelmålViewModel : Modeller.UserModel
+    {
+        // Vi genbruger UserModel's properties og tilføjer Delmål
+        public List<DelmålMedPraktikperiodeNavn> Delmål { get; set; } = new();
+    }
+
+    public class DelmålMedPraktikperiodeNavn : Modeller.Delmål
+    {
+        public string PraktikperiodeNavn { get; set; } = string.Empty;
+    }
+
+
+     protected override async Task OnInitializedAsync()
+    {
+        await LoadElevData();
+    }
+
+    private async Task LoadElevData()
+    {
+        isLoading = true;
+        errorMessage = null;
+        elevDelmålList.Clear();
+        expandedElevId = null; // Reset expansion on new load
+        StateHasChanged();
+
+        try
+        {
+            // --- Step 1: Fetch all necessary data for the selected year ---
+            // Ensure HttpClient.BaseAddress points to your API (e.g., https://localhost:7013/)
+
+            var usersResponseTask = Http.GetAsync($"api/Rapport/brugere/{selectedYear}");
+            var delmaalResponseTask = Http.GetAsync($"api/Rapport/delmaal-with-underdelmaal/{selectedYear}");
+            var praktikperioderResponseTask = Http.GetAsync($"api/Rapport/praktikperioder/{selectedYear}");
+
+            await Task.WhenAll(usersResponseTask, delmaalResponseTask, praktikperioderResponseTask);
+
+            // Process Users Response
+            var usersResponse = usersResponseTask.Result;
+            if (!usersResponse.IsSuccessStatusCode) // Check success status first
+            {
+                var error = await usersResponse.Content.ReadAsStringAsync();
+                throw new HttpRequestException($"Failed to load users: {usersResponse.StatusCode} {usersResponse.ReasonPhrase} - {error}");
+            }
+
+            var users = await usersResponse.Content.ReadFromJsonAsync<List<Modeller.UserModel>>() ?? new();
+
+            // Process Delmål Response
+            var delmaalResponse = delmaalResponseTask.Result;
+            if (!delmaalResponse.IsSuccessStatusCode)
+            {
+                var error = await delmaalResponse.Content.ReadAsStringAsync();
+                throw new HttpRequestException($"Failed to load delmål: {delmaalResponse.StatusCode} {delmaalResponse.ReasonPhrase} - {error}");
+            }
+
+            var delmaal = await delmaalResponse.Content.ReadFromJsonAsync<List<Modeller.Delmål>>() ?? new();
+
+            // Process Praktikperioder Response
+            var praktikperioderResponse = praktikperioderResponseTask.Result;
+            if (!praktikperioderResponse.IsSuccessStatusCode)
+            {
+                var error = await praktikperioderResponse.Content.ReadAsStringAsync();
+                throw new HttpRequestException($"Failed to load praktikperioder: {praktikperioderResponse.StatusCode} {praktikperioderResponse.ReasonPhrase} - {error}");
+            }
+
+            var praktikperioder = await praktikperioderResponse.Content.ReadFromJsonAsync<List<Modeller.Praktikperiode>>() ?? new();
+
+
+            // --- Step 2: Combine Data ---
+            var elevData = users.Where(u => u.Role?.ToLower() == "elev").ToList(); // Only students
+
+            foreach (var elev in elevData)
+            {
+                var elevViewModel = new ElevDelmålViewModel
+                {
+                    Id = elev.Id,
+                    Navn = elev.Navn,
+                    Username = elev.Username,
+                    HotelNavn = elev.HotelNavn,
+                    Role = elev.Role
+                };
+
+                // Filter delmål for the current student
+                var elevsDelmål = delmaal.Where(d => d.ElevId == elev.Id).ToList();
+
+                foreach (var dm in elevsDelmål)
+                {
+                    var praktikperiode = praktikperioder.FirstOrDefault(p => p.Id == dm.PraktikperiodeId);
+                    elevViewModel.Delmål.Add(new DelmålMedPraktikperiodeNavn
+                    {
+                        Id = dm.Id,
+                        PraktikperiodeId = dm.PraktikperiodeId,
+                        Beskrivelse = dm.Beskrivelse,
+                        Ansvarlig = dm.Ansvarlig,
+                        Deadline = dm.Deadline,
+                        Status = dm.Status,
+                        PraktikperiodeNavn = praktikperiode?.Navn ?? "Ukendt Praktikperiode", // Add the name
+                        // Copy other delmål properties if necessary
+                    });
+                }
+
+                elevDelmålList.Add(elevViewModel);
+            }
+
+            Console.WriteLine($"Loaded {elevDelmålList.Count} students with associated delmål.");
+        }
+        catch (HttpRequestException httpEx)
+        {
+            // THIS IS THE CORRECTED PART:
+            // Remove the line 'var errorContent = await httpEx.ReadAsStringAsync();'
+            // The exception message itself often contains useful info or we've already
+            // thrown a more specific exception with content if a response was received.
+            errorMessage = $"Fejl ved API-kald: {httpEx.Message}. Sørg for at din API kører og er tilgængelig på {Http.BaseAddress}";
+            Console.WriteLine($"HTTP Request Error: {httpEx.Message}\nStackTrace: {httpEx.StackTrace}");
+            // No need for httpEx.ReadAsStringAsync() here.
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Uventet fejl: {ex.Message}";
+            Console.WriteLine($"Generel fejl: {ex.Message}\nStackTrace: {ex.StackTrace}");
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private void ToggleDelmål(int elevId)
+    {
+        if (expandedElevId == elevId)
+        {
+            expandedElevId = null; // Fold sammen
+        }
+        else
+        {
+            expandedElevId = elevId; // Fold ud
+        }
+    }
+}

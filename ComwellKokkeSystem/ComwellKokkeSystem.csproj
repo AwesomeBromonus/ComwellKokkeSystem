@@ -47,6 +47,12 @@
 	  <Folder Include="wwwroot\Uploads\" />
 	  <Folder Include="wwwroot\uploads\" />
 	</ItemGroup>
+
+	<ItemGroup>
+	  <_ContentIncludedByDefault Remove="Pages\Components\Pratikperioder.razor" />
+	  <_ContentIncludedByDefault Remove="Pages\Components\RapportFiltre.razor" />
+	  <_ContentIncludedByDefault Remove="Pages\Components\StudentTable.razor" />
+	</ItemGroup>
     
   
 </Project>

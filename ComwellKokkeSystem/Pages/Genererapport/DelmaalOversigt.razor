@@ -1,0 +1,134 @@
+﻿@page "/delmaal"
+@inject HttpClient Http
+@using Modeller // Sørg for at dette namespace er korrekt
+
+<PageTitle>Delmål Oversigt</PageTitle>
+
+<h3>Alle Delmål</h3>
+
+<div class="row mb-3">
+    <div class="col-md-3">
+        <label for="yearSelect" class="form-label">Vælg år:</label>
+        <select id="yearSelect" class="form-select" @bind="selectedYear">
+            @foreach (var year in Enumerable.Range(DateTime.Now.Year - 5, 10).OrderByDescending(y => y))
+            {
+                <option value="@year">@year</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-9 d-flex align-items-end">
+        <button class="btn btn-primary me-2" @onclick="LoadDelmaalData">Indlæs Delmål</button>
+    </div>
+</div>
+
+@if (isLoading)
+{
+    <p><em>Indlæser delmål...</em></p>
+}
+else if (delmaalList.Any())
+{
+    <p>Antal delmål fundet: @delmaalList.Count</p>
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered">
+            <thead class="thead-dark">
+            <tr>
+                <th>ID</th>
+                <th>Beskrivelse</th>
+                <th>Ansvarlig</th>
+                <th>Deadline</th>
+                <th>Status</th>
+                <th>Elev ID</th>
+                <th>Underdelmål Antal</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var delmål in delmaalList)
+            {
+                <tr>
+                    <td>@delmål.Id</td>
+                    <td>@delmål.Beskrivelse</td>
+                    <td>@delmål.Ansvarlig</td>
+                    <td>@delmål.Deadline.ToShortDateString()</td>
+                    <td>@delmål.Status</td>
+                    <td>@delmål.ElevId</td>
+                    <td>@delmål.UnderdelmaalList.Count</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+}
+else
+{
+    <p>Ingen delmål fundet for det valgte år.</p>
+    @if (errorMessage != null)
+    {
+        <div class="alert alert-danger">
+            <p>Fejl under indlæsning: @errorMessage</p>
+            <p>Kontroller din API-forbindelse og browserkonsollen (F12) for detaljer.</p>
+        </div>
+    }
+}
+
+@code {
+    private List<Modeller.Delmål> delmaalList = new();
+    private bool isLoading = false; // Sæt til false initialt, da vi bruger en knap til at loade
+    private string? errorMessage;
+    private int selectedYear = DateTime.Now.Year;
+
+    // Vi kalder ikke LoadDelmaalData i OnInitializedAsync for denne side,
+    // så brugeren selv skal trykke på knappen for at indlæse.
+    // protected override async Task OnInitializedAsync()
+    // {
+    //     await LoadDelmaalData();
+    // }
+
+    private async Task LoadDelmaalData()
+    {
+        isLoading = true;
+        errorMessage = null;
+        delmaalList.Clear();
+        StateHasChanged(); // Opdater UI for at vise "Indlæser..."
+
+        try
+        {
+            // Kalder API'ens endpoint for delmål med underdelmål
+            // API-kald: https://localhost:7013/api/Rapport/delmaal-with-underdelmaal/{year}
+            var response = await Http.GetAsync($"api/Rapport/delmaal-with-underdelmaal/{selectedYear}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                var delmaal = await response.Content.ReadFromJsonAsync<List<Modeller.Delmål>>();
+                if (delmaal != null)
+                {
+                    delmaalList = delmaal;
+                }
+                else
+                {
+                    errorMessage = "API returnerede ingen delmål, eller deserialisering mislykkedes.";
+                }
+            }
+            else
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                errorMessage = $"Fejl ved API-kald (Status: {(int)response.StatusCode} {response.ReasonPhrase}): {errorContent}";
+                Console.WriteLine($"API Error Response: {errorMessage}");
+            }
+        }
+        catch (HttpRequestException httpEx)
+        {
+            errorMessage = $"Netværksfejl eller server utilgængelig: {httpEx.Message}. Sørg for at din API kører og er tilgængelig på {Http.BaseAddress}";
+            Console.WriteLine($"HttpRequestException: {httpEx.Message}\nStackTrace: {httpEx.StackTrace}");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Uventet fejl: {ex.Message}";
+            Console.WriteLine($"Generel fejl: {ex.Message}\nStackTrace: {ex.StackTrace}");
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged(); // Opdater UI med resultater eller fejl
+        }
+    }
+}

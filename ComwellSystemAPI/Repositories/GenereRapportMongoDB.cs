@@ -1,5 +1,4 @@
-﻿// ComwellSystemAPI/Repositories/GenereRapportMongoDB.cs
-using ComwellSystemAPI.Interfaces;
+﻿using ComwellSystemAPI.Interfaces;
 using Modeller; // Sørg for at denne using er her
 using MongoDB.Driver;
 using System.Collections.Generic;
@@ -18,23 +17,22 @@ namespace ComwellSystemAPI.Repositories
         private readonly IMongoCollection<Praktikperiode> _praktikperioder;
         private readonly IMongoCollection<Delmål> _delmål;
         private readonly IMongoCollection<UserModel> _brugere;
-        private readonly IMongoCollection<Underdelmaal> _underdelmaal; // Tilføj denne, hvis den mangler
+        
+        // Injicer IUnderdelmaal repo'et her
+        private readonly IUnderdelmaal _underdelmaalRepository; // Denne bruges nu til at hente Underdelmaal
 
-        public GenereRapportMongoDB()
+        // Konstruktør: Modtag IMongoDatabase og IUnderdelmaal via Dependency Injection
+        public GenereRapportMongoDB(IMongoDatabase database, IUnderdelmaal underdelmaalRepository)
         {
-            var mongoUri = "mongodb+srv://Brobolo:Bromus12344321@cluster0.k4kon.mongodb.net/";
-            var client = new MongoClient(mongoUri);
-            var database = client.GetDatabase("Comwell");
-
             _praktikperioder = database.GetCollection<Praktikperiode>("Praktikperioder");
             _delmål = database.GetCollection<Delmål>("Delmål");
             _brugere = database.GetCollection<UserModel>("Brugere");
-            _underdelmaal = database.GetCollection<Underdelmaal>("Underdelmaal"); // Sørg for at den samles op her
+            
+            _underdelmaalRepository = underdelmaalRepository; // Tildel det injicerede repo
         }
 
         // --- Grå metoder (implementeret, men ikke kaldt af Blazor UI lige nu) ---
-        // Du ønsker dem implementeret, og det er de! De forbliver grå, fordi ingen kalder dem i den aktuelle flow.
-        // Hvis du vil bruge dem, skal du tilføje logik i din Blazor UI eller andre dele af din API.
+        // Disse metoder er fine, ingen ændringer nødvendige her.
         public async Task<List<Delmål>> GetDelmålMånedAsync(int year, int month)
         {
             try
@@ -148,40 +146,35 @@ namespace ComwellSystemAPI.Repositories
             return 0; // Skal implementeres, hvis relevant
         }
 
+        // **ÆNDRET LOGIK HER:** GetAllDelmaalWithUnderdelmaalAsync
         public async Task<List<Delmål>> GetAllDelmaalWithUnderdelmaalAsync(int year)
         {
             try
             {
                 Console.WriteLine($"Starting GetAllDelmaalWithUnderdelmaalAsync for year: {year}");
 
-                var databaseNames = await _delmål.Database.ListCollectionNames().ToListAsync();
-                Console.WriteLine($"Connected to MongoDB. Collections: {string.Join(", ", databaseNames)}");
-
                 Console.WriteLine($"Fetching delmål for year: {year}");
                 var allDelmaal = await _delmål.Find(d => d.Deadline != default(DateTime) && d.Deadline.Year == year).ToListAsync();
                 Console.WriteLine($"Found {allDelmaal.Count} delmål");
 
-                Console.WriteLine($"Fetching all underdelmål");
-                var allUnderdelmaal = await _underdelmaal.Find(_ => true).ToListAsync(); // Fetch all for grouping
-                Console.WriteLine($"Found {allUnderdelmaal.Count} underdelmål");
+                // Hent praktikperioder. Disse skal bruges til at slå navne op senere,
+                // men IKKE til at ændre Delmål-objektet.
+                var praktikperioder = await _praktikperioder.Find(_ => true).ToListAsync();
+                var praktikperiodeMap = praktikperioder.ToDictionary(p => p.Id, p => p.Navn); // Dette map er klar til brug.
 
-                // RETTET: Brug korrekt property navn 'DelmaalId'
-                var groupedUnderdelmaal = allUnderdelmaal
-                    .GroupBy(ud => ud.DelmaalId) // <--- FEJL RETTET HER!
-                    .ToDictionary(g => g.Key, g => g.ToList()); // <--- Ingen grund til eksplicitte typer her
-
+                // Hent underdelmål for hvert delmål
                 foreach (var dm in allDelmaal)
                 {
-                    if (groupedUnderdelmaal.TryGetValue(dm.Id, out var underdelmaalForDelmaal))
-                    {
-                        dm.UnderdelmaalList = underdelmaalForDelmaal;
-                    }
-                    else
-                    {
-                        dm.UnderdelmaalList = new List<Underdelmaal>();
-                    }
+                    // Brug den fungerende Underdelmaal repository til at hente underdelmål
+                    // for hvert delmål individuelt.
+                    dm.UnderdelmaalList = await _underdelmaalRepository.GetByDelmaalIdAsync(dm.Id) ?? new List<Underdelmaal>();
+
+                    // VIGTIGT: Fjernet linjerne der forsøgte at sætte PraktikperiodeNavn
+                    // på Delmål-objektet, da den property ikke eksisterer og ikke bør eksistere der.
                 }
 
+                // Returnerer den berigede liste af Delmål, hvor hvert Delmål har sin UnderdelmaalList udfyldt.
+                // PraktikperiodeNavn vil blive håndteret, når du bygger din RapportElevDelmålViewModel.
                 return allDelmaal;
             }
             catch (Exception ex)
@@ -192,6 +185,8 @@ namespace ComwellSystemAPI.Repositories
         }
 
         // Denne metode implementerer det, der forventes af IGenereRapport
+        // Bemærk: Denne metode modtager allerede 'RapportElevDelmålViewModel',
+        // som bør have PraktikperiodeNavn udfyldt fra en tidligere step.
         public async Task<byte[]> ExportToExcelAsync(List<Modeller.RapportElevDelmålViewModel> dataToExport)
         {
             try
@@ -208,11 +203,12 @@ namespace ComwellSystemAPI.Repositories
                 {
                     var worksheet = workbook.Worksheets.Add("HR Rapport");
 
+                    // Opsæt overskrifter for Excel-arket
                     worksheet.Cell(1, 1).Value = "Elev Navn";
                     worksheet.Cell(1, 2).Value = "Username";
                     worksheet.Cell(1, 3).Value = "Hotel";
                     worksheet.Cell(1, 4).Value = "Rolle";
-                    worksheet.Cell(1, 5).Value = "Praktikperiode";
+                    worksheet.Cell(1, 5).Value = "Praktikperiode"; // Denne overskrift er fin!
                     worksheet.Cell(1, 6).Value = "Delmål Beskrivelse";
                     worksheet.Cell(1, 7).Value = "Ansvarlig";
                     worksheet.Cell(1, 8).Value = "Delmål Status";
@@ -226,7 +222,7 @@ namespace ComwellSystemAPI.Repositories
                         worksheet.Cell(row, 2).Value = item.Username;
                         worksheet.Cell(row, 3).Value = item.HotelNavn;
                         worksheet.Cell(row, 4).Value = item.Rolle;
-                        worksheet.Cell(row, 5).Value = item.PraktikperiodeNavn;
+                        worksheet.Cell(row, 5).Value = item.PraktikperiodeNavn; // Denne property skal findes i RapportElevDelmålViewModel
                         worksheet.Cell(row, 6).Value = item.DelmålBeskrivelse;
                         worksheet.Cell(row, 7).Value = item.DelmålAnsvarlig;
                         worksheet.Cell(row, 8).Value = item.DelmålCalculatedStatus;
