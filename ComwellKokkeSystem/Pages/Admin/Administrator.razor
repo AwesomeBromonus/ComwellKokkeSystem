@@ -178,4 +178,12 @@
         "hr" => "role-hr",
         _ => "role-ukendt"
     };
+    private string HentSkoleperiode(UserModel bruger)
+    {
+        if (bruger.Role?.ToLower() == "elev" && elevplaner.TryGetValue(bruger.Id, out var plan))
+            return plan.Skoleperiode;
+
+        return "Ikke tilgængelig";
+    }
+
 }
