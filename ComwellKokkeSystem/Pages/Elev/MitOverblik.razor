@@ -1,7 +1,11 @@
 ﻿@page "/mitoverblik"
 @inject NavigationManager NavManager
 @inject UserState UserState
+
+<!--Der skal bruges IElevplan i stedet for httpclient-->
 @inject HttpClient Http
+
+
 
 <h3 class="mb-4">🎓 Mit Elev Overblik</h3>
 
@@ -81,6 +85,9 @@ else
             </div>
         </div>
     </div>
+
+    <img src="/sample-data/CookingGif.gif" alt="Animation" class="gif-footer" />
+
 }
 
 @code {
