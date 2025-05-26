@@ -1,8 +1,11 @@
 ﻿@page "/administrator"
-@inject HttpClient Http
+@inject IUserService UserService
+@inject IElevplanService ElevplanService
+@inject IAnmodningService AnmodningService
 @inject NavigationManager NavManager
 @inject UserState UserState
 @using Modeller
+@using ComwellKokkeSystem.Service
 
 <link href="css/Panel.css" rel="stylesheet" />
 
@@ -123,12 +126,21 @@
 </div>
 
 @code {
+    //UserModel
     private List<UserModel> brugere = new();
     private UserModel? valgtBruger;
     private string søgeord = "";
     private string valgtRolle = "";
     private int anmodningerAntal = 0;
+
+    private void VisDetaljer(UserModel bruger) => valgtBruger = bruger;
+    private void LukDetaljer() => valgtBruger = null;
+
+
+    //Elevplan
     private Dictionary<int, Elevplan> elevplaner = new(); // key = ElevplanId
+
+    //Hoteller
     private string valgtHotel = "";
     private List<string> hotelNavne => brugere
     .Where(b => !string.IsNullOrWhiteSpace(b.HotelNavn))
@@ -147,7 +159,7 @@
         {
             try
             {
-                var plan = await Http.GetFromJsonAsync<Elevplan>($"api/elevplan/{elev.ElevplanId.Value}");
+                var plan = await ElevplanService.GetElevplanByIdAsync(elev.ElevplanId.Value);
                 if (plan != null)
                 {
                     elevplaner[elev.ElevplanId.Value] = plan;
@@ -158,13 +170,14 @@
                 Console.WriteLine($"Kunne ikke hente elevplan for elev {elev.Username}");
             }
         }
+
     }
 
     private async Task LoadUsers()
     {
         try
         {
-            var users = await Http.GetFromJsonAsync<List<UserModel>>("api/users/all");
+            var users = await UserService.GetAllAsync();
             if (users is not null)
                 brugere = users;
         }
@@ -173,12 +186,11 @@
             Console.WriteLine("Fejl ved indlæsning af brugere: " + ex.Message);
         }
     }
-
     private async Task HentAntalAnmodninger()
     {
         try
         {
-            var liste = await Http.GetFromJsonAsync<List<Anmodning>>("api/anmodning");
+            var liste = await AnmodningService.GetAlleAsync();
             if (liste != null)
                 anmodningerAntal = liste.Count(a => a.Status?.ToLower() == "afventer");
         }
@@ -188,21 +200,19 @@
         }
     }
 
-    private void VisDetaljer(UserModel bruger) => valgtBruger = bruger;
-    private void LukDetaljer() => valgtBruger = null;
+
+
 
     private async Task SletBrugerAsync()
     {
         if (valgtBruger != null)
         {
-            var response = await Http.DeleteAsync($"api/users/{valgtBruger.Id}");
-            if (response.IsSuccessStatusCode)
-            {
-                brugere.Remove(valgtBruger);
-                valgtBruger = null;
-            }
+            await UserService.DeleteAsync(valgtBruger.Id);
+            brugere.Remove(valgtBruger);
+            valgtBruger = null;
         }
     }
+
 
     private void SeElevplan(int elevplanId) => NavManager.NavigateTo($"/delmaal/{elevplanId}");
 
