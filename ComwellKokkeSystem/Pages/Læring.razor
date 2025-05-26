@@ -1,7 +1,6 @@
 ﻿@page "/laering"
 @using Microsoft.AspNetCore.Components.Forms
 @using Modeller
-@inject HttpClient Http
 @inject ILæringService LæringService
 @inject UserState userState
 
@@ -91,17 +90,9 @@ else
     {
         if (valgtFil == null) return;
 
-        using var stream = valgtFil.OpenReadStream(20 * 1024 * 1024); // max 20MB
-        var content = new MultipartFormDataContent
-        {
-            { new StringContent(nyLæring.Titel), "titel" },
-            { new StringContent(nyLæring.Beskrivelse), "beskrivelse" },
-            { new StreamContent(stream), "file", valgtFil.Name }
-        };
+        var success = await LæringService.UploadAsync(nyLæring, valgtFil);
 
-        var response = await Http.PostAsync("api/laering/upload", content);
-
-        if (response.IsSuccessStatusCode)
+        if (success)
         {
             nyLæring = new Modeller.Læring();
             valgtFil = null;
