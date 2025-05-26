@@ -268,3 +268,18 @@
     cursor: pointer;
     margin-left: auto;
 }
+.user-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.user-image {
+    margin-left: 10px;
+}
