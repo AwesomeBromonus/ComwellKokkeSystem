@@ -93,6 +93,7 @@
                         <p><strong>Hotel:</strong> @valgtBruger.HotelNavn</p>
                         <p><strong>Startdato:</strong> @valgtBruger.StartDato.ToShortDateString()</p>
                         <p><strong>Slutdato:</strong> @valgtBruger.SlutDato?.ToShortDateString()</p>
+                        <strong>Skoleperiode:</strong> @HentSkoleperiode(valgtBruger)
                         <p><strong>Rolle:</strong> <span class="role-tag @GetRoleClass(valgtBruger.Role)">@valgtBruger.Role</span></p>
                     </div>
                     <div class="modal-footer">
@@ -115,12 +116,29 @@
     private string søgeord = "";
     private string valgtRolle = "";
     private int anmodningerAntal = 0;
-    private Dictionary<int, Elevplan> elevplaner = new();
+    private Dictionary<int, Elevplan> elevplaner = new(); // key = ElevplanId
+
 
     protected override async Task OnInitializedAsync()
     {
         await LoadUsers();
         await HentAntalAnmodninger();
+
+        foreach (var elev in brugere.Where(b => b.Role?.ToLower() == "elev" && b.ElevplanId.HasValue))
+        {
+            try
+            {
+                var plan = await Http.GetFromJsonAsync<Elevplan>($"api/elevplan/{elev.ElevplanId.Value}");
+                if (plan != null)
+                {
+                    elevplaner[elev.ElevplanId.Value] = plan;
+                }
+            }
+            catch
+            {
+                Console.WriteLine($"Kunne ikke hente elevplan for elev {elev.Username}");
+            }
+        }
     }
 
     private async Task LoadUsers()
@@ -179,12 +197,18 @@
         "hr" => "role-hr",
         _ => "role-ukendt"
     };
+
     private string HentSkoleperiode(UserModel bruger)
     {
-        if (bruger.Role?.ToLower() == "elev" && elevplaner.TryGetValue(bruger.Id, out var plan))
-            return plan.Skoleperiode;
+        if (bruger.Role?.ToLower() == "elev" &&
+            bruger.ElevplanId.HasValue &&
+            elevplaner.TryGetValue(bruger.ElevplanId.Value, out var plan))
+        {
+            return string.IsNullOrWhiteSpace(plan.Skoleperiode) ? "Ikke angivet" : plan.Skoleperiode;
+        }
 
         return "Ikke tilgængelig";
     }
+
 
 }
