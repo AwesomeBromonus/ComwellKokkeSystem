@@ -9,13 +9,14 @@ namespace ComwellSystemAPI.Controllers
     public class UsersController : ControllerBase
     {
         private readonly IUserRepository _userRepo;
+        private readonly IWebHostEnvironment _env;
 
-        public UsersController(IUserRepository userRepo)
+        public UsersController(IUserRepository userRepo, IWebHostEnvironment env)
         {
             _userRepo = userRepo;
+            _env = env;
         }
 
-        // POST: api/users/register
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] UserModel model)
         {
@@ -35,7 +36,6 @@ namespace ComwellSystemAPI.Controllers
             return Ok(new { message = "Bruger oprettet." });
         }
 
-        // POST: api/users/login
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
@@ -52,13 +52,14 @@ namespace ComwellSystemAPI.Controllers
                 Username = user.Username,
                 Role = user.Role,
                 HotelId = user.HotelId,
-                ElevplanId = user.ElevplanId
+                ElevplanId = user.ElevplanId,
+                Navn = user.Navn,
+                Email = user.Email
             };
 
             return Ok(response);
         }
 
-        // GET: api/users/all
         [HttpGet("all")]
         public async Task<IActionResult> GetAllUsers()
         {
@@ -73,8 +74,47 @@ namespace ComwellSystemAPI.Controllers
             return Ok(brugere);
         }
 
+        [HttpGet("byid/{id}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            var user = await _userRepo.GetByIdAsync(id);
+            if (user == null)
+                return NotFound("Bruger ikke fundet.");
+            return Ok(user);
+        }
 
-        // DELETE: api/users/{id}
+        [HttpGet("{username}")]
+        public async Task<IActionResult> GetByUsername(string username)
+        {
+            var user = await _userRepo.GetByUsernameAsync(username);
+            if (user == null)
+                return NotFound("Bruger ikke fundet.");
+            return Ok(user);
+        }
+
+        [HttpGet("elever/{year}")]
+        public async Task<ActionResult<List<UserModel>>> GetEleverByYear(int year)
+        {
+            var allUsers = await _userRepo.GetAllAsync();
+            var elever = allUsers
+                .Where(u => u.Role == "elev" && u.StartDato.Year == year)
+                .ToList();
+            return Ok(elever);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, [FromBody] UserModel bruger)
+        {
+            var eksisterende = await _userRepo.GetByIdAsync(id);
+            if (eksisterende == null)
+                return NotFound("Bruger ikke fundet.");
+
+            bruger.Id = id;
+            await _userRepo.UpdateUserAsync(bruger);
+
+            return Ok("Bruger opdateret.");
+        }
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
@@ -86,7 +126,6 @@ namespace ComwellSystemAPI.Controllers
             return Ok("Bruger slettet.");
         }
 
-        // PUT: api/users/{id}/assign-elevplan
         [HttpPut("{id}/assign-elevplan")]
         public async Task<IActionResult> AssignElevplan(int id, [FromBody] AssignElevplanRequest request)
         {
@@ -99,49 +138,59 @@ namespace ComwellSystemAPI.Controllers
 
             return Ok("Elevplan tildelt.");
         }
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] UserModel bruger)
+
+        [HttpPut("{id}/skiftkode")]
+        public async Task<IActionResult> SkiftAdgangskode(int id, [FromBody] string nyAdgangskode)
         {
-            var eksisterende = await _userRepo.GetByIdAsync(id);
-            if (eksisterende == null)
+            var bruger = await _userRepo.GetByIdAsync(id);
+            if (bruger == null)
                 return NotFound("Bruger ikke fundet.");
 
-            bruger.Id = id; // sikrer korrekt ID
+            if (string.IsNullOrWhiteSpace(nyAdgangskode))
+                return BadRequest("Adgangskode kan ikke være tom.");
+
+            bruger.Password = nyAdgangskode;
             await _userRepo.UpdateUserAsync(bruger);
 
-            return Ok("Bruger opdateret.");
-        }
-        // GET: api/users/{username}
-        [HttpGet("{username}")]
-        public async Task<IActionResult> GetByUsername(string username)
-        {
-            var user = await _userRepo.GetByUsernameAsync(username);
-            if (user == null)
-                return NotFound("Bruger ikke fundet.");
-
-            return Ok(user);
-        }
-        [HttpGet("elever/{year}")]
-        public async Task<ActionResult<List<UserModel>>> GetEleverByYear(int year)
-        {
-            var allUsers = await _userRepo.GetAllAsync();
-            var elever = allUsers
-                .Where(u => u.Role == "elev" && u.StartDato.Year == year)
-                .ToList();
-            return Ok(elever);
-        }
-        
-        [HttpGet("byid/{id}")]
-        public async Task<IActionResult> GetById(int id)
-        {
-            var user = await _userRepo.GetByIdAsync(id);
-            if (user == null)
-                return NotFound("Bruger ikke fundet.");
-            return Ok(user);
+            return Ok("Adgangskode opdateret.");
         }
 
+        [HttpPost("{id}/upload-billede")]
+        public async Task<IActionResult> UploadProfilbillede(int id)
+        {
+            try
+            {
+                var file = Request.Form.Files.FirstOrDefault();
+                if (file == null || file.Length == 0)
+                    return BadRequest("Ingen fil modtaget.");
+
+                var uploadsFolder = Path.Combine(_env.WebRootPath, "uploads");
+                if (!Directory.Exists(uploadsFolder))
+                    Directory.CreateDirectory(uploadsFolder);
+
+                var filePath = Path.Combine(uploadsFolder, $"{id}.jpg");
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+
+                return Ok("Billede uploadet.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Fejl ved upload: {ex.Message}");
+            }
+        }
+
+        [HttpGet("{id}/eksisterer-billede")]
+        public IActionResult HarProfilbillede(int id)
+        {
+            var filePath = Path.Combine(_env.WebRootPath, "uploads", $"{id}.jpg");
+            bool exists = System.IO.File.Exists(filePath);
+            return Ok(new { exists });
+        }
     }
-    
 
     public class AssignElevplanRequest
     {

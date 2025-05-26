@@ -12,26 +12,24 @@ namespace Modeller
         public string Status { get; set; }
 
         // samlet progress for alle delmål og underdelmål 
+        // Vi beregner disse dynamisk baseret på DelmaalList
         public int DelmaalDone
         {
             get
             {
-                // tæller alle underdelmål, der er fuldført
-                // Sikrer at DelmaalList ikke er null og indeholder data
-                return DelmaalList?
-                    .Sum(dm => dm.UnderdelmaalList?
-                        .Count(ud => ud.Status == "Fuldført") ?? 0) ?? 0;
+                // Tæller alle underdelmål, der er "Fuldført"
+                return DelmaalList
+                    .Sum(dm => dm.UnderdelmaalList
+                        .Count(ud => ud.Status == "Fuldført"));
             }
-            
         }
 
         public int DelmaalTotal
         {
             get
             {
-                // tæller samlede antal underdelmål for alle delmål 
-                // sikre at delmållist ikke er null og indeholder data
-                return DelmaalList?.Sum(dm => dm.UnderdelmaalList?.Count ?? 0) ?? 0;
+                // Tæller det samlede antal underdelmål for alle delmål
+                return DelmaalList.Sum(dm => dm.UnderdelmaalList.Count);
             }
         }
 
@@ -48,7 +46,7 @@ namespace Modeller
         {
             get
             {
-                if (SelectedPraktikperiodeId == 0) return DelmaalDone;
+                if (SelectedPraktikperiodeId == 0) return DelmaalDone; // alle praktikperioder
 
                 return DelmaalList
                     .Where(dm => dm.PraktikperiodeId == SelectedPraktikperiodeId)

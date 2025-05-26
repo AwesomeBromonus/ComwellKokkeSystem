@@ -1,0 +1,160 @@
+﻿@page "/minprofil"
+@inject HttpClient Http
+@inject UserState UserState
+@inject NavigationManager NavManager
+@using Microsoft.AspNetCore.Components.Forms
+
+<link href="css/profil.css" rel="stylesheet" />
+
+<h3 class="mb-4"><i class="fa fa-id-badge me-2"></i> Min profil</h3>
+
+@if (!UserState.IsLoggedInChecked)
+{
+    <p>⏳ Indlæser brugerstatus...</p>
+}
+else if (!UserState.IsLoggedIn)
+{
+    <div class="alert alert-warning">🔒 Du skal være logget ind for at se denne side.</div>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-3 text-center">
+            @if (UserState.Id.HasValue)
+            {
+                <img src=@($"https://localhost:7013/uploads/{UserState.Id}.jpg?cache={DateTime.Now.Ticks}")
+                     alt="Profilbillede"
+                     class="profilbillede-preview rounded-circle mb-3 shadow"
+                     width="140" height="140" />
+            }
+            else
+            {
+                <p class="text-muted">Ingen billede tilgængelig</p>
+            }
+
+            <label class="btn btn-light">
+                📤 Skift billede
+                <InputFile OnChange="OnInputFileChange" accept="image/*" class="d-none" />
+            </label>
+        </div>
+
+        <div class="col-md-9">
+            <h5 class="mb-3">🧾 Profiloplysninger</h5>
+            <div class="info-box">
+                <p><strong>Brugernavn:</strong> @UserState.Username</p>
+                <p><strong>Rolle:</strong> @UserState.Role</p>
+                <p><strong>Email:</strong> @(string.IsNullOrWhiteSpace(UserState.Email) ? "Ikke gemt i systemet" : UserState.Email)</p>
+                <p><strong>Navn:</strong> @(string.IsNullOrWhiteSpace(UserState.Navn) ? "-" : UserState.Navn)</p>
+            </div>
+
+            <hr />
+
+            <h5 class="mb-3">🔐 Skift adgangskode</h5>
+
+            <EditForm Model="this" OnValidSubmit="SkiftAdgangskode">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="mb-2">
+                    <InputText @bind-Value="nyKode" type="password" class="form-control" placeholder="Ny adgangskode" />
+                </div>
+                <div class="mb-3">
+                    <InputText @bind-Value="bekræftKode" type="password" class="form-control" placeholder="Bekræft adgangskode" />
+                </div>
+                <button type="submit" class="btn btn-primary">Gem ændringer</button>
+            </EditForm>
+
+
+            @if (!string.IsNullOrEmpty(feedback))
+            {
+                <div class="alert mt-3 @(feedback.StartsWith("✅") ? "alert-success" : "alert-danger")">
+                    @feedback
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    private string nyKode = "";
+    private string bekræftKode = "";
+    private string feedback = "";
+
+    private async Task SkiftAdgangskode()
+    {
+        feedback = "";
+
+        if (nyKode != bekræftKode)
+        {
+            feedback = "❌ Adgangskoderne matcher ikke.";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(nyKode) || nyKode.Length < 4)
+        {
+            feedback = "❌ Adgangskoden skal være mindst 4 tegn.";
+            return;
+        }
+
+        try
+        {
+            if (UserState.Id == null)
+            {
+                feedback = "❌ Bruger-ID mangler.";
+                return;
+            }
+
+            var response = await Http.PutAsJsonAsync($"api/users/{UserState.Id}/skiftkode", nyKode);
+
+            if (response.IsSuccessStatusCode)
+            {
+                feedback = "✅ Adgangskode opdateret!";
+                nyKode = "";
+                bekræftKode = "";
+            }
+            else
+            {
+                feedback = "❌ Fejl under opdatering.";
+            }
+        }
+        catch (Exception ex)
+        {
+            feedback = $"❌ Fejl: {ex.Message}";
+        }
+    }
+
+    private async Task OnInputFileChange(InputFileChangeEventArgs e)
+    {
+        try
+        {
+            if (UserState.Id == null)
+            {
+                feedback = "❌ Bruger-ID mangler.";
+                return;
+            }
+
+            var file = e.File;
+            var stream = file.OpenReadStream(maxAllowedSize: 5_000_000); // max 5MB
+            var content = new MultipartFormDataContent
+            {
+                { new StreamContent(stream), "file", $"{UserState.Id}.jpg" }
+            };
+
+            var response = await Http.PostAsync($"api/users/{UserState.Id}/upload-billede", content);
+
+            if (response.IsSuccessStatusCode)
+            {
+                feedback = "✅ Billede uploadet!";
+                StateHasChanged();
+            }
+            else
+            {
+                feedback = "❌ Fejl under upload.";
+            }
+        }
+        catch (Exception ex)
+        {
+            feedback = $"❌ Fejl: {ex.Message}";
+        }
+    }
+}

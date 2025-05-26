@@ -1,0 +1,110 @@
+﻿@* Pages/Components/RapportFiltre.razor *@
+@using System.Collections.Generic 
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <input class="form-control" placeholder="🔍 Søg efter navn, beskrivelse, ansvarlig..." @bind="SearchQuery" @bind:event="oninput" />
+        </div>
+        <div class="col-md-3 mb-3">
+            <select class="form-select" @bind="SelectedStatusFilter">
+                <option value="">Alle statusser</option>
+                @foreach (var status in StatusOptions)
+                {
+                    <option value="@status">@status</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-3 mb-3">
+            <select class="form-select" @bind="SelectedRoleFilter">
+                <option value="">Alle roller</option>
+                @foreach (var role in RoleOptions)
+                {
+                    <option value="@role">@role</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-3 mb-3">
+            <select class="form-select" @bind="SelectedHotelFilter">
+                <option value="">Alle hoteller</option>
+                @foreach (var hotel in HotelOptions)
+                {
+                    <option value="@hotel">@hotel</option>
+                }
+            </select>
+        </div>
+    </div>
+
+@code {
+    // Søgefelt
+    [Parameter]
+    public string SearchQuery
+    {
+        get => _searchQuery;
+        set
+        {
+            if (_searchQuery != value)
+            {
+                _searchQuery = value;
+                SearchQueryChanged.InvokeAsync(value); // Udløser ændring tilbage til forælderen
+            }
+        }
+    }
+    private string _searchQuery = string.Empty;
+    [Parameter] public EventCallback<string> SearchQueryChanged { get; set; }
+
+
+    // Status filter
+    [Parameter]
+    public string SelectedStatusFilter
+    {
+        get => _selectedStatusFilter;
+        set
+        {
+            if (_selectedStatusFilter != value)
+            {
+                _selectedStatusFilter = value;
+                SelectedStatusFilterChanged.InvokeAsync(value);
+            }
+        }
+    }
+    private string _selectedStatusFilter = string.Empty;
+    [Parameter] public EventCallback<string> SelectedStatusFilterChanged { get; set; }
+    [Parameter] public List<string> StatusOptions { get; set; } = new(); // Liste af unikke statusser fra rapportdata
+
+
+    // Rolle filter
+    [Parameter]
+    public string SelectedRoleFilter
+    {
+        get => _selectedRoleFilter;
+        set
+        {
+            if (_selectedRoleFilter != value)
+            {
+                _selectedRoleFilter = value;
+                SelectedRoleFilterChanged.InvokeAsync(value);
+            }
+        }
+    }
+    private string _selectedRoleFilter = string.Empty;
+    [Parameter] public EventCallback<string> SelectedRoleFilterChanged { get; set; }
+    [Parameter] public List<string> RoleOptions { get; set; } = new(); // Liste af unikke roller fra rapportdata
+
+
+    // Hotel filter
+    [Parameter]
+    public string SelectedHotelFilter
+    {
+        get => _selectedHotelFilter;
+        set
+        {
+            if (_selectedHotelFilter != value)
+            {
+                _selectedHotelFilter = value;
+                SelectedHotelFilterChanged.InvokeAsync(value);
+            }
+        }
+    }
+    private string _selectedHotelFilter = string.Empty;
+    [Parameter] public EventCallback<string> SelectedHotelFilterChanged { get; set; }
+    [Parameter] public List<string> HotelOptions { get; set; } = new(); // Liste af unikke hoteller fra rapportdata
+}

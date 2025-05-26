@@ -204,3 +204,10 @@ body::-webkit-scrollbar-thumb {
         padding: 1rem;
     }
 }
+.admin-footer img {
+    transition: 0.2s ease-in-out;
+}
+
+    .admin-footer img:hover {
+        transform: scale(1.05);
+    }
