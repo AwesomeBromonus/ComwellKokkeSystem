@@ -12,7 +12,7 @@ namespace ComwellSystemAPI.Repositories
         {
             var client = new MongoClient("mongodb+srv://Bromus:Bromus12344321@cluster0.k4kon.mongodb.net/");
             var db = client.GetDatabase("Comwell");
-            _collection = db.GetCollection<Læring>("Læring");
+            _collection = db.GetCollection<Læring>("Laering");
         }
 
         public async Task<List<Læring>> GetAllAsync() => await _collection.Find(_ => true).ToListAsync();

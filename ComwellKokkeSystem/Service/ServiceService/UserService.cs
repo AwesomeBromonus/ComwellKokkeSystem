@@ -1,6 +1,6 @@
 ﻿using Modeller;
 using System.Net.Http.Json;
-
+using System.Security.Claims;
 namespace ComwellKokkeSystem.Service
 {
     public class UserService : IUserService
@@ -10,6 +10,7 @@ namespace ComwellKokkeSystem.Service
         public UserService(HttpClient http)
         {
             _http = http;
+
         }
 
         public async Task<UserModel?> GetByIdAsync(int id)

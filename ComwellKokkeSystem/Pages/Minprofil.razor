@@ -6,7 +6,7 @@
 
 <link href="css/profil.css" rel="stylesheet" />
 
-<h3 class="mb-4"><i class="fa fa-id-badge me-2"></i> Min profil</h3>
+<h2 class="text-center fw-bold mb-5"><i class="fa fa-id-badge me-2"></i> Min profil</h2>
 
 @if (!UserState.IsLoggedInChecked)
 {
@@ -18,62 +18,65 @@ else if (!UserState.IsLoggedIn)
 }
 else
 {
-    <div class="row">
-        <div class="col-md-3 text-center">
+    <div class="profil-wrapper container py-5">
+        <div class="profil-billede-container mb-4">
             @if (UserState.Id.HasValue)
             {
-                <img src=@($"https://localhost:7013/uploads/{UserState.Id}.jpg?cache={DateTime.Now.Ticks}")
+                <img src="@($"https://localhost:7013/uploads/{UserState.Id}.jpg?cache={DateTime.Now.Ticks}")"
                      alt="Profilbillede"
-                     class="profilbillede-preview rounded-circle mb-3 shadow"
-                     width="140" height="140" />
+                     class="profilbillede-preview shadow" />
             }
             else
             {
                 <p class="text-muted">Ingen billede tilgængelig</p>
             }
 
-            <label class="btn btn-light">
+            <label class="btn btn-light mt-3">
                 📤 Skift billede
                 <InputFile OnChange="OnInputFileChange" accept="image/*" class="d-none" />
             </label>
         </div>
 
-        <div class="col-md-9">
-            <h5 class="mb-3">🧾 Profiloplysninger</h5>
-            <div class="info-box">
-                <p><strong>Brugernavn:</strong> @UserState.Username</p>
+
+        <div class="mx-auto" style="max-width: 600px;">
+            <!-- Profiloplysninger -->
+            <div class="info-box mb-5">
+                <h5 class="mb-3 text-center fw-semibold">🧾 Profiloplysninger</h5>
+                <p><strong>Navn:</strong> @(string.IsNullOrWhiteSpace(UserState.Navn) ? "-" : UserState.Navn)</p>
                 <p><strong>Rolle:</strong> @UserState.Role</p>
                 <p><strong>Email:</strong> @(string.IsNullOrWhiteSpace(UserState.Email) ? "Ikke gemt i systemet" : UserState.Email)</p>
-                <p><strong>Navn:</strong> @(string.IsNullOrWhiteSpace(UserState.Navn) ? "-" : UserState.Navn)</p>
+               
             </div>
 
-            <hr />
+            <!-- Skift adgangskode -->
+            <div class="info-box">
+                <h5 class="mb-3 text-center fw-semibold">🔐 Skift adgangskode</h5>
 
-            <h5 class="mb-3">🔐 Skift adgangskode</h5>
+                <EditForm Model="this" OnValidSubmit="SkiftAdgangskode">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
 
-            <EditForm Model="this" OnValidSubmit="SkiftAdgangskode">
-                <DataAnnotationsValidator />
-                <ValidationSummary />
+                    <div class="mb-2">
+                        <InputText @bind-Value="nyKode" type="password" class="form-control" placeholder="Ny adgangskode" />
+                    </div>
+                    <div class="mb-3">
+                        <InputText @bind-Value="bekræftKode" type="password" class="form-control" placeholder="Bekræft adgangskode" />
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Gem ændringer</button>
+                </EditForm>
 
-                <div class="mb-2">
-                    <InputText @bind-Value="nyKode" type="password" class="form-control" placeholder="Ny adgangskode" />
-                </div>
-                <div class="mb-3">
-                    <InputText @bind-Value="bekræftKode" type="password" class="form-control" placeholder="Bekræft adgangskode" />
-                </div>
-                <button type="submit" class="btn btn-primary">Gem ændringer</button>
-            </EditForm>
-
-
-            @if (!string.IsNullOrEmpty(feedback))
-            {
-                <div class="alert mt-3 @(feedback.StartsWith("✅") ? "alert-success" : "alert-danger")">
-                    @feedback
-                </div>
-            }
+                @if (!string.IsNullOrEmpty(feedback))
+                {
+                    <div class="alert mt-3 @(feedback.StartsWith("✅") ? "alert-success" : "alert-danger")">
+                        @feedback
+                    </div>
+                }
+            </div>
         </div>
     </div>
 }
+
+
 
 @code {
     private string nyKode = "";
@@ -158,3 +161,4 @@ else
         }
     }
 }
+

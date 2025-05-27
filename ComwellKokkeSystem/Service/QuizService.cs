@@ -20,7 +20,8 @@ namespace ComwellKokkeSystem.Service.QuizService
         {
             return await _httpClient.GetFromJsonAsync<List<Quizzes>>("api/Quiz");
         }
-
+        
+        
         public async Task<QuizWithQuestions?> GetQuizWithQuestionsAsync(string quizId)
         {
             return await _httpClient.GetFromJsonAsync<QuizWithQuestions>($"api/Quiz/{quizId}");
@@ -43,6 +44,11 @@ namespace ComwellKokkeSystem.Service.QuizService
         {
             var response = await _httpClient.DeleteAsync($"api/Quiz/{quizId}");
             response.EnsureSuccessStatusCode();
+        }
+        public async Task<Modeller.Quizzes?> GetQuizByIdAsync(int id)
+        {
+            // Returnerer null, hvis 404 (ikke fundet), eller den dekompilerer ikke JSON'en
+            return await _httpClient.GetFromJsonAsync<Modeller.Quizzes>($"api/Quiz/{id}");
         }
     }
 }

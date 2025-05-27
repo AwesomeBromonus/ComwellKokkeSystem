@@ -17,5 +17,7 @@ namespace ComwellKokkeSystem.Service.QuizService
         Task UpdateQuizAsync(string quizId, Quizzes quizDto); // <--- RETTET TIL QUIZZES!
 
         Task DeleteQuizAsync(string quizId);
+        Task<Modeller.Quizzes?> GetQuizByIdAsync(int id);
+
     }
 }

@@ -1,8 +1,11 @@
 ﻿@page "/administrator"
-@inject HttpClient Http
+@inject IUserService UserService
+@inject IElevplanService ElevplanService
+@inject IAnmodningService AnmodningService
 @inject NavigationManager NavManager
 @inject UserState UserState
 @using Modeller
+@using ComwellKokkeSystem.Service
 
 <link href="css/Panel.css" rel="stylesheet" />
 
@@ -57,7 +60,16 @@
                 <option value="kok">Kok</option>
                 <option value="hr">HR</option>
             </select>
+
+            <select class="role-filter" @bind="valgtHotel">
+                <option value="">Alle hoteller</option>
+                @foreach (var hotel in hotelNavne)
+                {
+                    <option value="@hotel">@hotel</option>
+                }
+            </select>
         </div>
+
 
         <!-- 👤 Brugerliste -->
         <div class="user-grid">
@@ -93,8 +105,11 @@
                         <p><strong>Email:</strong> @valgtBruger.Email</p>
                         <p><strong>Telefon:</strong> @valgtBruger.Tlf</p>
                         <p><strong>Adresse:</strong> @valgtBruger.Adresse</p>
-                        <p><strong>Hotel-ID:</strong> @valgtBruger.HotelId</p>
+                        <p><strong>Hotel:</strong> @valgtBruger.HotelNavn</p>
                         <p><strong>Startdato:</strong> @valgtBruger.StartDato.ToShortDateString()</p>
+                        <p><strong>Slutdato:</strong> @valgtBruger.SlutDato?.ToShortDateString()</p>
+                        <p><strong>Skoleperiode:</strong> @HentSkoleperiode(valgtBruger)</p>
+                        <p><strong>Skoleforløb:</strong> @HentSkoleforloeb(valgtBruger)</p>
                         <p><strong>Rolle:</strong> <span class="role-tag @GetRoleClass(valgtBruger.Role)">@valgtBruger.Role</span></p>
                     </div>
                     <div class="modal-footer">
@@ -112,23 +127,69 @@
 </div>
 
 @code {
+    //UserModel
     private List<UserModel> brugere = new();
     private UserModel? valgtBruger;
     private string søgeord = "";
     private string valgtRolle = "";
+
+    //Modal
+    private void VisDetaljer(UserModel bruger) => valgtBruger = bruger;
+    private void LukDetaljer() => valgtBruger = null;
+
+    //Anmodninger
     private int anmodningerAntal = 0;
+
+    //Elevplan
+    private List<Elevplan> elevplaner = new();
+    private void SeElevplan(int elevplanId) => NavManager.NavigateTo($"/delmaal/{elevplanId}");
+
+    //Hoteller
+    private string valgtHotel = "";
+  
+
+    //Filtering
+    private List<string> hotelNavne => brugere
+      .Where(b => !string.IsNullOrWhiteSpace(b.HotelNavn))
+      .Select(b => b.HotelNavn)
+      .Distinct()
+      .OrderBy(h => h)
+      .ToList();
+
+    //Profilbillede
+    private string GetImageUrl(int id) => $"https://localhost:7013/uploads/{id}.jpg";
+
+
 
     protected override async Task OnInitializedAsync()
     {
         await LoadUsers();
         await HentAntalAnmodninger();
+
+        foreach (var elev in brugere.Where(b => b.Role?.ToLower() == "elev" && b.ElevplanId.HasValue))
+        {
+            try
+            {
+                var plan = await ElevplanService.GetElevplanByIdAsync(elev.ElevplanId.Value);
+                if (plan != null)
+                {
+                    elevplaner.Add(plan);
+                }
+
+            }
+            catch
+            {
+                Console.WriteLine($"Kunne ikke hente elevplan for elev {elev.Username}");
+            }
+        }
+
     }
 
     private async Task LoadUsers()
     {
         try
         {
-            var users = await Http.GetFromJsonAsync<List<UserModel>>("api/users/all");
+            var users = await UserService.GetAllAsync();
             if (users is not null)
                 brugere = users;
         }
@@ -137,12 +198,11 @@
             Console.WriteLine("Fejl ved indlæsning af brugere: " + ex.Message);
         }
     }
-
     private async Task HentAntalAnmodninger()
     {
         try
         {
-            var liste = await Http.GetFromJsonAsync<List<Anmodning>>("api/anmodning");
+            var liste = await AnmodningService.GetAlleAsync();
             if (liste != null)
                 anmodningerAntal = liste.Count(a => a.Status?.ToLower() == "afventer");
         }
@@ -152,25 +212,57 @@
         }
     }
 
-    private void VisDetaljer(UserModel bruger) => valgtBruger = bruger;
-    private void LukDetaljer() => valgtBruger = null;
+    //Rolle på modaldialog
+    private string GetRoleClass(string? role) => role?.ToLower() switch
+    {
+        "admin" => "role-admin",
+        "elev" => "role-elev",
+        "kok" => "role-kok",
+        "hr" => "role-hr",
+        _ => "role-ukendt"
+    };
+
 
     private async Task SletBrugerAsync()
     {
         if (valgtBruger != null)
         {
-            var response = await Http.DeleteAsync($"api/users/{valgtBruger.Id}");
-            if (response.IsSuccessStatusCode)
-            {
-                brugere.Remove(valgtBruger);
-                valgtBruger = null;
-            }
+            await UserService.DeleteAsync(valgtBruger.Id);
+            brugere.Remove(valgtBruger);
+            valgtBruger = null;
         }
     }
 
-    private void SeElevplan(int elevplanId) => NavManager.NavigateTo($"/delmaal/{elevplanId}");
+    // Funktioner der henter skoleperioder og skoleforløb fordi de er i elevplan objectet
+    private string HentSkoleperiode(UserModel bruger)
+    {
+        if (bruger.Role?.ToLower() == "elev" && bruger.ElevplanId.HasValue)
+        {
+            var plan = elevplaner.FirstOrDefault(p => p.Id == bruger.ElevplanId.Value);
+            return plan == null || string.IsNullOrWhiteSpace(plan.Skoleperiode)
+                ? "Ikke angivet"
+                : plan.Skoleperiode;
+        }
 
-    private string GetImageUrl(int id) => $"https://localhost:7013/uploads/{id}.jpg";
+        return "Ikke tilgængelig";
+    }
+
+    private string HentSkoleforloeb(UserModel bruger)
+    {
+        if (bruger.Role?.ToLower() == "elev" && bruger.ElevplanId.HasValue)
+        {
+            var plan = elevplaner.FirstOrDefault(p => p.Id == bruger.ElevplanId.Value);
+            return plan == null || string.IsNullOrWhiteSpace(plan.SkoleForløb)
+                ? "Ikke angivet"
+                : plan.SkoleForløb;
+        }
+
+        return "Ikke tilgængelig";
+    }
+
+
+
+
 
     private string GetRoleClass(string? role) => role?.ToLower() switch
     {

@@ -8,9 +8,8 @@ using System;
 using System.IO;
 using System.Text;
 using System.Globalization;
-using System.Linq; // Husk denne for .Where() og .Any()
-using ClosedXML.Excel;
-using OfficeOpenXml;
+using System.Linq;
+using ClosedXML.Excel; // VIGTIGT: Sørg for denne er her og ikke OfficeOpenXml
 
 namespace ComwellSystemAPI.Repositories
 {
@@ -37,7 +36,6 @@ namespace ComwellSystemAPI.Repositories
         {
             try
             {
-                // Tjek forbindelse
                 Console.WriteLine($"Attempting to connect to MongoDB for praktikperioder, year: {year}");
                 var filter = Builders<Praktikperiode>.Filter.And(
                     Builders<Praktikperiode>.Filter.Exists(p => p.StartDato, true),
@@ -51,7 +49,7 @@ namespace ComwellSystemAPI.Repositories
             catch (Exception ex)
             {
                 Console.WriteLine($"Error in GetPraktikPerioderAsync: {ex.Message}\nStackTrace: {ex.StackTrace}");
-                throw; // Kast exception for at få den fanget i controlleren
+                throw;
             }
         }
 
@@ -88,7 +86,6 @@ namespace ComwellSystemAPI.Repositories
         {
             try
             {
-                // More flexible filtering - handle cases where StartDato might be null or default
                 var filter = Builders<UserModel>.Filter.And(
                     Builders<UserModel>.Filter.Exists(u => u.StartDato, true),
                     Builders<UserModel>.Filter.Ne(u => u.StartDato, DateTime.MinValue),
@@ -102,7 +99,6 @@ namespace ComwellSystemAPI.Repositories
             catch (Exception ex)
             {
                 Console.WriteLine($"Error in GetBrugereAsync: {ex.Message}");
-                // Return all users as fallback if year filtering fails
                 try
                 {
                     return await _brugere.Find(_ => true).ToListAsync();
@@ -153,7 +149,6 @@ namespace ComwellSystemAPI.Repositories
             {
                 Console.WriteLine($"Starting GetAllDelmaalWithUnderdelmaalAsync for year: {year}");
 
-                // Tjek MongoDB-forbindelse
                 var databaseNames = await _delmål.Database.ListCollectionNames().ToListAsync();
                 Console.WriteLine($"Connected to MongoDB. Collections: {string.Join(", ", databaseNames)}");
 
@@ -186,48 +181,49 @@ namespace ComwellSystemAPI.Repositories
             catch (Exception ex)
             {
                 Console.WriteLine($"Critical error in GetAllDelmaalWithUnderdelmaalAsync: {ex.Message}\nStackTrace: {ex.StackTrace}");
-                throw; // Kast exception for at få den fanget i controlleren
+                throw;
             }
         }
 
         public async Task<byte[]> ExportToExcelAsync(int year)
-{
-    try
-    {
-        Console.WriteLine($"Starting Excel export for year: {year}");
-
-        var allDelmaal = await GetAllDelmaalWithUnderdelmaalAsync(year);
-        Console.WriteLine($"Retrieved {allDelmaal?.Count ?? 0} delmål");
-
-        var userModels = await GetBrugereAsync(year);
-        Console.WriteLine($"Retrieved {userModels?.Count ?? 0} users");
-
-        var praktikperioder = await GetPraktikPerioderAsync(year);
-        Console.WriteLine($"Retrieved {praktikperioder?.Count ?? 0} praktikperioder");
-
-        allDelmaal ??= new List<Delmål>();
-        userModels ??= new List<UserModel>();
-        praktikperioder ??= new List<Praktikperiode>();
-
-        var rapportData = new List<dynamic>();
-
-        foreach (var delmaal in allDelmaal)
         {
             try
             {
-                var user = userModels.FirstOrDefault(u => u.Id == delmaal.ElevId);
-                var praktikperiode = praktikperioder.FirstOrDefault(pp => pp.Id == delmaal.PraktikperiodeId);
+                Console.WriteLine($"Starting Excel export for year: {year} using ClosedXML.");
 
-                string progressText = "Ingen underdelmål";
-                double progressPercent = 0;
+                var allDelmaal = await GetAllDelmaalWithUnderdelmaalAsync(year);
+                Console.WriteLine($"Retrieved {allDelmaal?.Count ?? 0} delmål");
 
-                if (delmaal.UnderdelmaalList != null && delmaal.UnderdelmaalList.Any())
+                var userModels = await GetBrugereAsync(year);
+                Console.WriteLine($"Retrieved {userModels?.Count ?? 0} users");
+
+                var praktikperioder = await GetPraktikPerioderAsync(year);
+                Console.WriteLine($"Retrieved {praktikperioder?.Count ?? 0} praktikperioder");
+
+                allDelmaal ??= new List<Delmål>();
+                userModels ??= new List<UserModel>();
+                praktikperioder ??= new List<Praktikperiode>();
+
+                // Opret en liste af din ViewModel for at matche den data, du vil eksportere
+                var rapportData = new List<RapportElevDelmålViewModel>();
+
+                foreach (var delmaal in allDelmaal)
                 {
-                    int done = delmaal.UnderdelmaalList.Count(ud => ud.Status == "Fuldført");
-                    int total = delmaal.UnderdelmaalList.Count;
-                    progressPercent = (total > 0) ? Math.Round((double)done / total * 100, 0) : 0;
-                    progressText = $"{done}/{total} ({progressPercent}%)";
-                }
+                    try
+                    {
+                        var user = userModels.FirstOrDefault(u => u.Id == delmaal.ElevId);
+                        var praktikperiode = praktikperioder.FirstOrDefault(pp => pp.Id == delmaal.PraktikperiodeId);
+
+                        string progressText = "Ingen underdelmål";
+                        double progressPercent = 0;
+
+                        if (delmaal.UnderdelmaalList != null && delmaal.UnderdelmaalList.Any())
+                        {
+                            int done = delmaal.UnderdelmaalList.Count(ud => ud.Status == "Fuldført");
+                            int total = delmaal.UnderdelmaalList.Count;
+                            progressPercent = (total > 0) ? Math.Round((double)done / total * 100, 0) : 0;
+                            progressText = $"{done}/{total} ({progressPercent}%)";
+                        }
 
                 string deadlineText = delmaal.Deadline != default ? delmaal.Deadline.ToShortDateString() : "Ukendt";
 
@@ -253,50 +249,44 @@ namespace ComwellSystemAPI.Repositories
             }
         }
 
-        Console.WriteLine($"Processed {rapportData.Count} rows for Excel export");
+                Console.WriteLine($"Processed {rapportData.Count} rows for ClosedXML export.");
 
-        using (var package = new ExcelPackage())
-        {
-            var worksheet = package.Workbook.Worksheets.Add("HR Rapport");
+                using (var workbook = new XLWorkbook())
+                {
+                    var worksheet = workbook.Worksheets.Add("HR Rapport");
 
-            worksheet.Cells[1, 1].Value = "Elev Navn";
-            worksheet.Cells[1, 2].Value = "Username";
-            worksheet.Cells[1, 3].Value = "Hotel";
-            worksheet.Cells[1, 4].Value = "Rolle";
-            worksheet.Cells[1, 5].Value = "Praktikperiode";
-            worksheet.Cells[1, 6].Value = "Delmål Beskrivelse";
-            worksheet.Cells[1, 7].Value = "Ansvarlig";
-            worksheet.Cells[1, 8].Value = "Delmål Status";
-            worksheet.Cells[1, 9].Value = "Progress";
-            worksheet.Cells[1, 10].Value = "Deadline";
+                    // Tilføj kolonnehoveder
+                    worksheet.Cell(1, 1).Value = "Elev Navn";
+                    worksheet.Cell(1, 2).Value = "Username";
+                    worksheet.Cell(1, 3).Value = "Hotel";
+                    worksheet.Cell(1, 4).Value = "Rolle";
+                    worksheet.Cell(1, 5).Value = "Praktikperiode";
+                    worksheet.Cell(1, 6).Value = "Delmål Beskrivelse";
+                    worksheet.Cell(1, 7).Value = "Ansvarlig";
+                    worksheet.Cell(1, 8).Value = "Delmål Status";
+                    worksheet.Cell(1, 9).Value = "Progress";
+                    worksheet.Cell(1, 10).Value = "Deadline";
 
-            for (int i = 0; i < rapportData.Count; i++)
-            {
-                var item = rapportData[i];
-                worksheet.Cells[i + 2, 1].Value = item.ElevNavn;
-                worksheet.Cells[i + 2, 2].Value = item.Username;
-                worksheet.Cells[i + 2, 3].Value = item.HotelNavn;
-                worksheet.Cells[i + 2, 4].Value = item.Rolle;
-                worksheet.Cells[i + 2, 5].Value = item.PraktikperiodeNavn;
-                worksheet.Cells[i + 2, 6].Value = item.DelmålBeskrivelse;
-                worksheet.Cells[i + 2, 7].Value = item.DelmålAnsvarlig;
-                worksheet.Cells[i + 2, 8].Value = item.DelmålStatus;
-                worksheet.Cells[i + 2, 9].Value = item.ProgressText;
-                worksheet.Cells[i + 2, 10].Value = item.Deadline;
+                    // Indsæt data
+                    worksheet.Cell(2, 1).InsertData(rapportData);
+
+                    // Tilpas kolonnernes bredde
+                    worksheet.Columns().AdjustToContents();
+
+                    using (var stream = new MemoryStream())
+                    {
+                        workbook.SaveAs(stream);
+                        var result = stream.ToArray();
+                        Console.WriteLine($"Excel file generated successfully with ClosedXML, size: {result.Length} bytes");
+                        return result;
+                    }
+                }
             }
-
-            worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
-
-            var result = package.GetAsByteArray();
-            Console.WriteLine($"Excel file generated successfully, size: {result.Length} bytes");
-            return result;
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Critical error in ExportToExcelAsync (ClosedXML): {ex.Message}\nStackTrace: {ex.StackTrace}");
+                throw; // Kast exception for at få den fanget i controlleren
+            }
         }
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"Critical error in ExportToExcelAsync: {ex.Message}\nStackTrace: {ex.StackTrace}");
-        throw;
-    }
-}
     }
 }

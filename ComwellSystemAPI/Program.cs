@@ -1,10 +1,13 @@
-﻿using ComwellSystemAPI.Interfaces;
+﻿using System.Text;
+using ComwellSystemAPI.Interfaces;
 using ComwellSystemAPI.Repositories;
 using Interface;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Modeller; // 👈 nødvendigt for Notification
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,6 +25,7 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod();
     });
 });
+
 
 // Repositories
 builder.Services.AddSingleton<IElevplan, ElevplanRepository>();

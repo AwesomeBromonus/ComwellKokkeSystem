@@ -8,8 +8,8 @@ namespace ComwellSystemAPI.Interfaces;
 public interface IQuiz // OK, hvis du vil bruge dette navn som din repository interface
 {
     Task<List<Quizzes>> GetQuizzesAsync(); // Hent alle quizzes
-    Task<Quizzes> GetQuizByIdAsync(string id); // Hent en enkelt quiz ud fra ID (string!)
+    Task<Quizzes> GetQuizByIdAsync(int id); // Hent en enkelt quiz ud fra ID (string!)
     Task CreateQuizAsync(Quizzes quiz); // Opret en ny quiz
     Task UpdateQuizAsync(Quizzes quiz); // Opdater en eksisterende quiz
-    Task DeleteQuizAsync(string id); // Slet en quiz ud fra ID
+    Task DeleteQuizAsync(int id); // Slet en quiz ud fra ID
 }
