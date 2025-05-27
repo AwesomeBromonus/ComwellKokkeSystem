@@ -9,14 +9,14 @@ namespace ComwellKokkeSystem.Service.QuizService
     {
         Task<List<Quizzes>?> GetAllQuizzesAsync();
 
-        Task<QuizWithQuestions?> GetQuizWithQuestionsAsync(string quizId);
+        Task<QuizWithQuestions?> GetQuizWithQuestionsAsync(int quizId);
 
         Task CreateQuizAsync(CreateQuizRequest request);
 
         // RETTET: Denne skal også bruge 'Quizzes' for at matche implementeringen!
-        Task UpdateQuizAsync(string quizId, Quizzes quizDto); // <--- RETTET TIL QUIZZES!
+        Task UpdateQuizAsync(int quizId, Quizzes quizzes); // <--- RETTET TIL QUIZZES!
 
-        Task DeleteQuizAsync(string quizId);
+        Task DeleteQuizAsync(int quizId);
         Task<Modeller.Quizzes?> GetQuizByIdAsync(int id);
 
     }

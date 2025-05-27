@@ -3,17 +3,11 @@
 @using Modeller
 @inject IPraktikperiodeService PraktikperiodeService
 @inject IUserService UserService
-
-
-<form method="post" asp-controller="Rapport" asp-action="GåTilRapportside">
-    <button type="submit">Tilbage til rapportside</button>
-</form>
-<a href="/rapportside" class="btn btn-primary">Tilbage til rapportside</a>
-
+@inject NavigationManager NavigationManager
 
 <div class="max-w-2xl mx-auto mt-10">
-    <div class="mb-6">
-        <h3 class="text-2xl font-bold text-gray-800 mb-2 flex items-center gap-2">
+    <div class="flex justify-between items-center mb-6">
+        <h3 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
             <span class="text-blue-600">Alle praktikperioder for</span>
             @if (elev != null)
             {
@@ -24,8 +18,13 @@
                 <span class="italic text-gray-400">elev @elevId</span>
             }
         </h3>
-        <div class="h-1 bg-blue-100 rounded w-24"></div>
+        <button class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+                @onclick="GoBackToRapportside">
+            Tilbage til rapportside
+        </button>
     </div>
+
+    <div class="h-1 bg-blue-100 rounded w-24 mb-6"></div>
 
     @if (praktikperioder == null)
     {
@@ -66,11 +65,6 @@
                                 <span class="font-medium">ElevplanId:</span> @p.ElevplanId
                             </div>
                         </div>
-                        <!-- Optional: Add a button to see delmål for this praktikperiode -->
-                        <a class="text-blue-600 hover:text-blue-800 underline font-medium"
-                           href="/delmaal/@p.ElevplanId">
-                            Se delmål
-                        </a>
                     </div>
                 </li>
             }
@@ -87,5 +81,10 @@
     {
         praktikperioder = await PraktikperiodeService.GetPraktikperioderForElevAsync(elevId);
         elev = await UserService.GetByIdAsync(elevId);
+    }
+
+    private void GoBackToRapportside()
+    {
+        NavigationManager.NavigateTo("/rapportside");
     }
 }

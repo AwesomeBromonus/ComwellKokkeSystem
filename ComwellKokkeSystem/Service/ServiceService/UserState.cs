@@ -90,6 +90,11 @@ public class UserState
         NotifyStateChanged();
     }
 
+    public bool IsElevAdgang =>
+    Role?.ToLower() == "elev" || Role?.ToLower() == "kok";
+
+
+
     private void NotifyStateChanged() => OnChange?.Invoke();
 
     private class UserData

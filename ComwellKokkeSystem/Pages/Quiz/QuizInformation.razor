@@ -1,13 +1,12 @@
 ﻿@page "/quizdetails/{QuizId:int}"
-
 @using ComwellKokkeSystem.Service.QuizService
 @using Modeller
 @inject IQuizService QuizService
 @inject NavigationManager NavigationManager
 
-<div class="min-h-screen bg-gray-100 flex items-center justify-center p-6 font-sans"> @* Subtil grå baggrund, centrerer indholdet *@
-    <div class="max-w-4xl w-full bg-white rounded-lg shadow-2xl p-8 border border-gray-200"> @* Større og mere fremtrædende hvid boks *@
-        <h3 class="text-4xl font-extrabold text-center mb-8 text-purple-700">Quiz Detaljer 📋</h3> @* Kahoot-agtig farve og emoji *@
+<div class="min-h-screen bg-gray-100 flex items-center justify-center p-6 font-sans">
+    <div class="max-w-4xl w-full bg-white rounded-lg shadow-2xl p-8 border border-gray-200">
+        <h3 class="text-4xl font-extrabold text-center mb-8 text-purple-700">Quiz Detaljer 📋</h3>
 
         @if (quiz == null)
         {
@@ -22,10 +21,8 @@
         }
         else
         {
-            <div class="bg-gray-50 p-6 rounded-lg shadow-inner mb-6 border border-gray-100"> @* Renere informationsboks *@
+            <div class="bg-gray-50 p-6 rounded-lg shadow-inner mb-6 border border-gray-100">
                 <h4 class="text-3xl font-bold mb-2 text-blue-700">@quiz.Quiz.Title</h4>
-                @* Husk: Din Quizzes model har ikke en 'Description' egenskab som standard. Hvis du vil vise den, skal du tilføje den til Modeller.Quizzes.
-                   <p class="text-gray-600 text-lg mb-2">Beskrivelse: <span class="font-semibold">@quiz.Quiz.Description</span></p> *@
                 <p class="text-gray-600 text-lg mb-2">Skaber: <span class="font-semibold text-gray-800">@quiz.Quiz.CreatorName</span></p>
                 <p class="text-gray-600 text-lg">Oprettet: <span class="font-semibold text-gray-800">@quiz.Quiz.CreatedDate.ToShortDateString()</span></p>
             </div>
@@ -38,7 +35,7 @@
                     {
                         <li class="bg-white p-5 rounded-xl shadow-md border border-gray-200">
                             <strong class="text-xl text-gray-800">@question.Text</strong>
-                            <ul class="list-disc list-inside ml-6 mt-3 space-y-2"> @* Mere plads mellem valgmuligheder *@
+                            <ul class="list-disc list-inside ml-6 mt-3 space-y-2">
                                 @foreach (var option in question.Options)
                                 {
                                     <li class="text-gray-700">@option</li>
@@ -54,8 +51,8 @@
             }
 
             <div class="flex justify-center mt-8 space-x-4">
-                <button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 transform hover:scale-105">Tilbage til Quiz Liste</button>
-                <button class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 transform hover:scale-105" @onclick="() => StartQuiz(quiz.Quiz.Id.ToString())">Start Quiz 🚀</button>
+                <button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 transform hover:scale-105" @onclick="GoBackToQuizList">Tilbage til Quiz Liste</button>
+                <button class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 transform hover:scale-105" @onclick="() => StartQuiz(quiz.Quiz.Id)">Start Quiz 🚀</button>
             </div>
         }
     </div>
@@ -73,7 +70,7 @@
         try
         {
             isLoading = true;
-            quiz = await QuizService.GetQuizWithQuestionsAsync(QuizId.ToString());
+            quiz = await QuizService.GetQuizWithQuestionsAsync(QuizId); // Fjernet .ToString()
         }
         catch (Exception ex)
         {
@@ -91,7 +88,7 @@
         NavigationManager.NavigateTo("/quizlist");
     }
 
-    private void StartQuiz(string quizId)
+    private void StartQuiz(int quizId)
     {
         NavigationManager.NavigateTo($"/taketquiz/{quizId}");
     }

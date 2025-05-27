@@ -15,6 +15,8 @@ namespace ComwellSystemAPI.Interfaces
         Task DeleteDelmaalAsync(int id);                  // Slet delmål
         
         Task<List<Delmål>> GetAllForYearAsync(int year);
+        Task<List<Delmål>> GetAllAsync();
+
     }
 }
 
