@@ -4,6 +4,7 @@
 @inject IAnmodningService AnmodningService
 @inject NavigationManager NavManager
 @inject UserState UserState
+
 @using Modeller
 @using ComwellKokkeSystem.Service
 
@@ -24,14 +25,14 @@
     }
     else
     {
-        <!-- 🔝 Top -->
+        <!-- ✅ Adminpanel start -->
         <div class="admin-header">
             <div class="admin-header-top">
                 <h2>🛠 Administratorpanel – velkommen, <span class="username">@UserState.Navn</span>!</h2>
             </div>
         </div>
 
-        <!-- 🚀 Dashboard-kort -->
+        <!-- 🧩 Quick actions -->
         <div class="dashboard-cards">
             <div class="dashboard-card" @onclick="@(() => NavManager.NavigateTo("/opretuser"))">
                 <div class="icon">👤</div>
@@ -50,10 +51,9 @@
             </div>
         </div>
 
-        <!-- 🔍 Filter -->
+        <!-- 🔍 Filtrering -->
         <div class="search-section">
             <input class="search-input" placeholder="🔍 Søg brugernavn..." @bind="søgeord" />
-
             <select class="role-filter" @bind="valgtRolle">
                 <option value="">Alle roller</option>
                 <option value="elev">Elev</option>
@@ -61,18 +61,16 @@
                 <option value="kok">Kok</option>
                 <option value="hr">HR</option>
             </select>
-
             <select class="role-filter" @bind="valgtHotel">
                 <option value="">Alle hoteller</option>
-                @foreach (var hotel in hotelNavne)
+                @foreach (var hotel in alleHoteller)
                 {
                     <option value="@hotel">@hotel</option>
                 }
             </select>
         </div>
 
-
-        <!-- 👤 Brugerliste -->
+        <!-- 👥 Brugerkort -->
         <div class="user-grid">
             @foreach (var b in brugere.Where(b =>
            (string.IsNullOrWhiteSpace(søgeord) || b.Username.Contains(søgeord, StringComparison.OrdinalIgnoreCase)) &&
@@ -85,38 +83,68 @@
                             <h5 class="user-name">@b.Navn</h5>
                             <span class="role-tag @GetRoleClass(b.Role)">@b.Role</span>
                         </div>
-                        <img src="@GetImageUrl(b.Id)" class="user-image rounded-circle" width="64" height="64" alt="Profil" />
+                        <img src="@GetImageUrl(b.Id)" onerror="this.style.display='none';"
+                             class="user-image rounded-circle" width="64" height="64" alt="" />
                     </div>
                 </div>
             }
         </div>
 
-
-
-        <!-- 🧾 Modal -->
+        <!-- 🪟 Modal med redigeringsmulighed -->
         @if (valgtBruger is not null)
         {
             <div class="modal-backdrop">
                 <div class="modal-window">
                     <div class="modal-header">
-                        <h5><i class="fa fa-user me-2"></i> Brugerinfo: @valgtBruger.Navn</h5>
+                        <h5>👤 Brugerinfo: @valgtBruger.Navn</h5>
                         <button class="btn-close" @onclick="LukDetaljer">×</button>
                     </div>
                     <div class="modal-body">
-                        <p><strong>Navn:</strong> @valgtBruger.Navn</p>
-                        <p><strong>Email:</strong> @valgtBruger.Email</p>
-                        <p><strong>Telefon:</strong> @valgtBruger.Tlf</p>
-                        <p><strong>Adresse:</strong> @valgtBruger.Adresse</p>
-                        <p><strong>Hotel:</strong> @valgtBruger.HotelNavn</p>
-                        <p><strong>Startdato:</strong> @valgtBruger.StartDato.ToShortDateString()</p>
-                        <p><strong>Slutdato:</strong> @valgtBruger.SlutDato?.ToShortDateString()</p>
-                        <p><strong>Skoleperiode:</strong> @HentSkoleperiode(valgtBruger)</p>
-                        <p><strong>Skoleforløb:</strong> @HentSkoleforloeb(valgtBruger)</p>
-                        <p><strong>Rolle:</strong> <span class="role-tag @GetRoleClass(valgtBruger.Role)">@valgtBruger.Role</span></p>
+                        @if (!isEditing)
+                        {
+                            <p><strong>Navn:</strong> @valgtBruger.Navn</p>
+                            <p><strong>Email:</strong> @valgtBruger.Email</p>
+                            <p><strong>Telefon:</strong> @valgtBruger.Tlf</p>
+                            <p><strong>Adresse:</strong> @valgtBruger.Adresse</p>
+                            <p><strong>Hotel:</strong> @valgtBruger.HotelNavn</p>
+                            <p><strong>Startdato:</strong> @valgtBruger.StartDato.ToShortDateString()</p>
+                            <p><strong>Slutdato:</strong> @valgtBruger.SlutDato?.ToShortDateString()</p>
+                            <p><strong>Skoleperiode:</strong> @HentSkoleperiode(valgtBruger)</p>
+                            <p><strong>Skoleforløb:</strong> @HentSkoleforloeb(valgtBruger)</p>
+                            <p><strong>Rolle:</strong> <span class="role-tag @GetRoleClass(valgtBruger.Role)">@valgtBruger.Role</span></p>
+                        }
+                        else
+                        {
+                            <!-- Redigérfelter -->
+                            <InputText class="form-control mb-2" @bind-Value="valgtBruger.Navn" placeholder="Navn" />
+                            <InputText class="form-control mb-2" @bind-Value="valgtBruger.Email" placeholder="Email" />
+                            <InputText class="form-control mb-2" @bind-Value="valgtBruger.Tlf" placeholder="Telefon" />
+                            <InputText class="form-control mb-2" @bind-Value="valgtBruger.Adresse" placeholder="Adresse" />
+                            <select class="form-control mb-2" @bind="valgtBruger.HotelNavn">
+                                @foreach (var h in alleHoteller)
+                                {
+                                    <option value="@h">@h</option>
+                                }
+                            </select>
+                            <InputDate class="form-control mb-2" @bind-Value="valgtBruger.StartDato" />
+                            <InputDate class="form-control mb-2" @bind-Value="valgtBruger.SlutDato" />
+                            <InputText class="form-control mb-2" @bind-Value="valgtBruger.Role" placeholder="Rolle" />
+                        }
                     </div>
                     <div class="modal-footer">
                         <button class="btn btn-secondary" @onclick="LukDetaljer">Luk</button>
                         <button class="btn btn-danger" @onclick="SletBrugerAsync">Slet</button>
+
+                        @if (!isEditing)
+                        {
+                            <button class="btn btn-warning" @onclick="() => isEditing = true">✏️ Rediger</button>
+                        }
+                        else
+                        {
+                            <button class="btn btn-success" @onclick="GemRedigering">💾 Gem ændringer</button>
+                            <button class="btn btn-light" @onclick="() => isEditing = false">Annuller</button>
+                        }
+
                         @if (valgtBruger.Role?.ToLower() == "elev" && valgtBruger.ElevplanId > 0)
                         {
                             <button class="btn btn-info" @onclick="@(() => SeElevplan(valgtBruger.ElevplanId.Value))">Se elevplan</button>
@@ -129,39 +157,24 @@
 </div>
 
 @code {
-    //UserModel
     private List<UserModel> brugere = new();
     private UserModel? valgtBruger;
+    private bool isEditing = false;
+
     private string søgeord = "";
     private string valgtRolle = "";
-
-    //Modal
-    private void VisDetaljer(UserModel bruger) => valgtBruger = bruger;
-    private void LukDetaljer() => valgtBruger = null;
-
-    //Anmodninger
-    private int anmodningerAntal = 0;
-
-    //Elevplan
-    private List<Elevplan> elevplaner = new();
-    private void SeElevplan(int elevplanId) => NavManager.NavigateTo($"/delmaal/{elevplanId}");
-
-    //Hoteller
     private string valgtHotel = "";
-  
+    private int anmodningerAntal = 0;
+    private List<Elevplan> elevplaner = new();
 
-    //Filtering
-    private List<string> hotelNavne => brugere
-      .Where(b => !string.IsNullOrWhiteSpace(b.HotelNavn))
-      .Select(b => b.HotelNavn)
-      .Distinct()
-      .OrderBy(h => h)
-      .ToList();
-
-    //Profilbillede
-    private string GetImageUrl(int id) => $"https://localhost:7013/uploads/{id}.jpg";
-
-
+    private List<string> alleHoteller = new()
+    {
+        "Aarhus", "Borupgaard", "Bygholm Park", "Centralværkstedet",
+        "Copenhagen Portside", "H.C. Andersen Odense", "Holte",
+        "Hvide Hus Aalborg", "Kellers Park", "Klarskovgaard",
+        "Kolding", "Kongebrogaarden", "Køge Strand",
+        "Middelfart", "Rebild Bakker", "Roskilde", "Sorø"
+    };
 
     protected override async Task OnInitializedAsync()
     {
@@ -174,17 +187,13 @@
             {
                 var plan = await ElevplanService.GetElevplanByIdAsync(elev.ElevplanId.Value);
                 if (plan != null)
-                {
                     elevplaner.Add(plan);
-                }
-
             }
             catch
             {
-                Console.WriteLine($"Kunne ikke hente elevplan for elev {elev.Username}");
+                Console.WriteLine($"❌ Kunne ikke hente elevplan for {elev.Username}");
             }
         }
-
     }
 
     private async Task LoadUsers()
@@ -197,16 +206,16 @@
         }
         catch (Exception ex)
         {
-            Console.WriteLine("Fejl ved indlæsning af brugere: " + ex.Message);
+            Console.WriteLine("🚫 Fejl ved indlæsning af brugere: " + ex.Message);
         }
     }
+
     private async Task HentAntalAnmodninger()
     {
         try
         {
             var liste = await AnmodningService.GetAlleAsync();
-            if (liste != null)
-                anmodningerAntal = liste.Count(a => a.Status?.ToLower() == "afventer");
+            anmodningerAntal = liste?.Count(a => a.Status?.ToLower() == "afventer") ?? 0;
         }
         catch
         {
@@ -214,16 +223,34 @@
         }
     }
 
-    //Rolle på modaldialog
     private string GetRoleClass(string? role) => role?.ToLower() switch
     {
         "admin" => "role-admin",
         "elev" => "role-elev",
         "kok" => "role-kok",
-        "hr" => "role-hr",
         _ => "role-ukendt"
     };
 
+    private void VisDetaljer(UserModel bruger)
+    {
+        valgtBruger = bruger;
+        isEditing = false;
+    }
+
+    private void LukDetaljer()
+    {
+        valgtBruger = null;
+        isEditing = false;
+    }
+
+    private async Task GemRedigering()
+    {
+        if (valgtBruger is not null)
+        {
+            await UserService.UpdateUserAsync(valgtBruger);
+            isEditing = false;
+        }
+    }
 
     private async Task SletBrugerAsync()
     {
@@ -235,35 +262,19 @@
         }
     }
 
-    // Funktioner der henter skoleperioder og skoleforløb fordi de er i elevplan objectet
+    private void SeElevplan(int elevplanId) => NavManager.NavigateTo($"/delmaal/{elevplanId}");
+
     private string HentSkoleperiode(UserModel bruger)
     {
-        if (bruger.Role?.ToLower() == "elev" && bruger.ElevplanId.HasValue)
-        {
-            var plan = elevplaner.FirstOrDefault(p => p.Id == bruger.ElevplanId.Value);
-            return plan == null || string.IsNullOrWhiteSpace(plan.Skoleperiode)
-                ? "Ikke angivet"
-                : plan.Skoleperiode;
-        }
-
-        return "Ikke tilgængelig";
+        var plan = elevplaner.FirstOrDefault(p => p.Id == bruger.ElevplanId);
+        return plan?.Skoleperiode ?? "Ikke angivet";
     }
 
     private string HentSkoleforloeb(UserModel bruger)
     {
-        if (bruger.Role?.ToLower() == "elev" && bruger.ElevplanId.HasValue)
-        {
-            var plan = elevplaner.FirstOrDefault(p => p.Id == bruger.ElevplanId.Value);
-            return plan == null || string.IsNullOrWhiteSpace(plan.SkoleForløb)
-                ? "Ikke angivet"
-                : plan.SkoleForløb;
-        }
-
-        return "Ikke tilgængelig";
+        var plan = elevplaner.FirstOrDefault(p => p.Id == bruger.ElevplanId);
+        return plan?.SkoleForløb ?? "Ikke angivet";
     }
 
-
-
-
-
+    private string GetImageUrl(int id) => $"https://localhost:7013/uploads/{id}.jpg";
 }
