@@ -1,136 +1,149 @@
-﻿@page "/anmodninger"
+﻿@page "/opretuser"
+@layout AdminLayout
+@inject IAuthService AuthService
+@inject NavigationManager NavManager
 @using Modeller
-@using ComwellKokkeSystem.Service;
-@inject IAnmodningService AnmodningService
-@inject IDelmaalService DelmaalService
-@inject UserState UserState
-@inject NavigationManager Nav
-@inject IUnderdelmaalService UnderdelmaalService
-@inject IUserService UserService
-
-
-
-
-<h3 class="text-xl font-bold mb-4">📩 Indkomne Delmålsanmodninger</h3>
-
-@if (!UserState.IsLoggedIn)
-{
-    <div class="alert alert-danger">Du skal være logget ind for at se denne side.</div>
-}
-else if (UserState.Role?.ToLower() != "admin" && UserState.Role?.ToLower() != "kok")
-{
-    <div class="alert alert-warning">Denne side er kun for kokke og administratorer.</div>
-}
-else if (anmodninger == null)
-{
-    <p>⏳ Indlæser anmodninger...</p>
-}
-else if (!anmodninger.Any())
-{
-    <div class="alert alert-info">Ingen afventende anmodninger.</div>
-}
-else
-{
-    <ul class="list-group">
-       
-           @foreach (var a in anmodninger)
-        {
-           
-            Delmål? delmaal = null;
-            <li class="list-group-item mb-3">
-            @if (a.DelmaalId != null && delmaalMap.ContainsKey(a.DelmaalId.Value))
-            {
-                <strong>Delmål: </strong> @delmaalMap[a.DelmaalId.Value].Beskrivelse
-                <br />
-            }
-            else if (a.UnderdelmaalId != null && underdelmaalMap.ContainsKey(a.UnderdelmaalId.Value))
-            {
-                <strong>Underdelmål: </strong> @underdelmaalMap[a.UnderdelmaalId.Value].Beskrivelse
-                <br />
-            }
-
-
-            
-                <strong>Ønsket status: </strong> @a.ØnsketStatus <br />
-                <strong>Anmodet af: </strong> @brugerMap[a.ElevId].Navn <br />
-
-
-
-                <div class="mt-2 d-flex gap-2">
-                    <button class="btn btn-sm btn-success" @onclick="() => BehandlAnmodning(a.Id, true)">✅ Accepter</button>
-                    <button class="btn btn-sm btn-danger" @onclick="() => BehandlAnmodning(a.Id, false)">❌ Afvis</button>
-                </div>
-            </li>
-        }
-      
-    </ul>
-}
 
 @code {
-    private List<Anmodning>? anmodninger;
-    private Dictionary<int, Delmål> delmaalMap = new();
-    private Dictionary<int, Underdelmaal> underdelmaalMap = new();
-    private Dictionary<int, UserModel> brugerMap = new();
-
-
-
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        if (UserState.Id == null)
+        Title = "👤 Opret ny bruger";
+        Subtitle = "Udfyld formularen for at oprette en ny bruger i systemet.";
+    }
+
+    private UserModel newUser = new()
         {
-            Nav.NavigateTo("/login");
-            return;
+            StartDato = DateTime.Today,
+            SlutDato = null
+        };
+
+    private string message = "";
+    private bool registerSuccess = false;
+
+    private List<Hoteller> comwellHoteller = new()
+    {
+        new Hoteller { Id = 1, Navn = " Aarhus" },
+        new Hoteller { Id = 2, Navn = "Borupgaard" },
+        new Hoteller { Id = 3, Navn = "Bygholm Park" },
+        new Hoteller { Id = 4, Navn = "Centralværkstedet" },
+        new Hoteller { Id = 5, Navn = "Copenhagen Portside" },
+        new Hoteller { Id = 6, Navn = "H.C. Andersen Odense" },
+        new Hoteller { Id = 7, Navn = "Holte" },
+        new Hoteller { Id = 8, Navn = "Hvide Hus Aalborg" },
+        new Hoteller { Id = 9, Navn = "Kellers Park" },
+        new Hoteller { Id = 10, Navn = "Klarskovgaard" },
+        new Hoteller { Id = 11, Navn = "Kolding" },
+        new Hoteller { Id = 12, Navn = "Kongebrogaarden" },
+        new Hoteller { Id = 13, Navn = "Køge Strand" },
+        new Hoteller { Id = 14, Navn = "Middelfart" },
+        new Hoteller { Id = 15, Navn = "Rebild Bakker" },
+        new Hoteller { Id = 16, Navn = "Roskilde" },
+        new Hoteller { Id = 17, Navn = "Sorø" }
+    };
+
+    private async Task HandleRegister()
+    {
+        var success = await AuthService.Register(newUser);
+        registerSuccess = success;
+
+        if (success)
+        {
+            message = "Bruger oprettet!";
+            await Task.Delay(1500);
+            NavManager.NavigateTo("/administrator");
         }
-
-        anmodninger = await AnmodningService.GetTilModtagerAsync(UserState.Id.Value);
-
-        foreach (var a in anmodninger)
+        else
         {
-            if (a.DelmaalId != null)
-            {
-                var delmaal = await DelmaalService.GetByIdAsync(a.DelmaalId.Value);
-                if (delmaal != null)
-                    delmaalMap[a.DelmaalId.Value] = delmaal;
-            }
-            else if (a.UnderdelmaalId != null)
-            {
-                var underdelmaal = await UnderdelmaalService.GetByIdAsync(a.UnderdelmaalId.Value);
-                if (underdelmaal != null)
-                    underdelmaalMap[a.UnderdelmaalId.Value] = underdelmaal;
-            }
-
-            if (!brugerMap.ContainsKey(a.ElevId))
-            {
-                var bruger = await UserService.GetByIdAsync(a.ElevId);
-                if (bruger != null)
-                {
-                    brugerMap[a.ElevId] = bruger;
-                }
-            }
+            message = "Noget gik galt – brugeren blev ikke oprettet.";
         }
     }
 
-    private async Task BehandlAnmodning(int anmodningId, bool accepteret)
+    private void OnHotelChanged(ChangeEventArgs e)
     {
-        await AnmodningService.BehandlAsync(anmodningId, accepteret);
-
-        // Genindlæs anmodninger og delmål
-        anmodninger = await AnmodningService.GetTilModtagerAsync(UserState.Id.Value);
-        delmaalMap.Clear();
-
-        foreach (var a in anmodninger)
+        if (int.TryParse(e.Value?.ToString(), out int id))
         {
-            if (a.DelmaalId != null)
+            var valgtHotel = comwellHoteller.FirstOrDefault(h => h.Id == id);
+            if (valgtHotel != null)
             {
-                var delmaal = await DelmaalService.GetByIdAsync(a.DelmaalId.Value);
-                if (delmaal != null)
-                {
-                    delmaalMap[delmaal.Id] = delmaal;
-                }
+                newUser.HotelId = valgtHotel.Id;
+                newUser.HotelNavn = valgtHotel.Navn;
             }
         }
-
-        StateHasChanged();
     }
-
 }
+
+<EditForm Model="@newUser" OnValidSubmit="HandleRegister">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="card shadow-sm border-0 p-4 rounded-4 bg-white">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="form-group">
+                <label>Brugernavn</label>
+                <InputText class="form-control rounded-pill" @bind-Value="newUser.Username" />
+            </div>
+
+            <div class="form-group">
+                <label>Adgangskode</label>
+                <InputText type="password" class="form-control rounded-pill" @bind-Value="newUser.Password" />
+            </div>
+
+            <div class="form-group">
+                <label>Navn</label>
+                <InputText class="form-control rounded-pill" @bind-Value="newUser.Navn" />
+            </div>
+
+            <div class="form-group">
+                <label>Email</label>
+                <InputText class="form-control rounded-pill" @bind-Value="newUser.Email" />
+            </div>
+
+            <div class="form-group">
+                <label>Telefonnummer</label>
+                <InputText class="form-control rounded-pill" @bind-Value="newUser.Tlf" />
+            </div>
+
+            <div class="form-group">
+                <label>Adresse</label>
+                <InputText class="form-control rounded-pill" @bind-Value="newUser.Adresse" />
+            </div>
+
+            <div class="form-group">
+                <label>Startdato</label>
+                <InputDate class="form-control rounded-pill" @bind-Value="newUser.StartDato" />
+            </div>
+
+            <div class="form-group">
+                <label>Slutdato (valgfri)</label>
+                <InputDate class="form-control rounded-pill" @bind-Value="newUser.SlutDato" />
+            </div>
+
+            <div class="form-group">
+                <label>Hotel</label>
+                <select class="form-control rounded-pill" @onchange="OnHotelChanged">
+                    <option value="">Vælg hotel</option>
+                    @foreach (var hotel in comwellHoteller)
+                    {
+                        <option value="@hotel.Id">@hotel.Navn</option>
+                    }
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Rolle</label>
+                <InputSelect class="form-control rounded-pill" @bind-Value="newUser.Role">
+                    <option value="elev">Elev</option>
+                    <option value="kok">Kok</option>
+                    <option value="admin">Admin</option>
+                </InputSelect>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-4 w-100 fw-bold rounded-pill">➕ Opret Bruger</button>
+
+        @if (!string.IsNullOrEmpty(message))
+        {
+            <div class="alert @(registerSuccess ? "alert-success" : "alert-danger") mt-3">@message</div>
+        }
+    </div>
+</EditForm>

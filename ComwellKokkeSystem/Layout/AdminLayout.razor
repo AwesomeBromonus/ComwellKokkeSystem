@@ -6,7 +6,7 @@
 <link href="css/Panel.css" rel="stylesheet" />
 <link href="css/admin.css" rel="stylesheet" />
 
-<div class="admin-centered-layout">
+<div class="admin-full-container">
     @if (!UserState.IsLoggedInChecked)
     {
         <p class="text-muted text-center">⏳ Indlæser brugerdata...</p>
@@ -21,13 +21,24 @@
     }
     else
     {
-        <main class="dashboard-main">
+        <div class="admin-header">
+            <h2 class="admin-title">@Title</h2>
+            @if (!string.IsNullOrWhiteSpace(Subtitle))
+            {
+                <p class="admin-subtitle">@Subtitle</p>
+            }
+        </div>
+
+        <div class="admin-content">
             @Body
-        </main>
+        </div>
     }
 </div>
 
 @code {
+    [Parameter] public string Title { get; set; } = "";
+    [Parameter] public string Subtitle { get; set; } = "";
+
     protected override async Task OnInitializedAsync()
     {
         UserState.OnChange += StateHasChanged;

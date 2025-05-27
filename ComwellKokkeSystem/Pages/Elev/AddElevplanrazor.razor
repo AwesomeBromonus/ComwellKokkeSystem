@@ -1,4 +1,5 @@
 ﻿@page "/opret-elevplan"
+@layout AdminLayout
 @using ComwellKokkeSystem.Service
 @using Modeller
 @inject IElevplanService ElevplanService
@@ -8,103 +9,12 @@
 @inject HttpClient Http
 @inject NavigationManager Nav
 
-<h3>Opret Elevplan</h3>
-
-@if (!erTilladt)
-{
-    <div class="alert alert-danger mt-3">
-        ❌ Adgang nægtet – kun administratorer kan oprette elevplaner.
-    </div>
-}
-else
-{
-    <EditForm Model="elevplan" OnValidSubmit="GemElevplan">
-        <DataAnnotationsValidator />
-        <ValidationSummary />
-
-        <div class="mb-3">
-            <label>Kommentar:</label>
-            <InputTextArea class="form-control" @bind-Value="elevplan.Kommentar" />
-        </div>
-
-        <div class="mb-3">
-            <label>Startdato:</label>
-            <InputDate class="form-control" @bind-Value="elevplan.StartDato" />
-        </div>
-
-        <div class="mb-3">
-            <label>Slutdato:</label>
-            <InputDate class="form-control" @bind-Value="elevplan.SlutDato" />
-        </div>
-
-        <div class="mb-3">
-            <label>Skoleperiode:</label>
-            <InputText class="form-control" @bind-Value="elevplan.Skoleperiode" placeholder="Fx GF2 - uge 33-41" />
-        </div>
-
-        <div class="mb-3">
-            <label for="skoleforloeb" class="form-label">Skoleforløb</label>
-            <InputText id="skoleforloeb" class="form-control" @bind-Value="elevplan.SkoleForløb" />
-        </div>
-
-
-
-        <div class="mb-3">
-            <label>Vælg bruger (kun elever uden elevplan):</label>
-            @if (brugere.Count == 0)
-            {
-                <p class="text-muted">Ingen brugere fundet.</p>
-            }
-            else
-            {
-                @foreach (var b in brugere.Where(b => b.Role?.ToLower() == "elev" && (b.ElevplanId == null || b.ElevplanId == 0)))
-                {
-                    <div class="card p-3 mb-2 shadow-sm"
-                         style="cursor: pointer; border: @(valgtElevId == b.Id ? "2px solid #198754" : "1px solid #ccc")"
-                         @onclick="@(() => valgtElevId = b.Id)">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <strong>@b.Navn</strong><br />
-                                <small>@b.Username – @b.Role</small>
-                            </div>
-                            <span class="badge bg-primary">ID: @b.Id</span>
-
-                            @if (valgtElevId == b.Id)
-                            {
-                                <span class="badge bg-success ms-2">✔️ Valgt</span>
-                            }
-                        </div>
-                    </div>
-                }
-            }
-        </div>
-
-        <button class="btn btn-primary mt-3" type="submit">Gem elevplan</button>
-
-        @if (!string.IsNullOrEmpty(fejlbesked))
-        {
-            <div class="alert alert-danger mt-3">@fejlbesked</div>
-        }
-
-        @if (success)
-        {
-            <div class="alert alert-success mt-3">✅ Elevplan oprettet og tildelt!</div>
-        }
-    </EditForm>
-}
-
 @code {
-    private Modeller.Elevplan elevplan = new();
-    private List<Modeller.Praktikperiode> praktikPerioder = new();
-    private List<Modeller.UserModel> brugere = new();
-    private int valgtElevId = 0;
-    private bool success = false;
-    private bool erTilladt = false;
-    private string? fejlbesked = null;
-   
-
     protected override async Task OnInitializedAsync()
     {
+        Title = "📘 Opret ny elevplan";
+        Subtitle = "Tilknyt en elev og opret praktikforløb med delmål.";
+
         var rolle = await AuthService.GetCurrentUserRoleAsync();
         if (rolle?.ToLower() != "admin")
         {
@@ -114,10 +24,17 @@ else
         }
 
         erTilladt = true;
-
         praktikPerioder = await PraktikService.GetAllAsync();
-        brugere = await Http.GetFromJsonAsync<List<Modeller.UserModel>>("api/users/all");
+        brugere = await Http.GetFromJsonAsync<List<UserModel>>("api/users/all");
     }
+
+    private Elevplan elevplan = new();
+    private List<Praktikperiode> praktikPerioder = new();
+    private List<UserModel> brugere = new();
+    private int valgtElevId = 0;
+    private bool success = false;
+    private bool erTilladt = false;
+    private string? fejlbesked = null;
 
     private async Task GemElevplan()
     {
@@ -140,7 +57,7 @@ else
             return;
         }
 
-        var oprettetPlan = await elevplanResponse.Content.ReadFromJsonAsync<Modeller.Elevplan>();
+        var oprettetPlan = await elevplanResponse.Content.ReadFromJsonAsync<Elevplan>();
         if (oprettetPlan == null)
         {
             fejlbesked = "Fejl ved indlæsning af oprettet elevplan.";
@@ -149,12 +66,12 @@ else
 
         for (int i = 1; i <= 3; i++)
         {
-            var praktik = new Modeller.Praktikperiode
-                {
-                    Navn = $"Praktikperiode {i}",
-                    ElevId = valgtElevId,
-                    ElevplanId = oprettetPlan.Id
-                };
+            var praktik = new Praktikperiode
+            {
+                Navn = $"Praktikperiode {i}",
+                ElevId = valgtElevId,
+                ElevplanId = oprettetPlan.Id
+            };
 
             var praktikResponse = await Http.PostAsJsonAsync("api/praktikperiode", praktik);
             if (!praktikResponse.IsSuccessStatusCode)
@@ -163,30 +80,30 @@ else
                 return;
             }
 
-            var oprettetPraktik = await praktikResponse.Content.ReadFromJsonAsync<Modeller.Praktikperiode>();
+            var oprettetPraktik = await praktikResponse.Content.ReadFromJsonAsync<Praktikperiode>();
             if (oprettetPraktik != null)
             {
                 oprettetPlan.PraktikperiodeIds.Add(oprettetPraktik.Id);
 
-                var skabeloner = await Http.GetFromJsonAsync<List<Modeller.DelmaalSkabelon>>($"api/delmaalskabelon/periode/{i}");
+                var skabeloner = await Http.GetFromJsonAsync<List<DelmaalSkabelon>>($"api/delmaalskabelon/periode/{i}");
                 if (skabeloner != null)
                 {
                     foreach (var skabelon in skabeloner)
                     {
-                        var delmaal = new Modeller.Delmål
-                            {
-                                Beskrivelse = skabelon.Beskrivelse,
-                                Deadline = elevplan.StartDato.AddDays(skabelon.DeadlineOffsetDage),
-                                Status = "Ikke fuldført",
-                                Ansvarlig = skabelon.Ansvarlig,
-                                Igangsætter = skabelon.Igangsætter,
-                                Kommentar = "",
-                                Elevtur = "",
-                                ElevId = valgtElevId,
-                                ElevplanId = oprettetPlan.Id,
-                                PraktikperiodeId = oprettetPraktik.Id,
-                                DelmaalSkabelonId = skabelon.Id // 👈 NYT!
-                            };
+                        var delmaal = new Delmål
+                        {
+                            Beskrivelse = skabelon.Beskrivelse,
+                            Deadline = elevplan.StartDato.AddDays(skabelon.DeadlineOffsetDage),
+                            Status = "Ikke fuldført",
+                            Ansvarlig = skabelon.Ansvarlig,
+                            Igangsætter = skabelon.Igangsætter,
+                            Kommentar = "",
+                            Elevtur = "",
+                            ElevId = valgtElevId,
+                            ElevplanId = oprettetPlan.Id,
+                            PraktikperiodeId = oprettetPraktik.Id,
+                            DelmaalSkabelonId = skabelon.Id
+                        };
 
                         await Http.PostAsJsonAsync("api/delmaal", delmaal);
                     }
@@ -195,8 +112,8 @@ else
         }
 
         await Http.PutAsJsonAsync($"api/elevplan/{oprettetPlan.Id}", oprettetPlan);
-
         var assignResponse = await Http.PutAsJsonAsync($"api/users/{valgtElevId}/assign-elevplan", new { ElevplanId = oprettetPlan.Id });
+
         if (!assignResponse.IsSuccessStatusCode)
         {
             fejlbesked = "Elevplan blev oprettet, men kunne ikke tildeles brugeren.";
@@ -206,4 +123,90 @@ else
         success = true;
         Nav.NavigateTo("/administrator");
     }
+
+    private void VælgElev(int id)
+    {
+        valgtElevId = id;
+    }
+}
+
+@if (!erTilladt)
+{
+    <div class="alert alert-danger mt-3">
+        ❌ Adgang nægtet – kun administratorer kan oprette elevplaner.
+    </div>
+}
+else
+{
+    <EditForm Model="elevplan" OnValidSubmit="GemElevplan">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="card shadow-sm border-0 p-4 rounded-4 bg-white">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="form-group">
+                    <label>Kommentar</label>
+                    <InputTextArea class="form-control" @bind-Value="elevplan.Kommentar" />
+                </div>
+                <div class="form-group">
+                    <label>Startdato</label>
+                    <InputDate class="form-control rounded-pill" @bind-Value="elevplan.StartDato" />
+                </div>
+                <div class="form-group">
+                    <label>Slutdato</label>
+                    <InputDate class="form-control rounded-pill" @bind-Value="elevplan.SlutDato" />
+                </div>
+                <div class="form-group">
+                    <label>Skoleperiode</label>
+                    <InputText class="form-control rounded-pill" placeholder="Fx GF2 - uge 33-41" @bind-Value="elevplan.Skoleperiode" />
+                </div>
+                <div class="form-group">
+                    <label>Skoleforløb</label>
+                    <InputText class="form-control rounded-pill" @bind-Value="elevplan.SkoleForløb" />
+                </div>
+            </div>
+        </div>
+
+        <h5 class="mt-5 mb-3 fw-bold">👨‍🍳 Vælg elev (kun elever uden elevplan)</h5>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            @if (brugere.Count == 0)
+            {
+                <p class="text-muted">Ingen brugere fundet.</p>
+            }
+            else
+            {
+                @foreach (var b in brugere.Where(b => b.Role?.ToLower() == "elev" && (b.ElevplanId == null || b.ElevplanId == 0)))
+                {
+                    <div class="card p-3 shadow-sm cursor-pointer"
+                         style="border: @(valgtElevId == b.Id ? "2px solid #198754" : "1px solid #ccc")"
+                         @onclick="@(() => VælgElev(b.Id))">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>@b.Navn</strong><br />
+                                <small>@b.Username – @b.Role</small>
+                            </div>
+                            <span class="badge bg-primary">ID: @b.Id</span>
+                            @if (valgtElevId == b.Id)
+                            {
+                                <span class="badge bg-success ms-2">✔️ Valgt</span>
+                            }
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+
+        <button class="btn btn-primary mt-4 w-100 fw-bold rounded-pill" type="submit">➕ Gem Elevplan</button>
+
+        @if (!string.IsNullOrEmpty(fejlbesked))
+        {
+            <div class="alert alert-danger mt-3">@fejlbesked</div>
+        }
+
+        @if (success)
+        {
+            <div class="alert alert-success mt-3">✅ Elevplan oprettet og tildelt!</div>
+        }
+    </EditForm>
 }

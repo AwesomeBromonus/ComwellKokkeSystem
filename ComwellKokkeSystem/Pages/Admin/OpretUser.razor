@@ -1,67 +1,61 @@
 ﻿@page "/opretuser"
+@layout AdminLayout
 @inject IAuthService AuthService
 @inject NavigationManager NavManager
 @using Modeller
 
-<div class="d-flex justify-content-center align-items-center" style="min-height: 100vh; background-color: #f5f5f5;">
-    <div class="p-5 shadow" style="background-color: white; border-radius: 20px; width: 100%; max-width: 600px;">
-        <h2 class="text-center mb-4" style="color: #003b4a;">Opret ny bruger</h2>
+<div class="admin-header">
+    <h2 class="admin-title">👤 Opret ny bruger</h2>
+    <p class="admin-subtitle">Udfyld formularen for at oprette en ny bruger i systemet.</p>
+</div>
 
-        <!-- Registreringsformular -->
-        <EditForm Model="@newUser" OnValidSubmit="HandleRegister">
-            <DataAnnotationsValidator />
-            <ValidationSummary />
+<EditForm Model="@newUser" OnValidSubmit="HandleRegister">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
 
-            <!-- Brugernavn -->
-            <div class="form-group mb-3">
-                <label>Username</label>
-                <InputText type="text" class="form-control rounded-pill" @bind-Value="newUser.Username" />
+    <div class="card shadow-sm border-0 p-4 rounded-4 bg-white">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="form-group">
+                <label>Brugernavn</label>
+                <InputText class="form-control rounded-pill" @bind-Value="newUser.Username" />
             </div>
 
-            <!-- Adgangskode -->
-            <div class="form-group mb-3">
+            <div class="form-group">
                 <label>Adgangskode</label>
                 <InputText type="password" class="form-control rounded-pill" @bind-Value="newUser.Password" />
             </div>
 
-            <!-- Navn -->
-            <div class="form-group mb-3">
+            <div class="form-group">
                 <label>Navn</label>
                 <InputText class="form-control rounded-pill" @bind-Value="newUser.Navn" />
             </div>
 
-            <!-- Email -->
-            <div class="form-group mb-3">
+            <div class="form-group">
                 <label>Email</label>
                 <InputText class="form-control rounded-pill" @bind-Value="newUser.Email" />
             </div>
 
-            <!-- Telefon -->
-            <div class="form-group mb-3">
+            <div class="form-group">
                 <label>Telefonnummer</label>
                 <InputText class="form-control rounded-pill" @bind-Value="newUser.Tlf" />
             </div>
 
-            <!-- Adresse -->
-            <div class="form-group mb-3">
+            <div class="form-group">
                 <label>Adresse</label>
                 <InputText class="form-control rounded-pill" @bind-Value="newUser.Adresse" />
             </div>
 
-            <!-- Startdato -->
-            <div class="form-group mb-3">
+            <div class="form-group">
                 <label>Startdato</label>
                 <InputDate class="form-control rounded-pill" @bind-Value="newUser.StartDato" />
             </div>
 
-            <!-- Slutdato -->
-            <div class="form-group mb-3">
+            <div class="form-group">
                 <label>Slutdato (valgfri)</label>
                 <InputDate class="form-control rounded-pill" @bind-Value="newUser.SlutDato" />
             </div>
 
-            <!-- Hotelvælger -->
-            <div class="form-group mb-3">
+            <div class="form-group">
                 <label>Hotel</label>
                 <select class="form-control rounded-pill" @onchange="OnHotelChanged">
                     <option value="">Vælg hotel</option>
@@ -72,81 +66,56 @@
                 </select>
             </div>
 
-            <!-- Rollevælger -->
-            <div class="form-group mb-4">
+            <div class="form-group">
                 <label>Rolle</label>
                 <InputSelect class="form-control rounded-pill" @bind-Value="newUser.Role">
                     <option value="elev">Elev</option>
                     <option value="kok">Kok</option>
                     <option value="admin">Admin</option>
-             
                 </InputSelect>
             </div>
+        </div>
 
-            <!-- Opret-knap -->
-            <button type="submit" class="btn btn-primary w-100">Opret Bruger</button>
-        </EditForm>
+        <button type="submit" class="btn btn-primary mt-4 w-100 fw-bold rounded-pill">➕ Opret Bruger</button>
 
-        <!-- Vis statusbesked -->
         @if (!string.IsNullOrEmpty(message))
         {
-            <div class="alert @(registerSuccess ? "alert-success" : "alert-danger") mt-3">
-                @message
-            </div>
+            <div class="alert @(registerSuccess ? "alert-success" : "alert-danger") mt-3">@message</div>
         }
     </div>
-</div>
+</EditForm>
 
 @code {
-    /// <summary>
-    /// Ny bruger som udfyldes i formularen og sendes til API'et
-    /// </summary>
     private UserModel newUser = new()
         {
             StartDato = DateTime.Today,
             SlutDato = null
         };
 
-    /// <summary>
-    /// Statusbesked som vises efter forsøg på oprettelse
-    /// </summary>
     private string message = "";
-
-    /// <summary>
-    /// Viser om oprettelse var en succes (bruges til alert-farve)
-    /// </summary>
     private bool registerSuccess = false;
 
-    /// <summary>
-    /// Liste over Comwell-hoteller til dropdown. Bruger modellen 'Hoteller.cs'
-    /// </summary>
     private List<Hoteller> comwellHoteller = new()
     {
-       new Hoteller { Id = 1, Navn = " Aarhus" },
-new Hoteller { Id = 2, Navn = "Borupgaard" },
-new Hoteller { Id = 3, Navn = "Bygholm Park" },
-new Hoteller { Id = 4, Navn = "Centralværkstedet" },
-new Hoteller { Id = 5, Navn = "Copenhagen Portside" },
-new Hoteller { Id = 6, Navn = "H.C. Andersen Odense" },
-new Hoteller { Id = 7, Navn = "Holte" },
-new Hoteller { Id = 8, Navn = "Hvide Hus Aalborg" },
-new Hoteller { Id = 9, Navn = "Kellers Park" },
-new Hoteller { Id = 10, Navn = "Klarskovgaard" },
-new Hoteller { Id = 11, Navn = "Kolding" },
-new Hoteller { Id = 12, Navn = "Kongebrogaarden" },
-new Hoteller { Id = 13, Navn = "Køge Strand" },
-new Hoteller { Id = 14, Navn = "Middelfart" },
-new Hoteller { Id = 15, Navn = "Rebild Bakker" },
-new Hoteller { Id = 16, Navn = "Roskilde" },
-new Hoteller { Id = 17, Navn = "Sorø" }
-
+        new Hoteller { Id = 1, Navn = " Aarhus" },
+        new Hoteller { Id = 2, Navn = "Borupgaard" },
+        new Hoteller { Id = 3, Navn = "Bygholm Park" },
+        new Hoteller { Id = 4, Navn = "Centralværkstedet" },
+        new Hoteller { Id = 5, Navn = "Copenhagen Portside" },
+        new Hoteller { Id = 6, Navn = "H.C. Andersen Odense" },
+        new Hoteller { Id = 7, Navn = "Holte" },
+        new Hoteller { Id = 8, Navn = "Hvide Hus Aalborg" },
+        new Hoteller { Id = 9, Navn = "Kellers Park" },
+        new Hoteller { Id = 10, Navn = "Klarskovgaard" },
+        new Hoteller { Id = 11, Navn = "Kolding" },
+        new Hoteller { Id = 12, Navn = "Kongebrogaarden" },
+        new Hoteller { Id = 13, Navn = "Køge Strand" },
+        new Hoteller { Id = 14, Navn = "Middelfart" },
+        new Hoteller { Id = 15, Navn = "Rebild Bakker" },
+        new Hoteller { Id = 16, Navn = "Roskilde" },
+        new Hoteller { Id = 17, Navn = "Sorø" }
     };
 
-    /// <summary>
-    /// Funktionel specifikation:
-    /// Forsøger at oprette brugeren gennem AuthService.
-    /// Viser succes- eller fejlbesked og navigerer til /administrator hvis oprettet.
-    /// </summary>
     private async Task HandleRegister()
     {
         var success = await AuthService.Register(newUser);
@@ -155,7 +124,7 @@ new Hoteller { Id = 17, Navn = "Sorø" }
         if (success)
         {
             message = "Bruger oprettet!";
-            await Task.Delay(1500); // Lille pause før redirect
+            await Task.Delay(1500);
             NavManager.NavigateTo("/administrator");
         }
         else
@@ -164,11 +133,6 @@ new Hoteller { Id = 17, Navn = "Sorø" }
         }
     }
 
-    /// <summary>
-    /// Funktionel specifikation:
-    /// Opdaterer brugerens HotelId og HotelNavn baseret på valgt hotel i dropdown.
-    /// Parameter e: indeholder den valgte værdi (hotel ID)
-    /// </summary>
     private void OnHotelChanged(ChangeEventArgs e)
     {
         if (int.TryParse(e.Value?.ToString(), out int id))
