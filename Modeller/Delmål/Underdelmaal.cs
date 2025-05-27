@@ -14,7 +14,6 @@ namespace Modeller
         public string Beskrivelse { get; set; } = "";
         public string Status { get; set; } = "Ikke påbegyndt";
         public int DeadlineOffsetDage { get; set; } = 0;
-        public int DelmålId {get;set;}
     }
 
 }
