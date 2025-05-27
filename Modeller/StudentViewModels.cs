@@ -10,14 +10,13 @@ namespace Modeller
         public string Navn { get; set; }
         public string Email { get; set; }
         public string Status { get; set; }
+        public string Role { get; set; } // Tilføjet
+        public string HotelNavn { get; set; } // Tilføjet
 
-        // samlet progress for alle delmål og underdelmål 
-        // Vi beregner disse dynamisk baseret på DelmaalList
         public int DelmaalDone
         {
             get
             {
-                // Tæller alle underdelmål, der er "Fuldført"
                 return DelmaalList
                     .Sum(dm => dm.UnderdelmaalList
                         .Count(ud => ud.Status == "Fuldført"));
@@ -28,26 +27,22 @@ namespace Modeller
         {
             get
             {
-                // Tæller det samlede antal underdelmål for alle delmål
                 return DelmaalList.Sum(dm => dm.UnderdelmaalList.Count);
             }
         }
 
-        // Proceten beregnes ud fra det totale antal underdelmål og de fuldførte
         public int DelmaalPercent => DelmaalTotal > 0 ? (DelmaalDone * 100) / DelmaalTotal : 0;
         public List<Delmål> DelmaalList { get; set; } = new();
         public bool IsSelected { get; set; }
         public Praktikperiode? Praktikperiode { get; set; } = new();
 
-        // Egenskab for flitering af delmål efter praktikperiode
-        public int SelectedPraktikperiodeId { get; set; } = 0; // 0 for "alle praktikperioder" 
+        public int SelectedPraktikperiodeId { get; set; } = 0;
 
         public int DelmaalDoneForSelectedPeriod
         {
             get
             {
-                if (SelectedPraktikperiodeId == 0) return DelmaalDone; // alle praktikperioder
-
+                if (SelectedPraktikperiodeId == 0) return DelmaalDone;
                 return DelmaalList
                     .Where(dm => dm.PraktikperiodeId == SelectedPraktikperiodeId)
                     .Sum(dm => dm.UnderdelmaalList.Count(ud => ud.Status == "Fuldført"));
@@ -58,12 +53,10 @@ namespace Modeller
         {
             get
             {
-                
-                    if (SelectedPraktikperiodeId == 0) return DelmaalTotal; // Alle perioder
-
-                    return DelmaalList
-                        .Where(dm => dm.PraktikperiodeId == SelectedPraktikperiodeId)
-                        .Sum(dm => dm.UnderdelmaalList.Count);
+                if (SelectedPraktikperiodeId == 0) return DelmaalTotal;
+                return DelmaalList
+                    .Where(dm => dm.PraktikperiodeId == SelectedPraktikperiodeId)
+                    .Sum(dm => dm.UnderdelmaalList.Count);
             }
         }
 
@@ -71,10 +64,8 @@ namespace Modeller
             DelmaalTotalForSelectedPeriod > 0
                 ? (DelmaalDoneForSelectedPeriod * 100) / DelmaalTotalForSelectedPeriod
                 : 0;
-        
+
         public List<Praktikperiode> Praktikperioder { get; set; } = new();
         public int? ElevplanId { get; set; }
     }
 }
-    
- 

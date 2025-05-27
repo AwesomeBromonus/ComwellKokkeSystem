@@ -11,15 +11,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="867a39b7-f00d-4256-9506-36754830a52e" name="Changes" comment="Quiz fixx">
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.ComwellKokkeSystem/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.ComwellKokkeSystem/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Pages/Quiz/QuizInformation.razor" beforeDir="false" afterPath="$PROJECT_DIR$/Pages/Quiz/QuizInformation.razor" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Pages/Quiz/QuizList.razor" beforeDir="false" afterPath="$PROJECT_DIR$/Pages/Quiz/QuizList.razor" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Pages/Quiz/TagQuiz.razor" beforeDir="false" afterPath="$PROJECT_DIR$/Pages/Quiz/TagQuiz.razor" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Service/IQuizService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Service/InterfaceService/IQuizService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Service/QuizService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Service/ServiceService/QuizService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Controllers/QuizController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Controllers/QuizController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Interfaces/IUser.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Interfaces/IUser.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Repositories/QuizRepositoryMongoDB.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Repositories/QuizRepositoryMongoDB.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Pages/Components/Pratikperioder.razor" beforeDir="false" afterPath="$PROJECT_DIR$/Pages/Genererapport/Pratikperioder.razor" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Pages/Components/RapportFiltre.razor" beforeDir="false" afterPath="$PROJECT_DIR$/Pages/Genererapport/RapportFiltre.razor" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Pages/Components/StudentTable.razor" beforeDir="false" afterPath="$PROJECT_DIR$/Pages/Genererapport/StudentTable.razor" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Pages/Genererapport/GenereRapport.razor" beforeDir="false" afterPath="$PROJECT_DIR$/Pages/Genererapport/GenereRapport.razor" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Modeller/StudentViewModels.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Modeller/StudentViewModels.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -93,7 +89,7 @@
     ".NET Launch Settings Profile.ComwellSystemAPI: https.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "Luke",
+    "git-widget-placeholder": "master",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
