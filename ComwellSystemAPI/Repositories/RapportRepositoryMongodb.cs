@@ -40,7 +40,7 @@ namespace ComwellSystemAPI.Repositories
             ws.Cell(1, 6).Value = "Kommentar";
             ws.Cell(1, 7).Value = "Deadline";
             ws.Cell(1, 8).Value = "Praktikperiode";
-            ws.Cell(1, 9).Value = "Periode-status";
+            ws.Cell(1, 9).Value = "Status";
 
             // 🎨 Styling af header-rækken (række 1)
             ws.Range("A1:I1").Style.Font.Bold = true;
