@@ -10,22 +10,26 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="867a39b7-f00d-4256-9506-36754830a52e" name="Changes" comment="Retter og strukturer">
-      <change beforePath="$PROJECT_DIR$/../Modeller/Admin.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Modeller/Users/Admin.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Modeller/Anmodning.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Modeller/Users/Anmodning.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Modeller/Besked.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Modeller/Users/Besked.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Modeller/Delmål.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Modeller/Delmål/Delmål.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Modeller/DelmålSkabelon.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Modeller/Delmål/DelmålSkabelon.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Modeller/Elev.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Modeller/Users/Elev.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Modeller/Elevplan.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Modeller/Delmål/Elevplan.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Modeller/Hoteller.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Modeller/Users/Hoteller.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Modeller/Kokke.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Modeller/Users/Kokke.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Modeller/Kommentarer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Modeller/Users/Kommentarer.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Modeller/LoginUser.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Modeller/Users/LoginUser.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Modeller/Læring.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Modeller/Users/Læring.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Modeller/Praktikperioder.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Modeller/Delmål/Praktikperioder.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Modeller/Underdelmaal.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Modeller/Delmål/Underdelmaal.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Modeller/UnderdelmålSkabelon.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Modeller/Delmål/UnderdelmålSkabelon.cs" afterDir="false" />
+    <list default="true" id="867a39b7-f00d-4256-9506-36754830a52e" name="Changes" comment="XML">
+      <change beforePath="$PROJECT_DIR$/Pages/Quiz/QuizInformation.razor" beforeDir="false" afterPath="$PROJECT_DIR$/Pages/Quiz/QuizInformation.razor" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Pages/Quiz/QuizList.razor" beforeDir="false" afterPath="$PROJECT_DIR$/Pages/Quiz/QuizList.razor" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Pages/Quiz/QuizOpret.razor" beforeDir="false" afterPath="$PROJECT_DIR$/Pages/Quiz/QuizOpret.razor" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Pages/Quiz/TagQuiz.razor" beforeDir="false" afterPath="$PROJECT_DIR$/Pages/Quiz/TagQuiz.razor" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Service/InterfaceService/Quiz InterfaceService/IQuizService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Service/InterfaceService/Quiz InterfaceService/IQuizService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Service/ServiceService/Quiz Service/QuizService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Service/ServiceService/Quiz Service/QuizService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Controllers/Quiz Controller/QuizController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Controllers/Quiz Controller/QuizController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Interfaces/Quiz Interfaces/IQuestion.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Interfaces/Quiz Interfaces/IQuestion.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Interfaces/Quiz Interfaces/IQuiz.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Interfaces/Quiz Interfaces/IQuiz.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Repositories/DelmaalSkabelonRepository .cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Repositories/Delmål Repositories/DelmaalSkabelonRepository .cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Repositories/DelmålRepositoryMongodb.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Repositories/Delmål Repositories/DelmålRepositoryMongodb.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Repositories/Quiz Repositories/QuestionsRepositoryMongoDB.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Repositories/Quiz Repositories/QuestionsRepositoryMongoDB.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Repositories/Quiz Repositories/QuizRepositoryMongoDB.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Repositories/Quiz Repositories/QuizRepositoryMongoDB.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Repositories/UnderdelmaalRepositoryMongodb.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Repositories/Underdelmål Repositories/UnderdelmaalRepositoryMongodb.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Repositories/UnderdelmaalSkabelonRepository.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Repositories/Underdelmål Repositories/UnderdelmaalSkabelonRepository.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Modeller/Quiz/CreateQuizRequest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Modeller/Quiz/CreateQuizRequest.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Modeller/Quiz/Question.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Modeller/Quiz/Question.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Modeller/Quiz/QuizWithQuestions.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Modeller/Quiz/QuizWithQuestions.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Modeller/Quiz/Quizzes.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Modeller/Quiz/Quizzes.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -412,7 +416,23 @@
       <option name="project" value="LOCAL" />
       <updated>1748357125130</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="Strukturer">
+      <option name="closed" value="true" />
+      <created>1748357487365</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1748357487365</updated>
+    </task>
+    <task id="LOCAL-00016" summary="XML">
+      <option name="closed" value="true" />
+      <created>1748357504593</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1748357504593</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -480,11 +500,12 @@
     <MESSAGE value="HMm" />
     <MESSAGE value="I håb om at fikse rapportside" />
     <MESSAGE value="Fjener �" />
-    <MESSAGE value="XML" />
     <MESSAGE value="Quiz fixx" />
     <MESSAGE value="Genere rapport fix" />
     <MESSAGE value="Sletterrapportside" />
     <MESSAGE value="Retter og strukturer" />
-    <option name="LAST_COMMIT_MESSAGE" value="Retter og strukturer" />
+    <MESSAGE value="Strukturer" />
+    <MESSAGE value="XML" />
+    <option name="LAST_COMMIT_MESSAGE" value="XML" />
   </component>
 </project>
