@@ -25,29 +25,26 @@
     }
     else
     {
-        <!-- ✅ Adminpanel start -->
+        <!-- ✅ Header -->
         <div class="admin-header">
-            <div class="admin-header-top">
-                <h2>🛠 Administratorpanel – velkommen, <span class="username">@UserState.Navn</span>!</h2>
-            </div>
+            <h2>🛠 Administratorpanel</h2>
+            <p>Velkommen, <span class="username">@UserState.Navn</span></p>
         </div>
 
-        <!-- 🧩 Quick actions -->
+        <!-- 🚀 Hurtig adgang -->
         <div class="dashboard-cards">
             <div class="dashboard-card" @onclick="@(() => NavManager.NavigateTo("/opretuser"))">
                 <div class="icon">👤</div>
                 <h4>Opret bruger</h4>
-                <p>Tilføj ny systembruger</p>
             </div>
             <div class="dashboard-card" @onclick="@(() => NavManager.NavigateTo("/opret-elevplan"))">
                 <div class="icon">📋</div>
                 <h4>Opret elevplan</h4>
-                <p>Opret og tildel elevplan</p>
             </div>
             <div class="dashboard-card highlight" @onclick="@(() => NavManager.NavigateTo("/anmodninger"))">
                 <div class="icon">📥</div>
                 <h4>Anmodninger</h4>
-                <p><strong>@anmodningerAntal</strong> afventer godkendelse</p>
+                <p><strong>@anmodningerAntal</strong> afventer</p>
             </div>
         </div>
 
@@ -59,7 +56,6 @@
                 <option value="elev">Elev</option>
                 <option value="admin">Administrator</option>
                 <option value="kok">Kok</option>
-                <option value="hr">HR</option>
             </select>
             <select class="role-filter" @bind="valgtHotel">
                 <option value="">Alle hoteller</option>
@@ -70,7 +66,7 @@
             </select>
         </div>
 
-        <!-- 👥 Brugerkort -->
+        <!-- 👥 Brugeroversigt -->
         <div class="user-grid">
             @foreach (var b in brugere.Where(b =>
            (string.IsNullOrWhiteSpace(søgeord) || b.Username.Contains(søgeord, StringComparison.OrdinalIgnoreCase)) &&
@@ -80,7 +76,7 @@
                 <div class="user-card" @onclick="@(() => VisDetaljer(b))">
                     <div class="user-content">
                         <div class="user-info">
-                            <h5 class="user-name">@b.Navn</h5>
+                            <h5>@b.Navn</h5>
                             <span class="role-tag @GetRoleClass(b.Role)">@b.Role</span>
                         </div>
                         <img src="@GetImageUrl(b.Id)" onerror="this.style.display='none';"
@@ -90,71 +86,89 @@
             }
         </div>
 
-        <!-- 🪟 Modal med redigeringsmulighed -->
+        <!-- 🪟 Modal til brugerinfo -->
         @if (valgtBruger is not null)
         {
             <div class="modal-backdrop">
-                <div class="modal-window">
+                <div class="modal-window wide">
                     <div class="modal-header">
                         <h5>👤 Brugerinfo: @valgtBruger.Navn</h5>
                         <button class="btn-close" @onclick="LukDetaljer">×</button>
                     </div>
                     <div class="modal-body">
-                        @if (!isEditing)
-                        {
-                            <p><strong>Navn:</strong> @valgtBruger.Navn</p>
-                            <p><strong>Email:</strong> @valgtBruger.Email</p>
-                            <p><strong>Telefon:</strong> @valgtBruger.Tlf</p>
-                            <p><strong>Adresse:</strong> @valgtBruger.Adresse</p>
-                            <p><strong>Hotel:</strong> @valgtBruger.HotelNavn</p>
-                            <p><strong>Startdato:</strong> @valgtBruger.StartDato.ToShortDateString()</p>
-                            <p><strong>Slutdato:</strong> @valgtBruger.SlutDato?.ToShortDateString()</p>
-                            <p><strong>Skoleperiode:</strong> @HentSkoleperiode(valgtBruger)</p>
-                            <p><strong>Skoleforløb:</strong> @HentSkoleforloeb(valgtBruger)</p>
-                            <p><strong>Rolle:</strong> <span class="role-tag @GetRoleClass(valgtBruger.Role)">@valgtBruger.Role</span></p>
-                        }
-                        else
-                        {
-                            <!-- Redigérfelter -->
-                            <InputText class="form-control mb-2" @bind-Value="valgtBruger.Navn" placeholder="Navn" />
-                            <InputText class="form-control mb-2" @bind-Value="valgtBruger.Email" placeholder="Email" />
-                            <InputText class="form-control mb-2" @bind-Value="valgtBruger.Tlf" placeholder="Telefon" />
-                            <InputText class="form-control mb-2" @bind-Value="valgtBruger.Adresse" placeholder="Adresse" />
-                            <select class="form-control mb-2" @bind="valgtBruger.HotelNavn">
-                                @foreach (var h in alleHoteller)
-                                {
-                                    <option value="@h">@h</option>
-                                }
-                            </select>
-                            <InputDate class="form-control mb-2" @bind-Value="valgtBruger.StartDato" />
-                            <InputDate class="form-control mb-2" @bind-Value="valgtBruger.SlutDato" />
-                            <InputText class="form-control mb-2" @bind-Value="valgtBruger.Role" placeholder="Rolle" />
-                        }
+                        <div class="form-grid">
+                            @if (isEditing)
+                            {
+                                <label>Navn</label>
+                                <InputText class="form-control" @bind-Value="valgtBruger.Navn" />
+                                <label>Email</label>
+                                <InputText class="form-control" @bind-Value="valgtBruger.Email" />
+                                <label>Telefon</label>
+                                <InputText class="form-control" @bind-Value="valgtBruger.Tlf" />
+                                <label>Adresse</label>
+                                <InputText class="form-control" @bind-Value="valgtBruger.Adresse" />
+                                <label>Hotel</label>
+                                <select class="form-control" @bind="valgtBruger.HotelNavn">
+                                    <option disabled value="">Vælg hotel</option>
+                                    @foreach (var h in alleHoteller)
+                                    {
+                                        <option value="@h">@h</option>
+                                    }
+                                </select>
+                                <label>Startdato</label>
+                                <InputDate class="form-control" @bind-Value="valgtBruger.StartDato" />
+                                <label>Slutdato</label>
+                                <InputDate class="form-control" @bind-Value="valgtBruger.SlutDato" />
+                                <label>Rolle</label>
+                                <InputSelect class="form-control" @bind-Value="valgtBruger.Role">
+                                    <option disabled value="">Vælg rolle</option>
+                                    <option value="elev">Elev</option>
+                                    <option value="admin">Administrator</option>
+                                    <option value="kok">Kok</option>
+                                </InputSelect>
+                            }
+                            else
+                            {
+                                <p><strong>Navn:</strong> @valgtBruger.Navn</p>
+                                <p><strong>Email:</strong> @valgtBruger.Email</p>
+                                <p><strong>Telefon:</strong> @valgtBruger.Tlf</p>
+                                <p><strong>Adresse:</strong> @valgtBruger.Adresse</p>
+                                <p><strong>Hotel:</strong> @valgtBruger.HotelNavn</p>
+                                <p><strong>Startdato:</strong> @valgtBruger.StartDato.ToShortDateString()</p>
+                                <p><strong>Slutdato:</strong> @valgtBruger.SlutDato?.ToShortDateString()</p>
+                                <p><strong>Skoleperiode:</strong> @HentSkoleperiode(valgtBruger)</p>
+                                <p><strong>Skoleforløb:</strong> @HentSkoleforloeb(valgtBruger)</p>
+                                <p><strong>Rolle:</strong> <span class="role-tag @GetRoleClass(valgtBruger.Role)">@valgtBruger.Role</span></p>
+                            }
+                        </div>
                     </div>
-                    <div class="modal-footer">
-                        <button class="btn btn-secondary" @onclick="LukDetaljer">Luk</button>
-                        <button class="btn btn-danger" @onclick="SletBrugerAsync">Slet</button>
-
-                        @if (!isEditing)
-                        {
-                            <button class="btn btn-warning" @onclick="() => isEditing = true">✏️ Rediger</button>
-                        }
-                        else
-                        {
-                            <button class="btn btn-success" @onclick="GemRedigering">💾 Gem ændringer</button>
-                            <button class="btn btn-light" @onclick="() => isEditing = false">Annuller</button>
-                        }
-
-                        @if (valgtBruger.Role?.ToLower() == "elev" && valgtBruger.ElevplanId > 0)
-                        {
-                            <button class="btn btn-info" @onclick="@(() => SeElevplan(valgtBruger.ElevplanId.Value))">Se elevplan</button>
-                        }
+                    <div class="modal-footer d-flex justify-content-between">
+                        <div>
+                            <button class="btn btn-danger me-2" @onclick="SletBrugerAsync">🗑️ Slet</button>
+                            @if (!isEditing)
+                            {
+                                <button class="btn btn-warning" @onclick="() => isEditing = true">✏️ Rediger</button>
+                            }
+                            else
+                            {
+                                <button class="btn btn-success me-2" @onclick="GemRedigering">💾 Gem</button>
+                                <button class="btn btn-outline-secondary" @onclick="() => isEditing = false">Annuller</button>
+                            }
+                        </div>
+                        <div>
+                            @if (valgtBruger.Role?.ToLower() == "elev" && valgtBruger.ElevplanId > 0)
+                            {
+                                <button class="btn btn-info" @onclick="@(() => SeElevplan(valgtBruger.ElevplanId.Value))">📄 Se elevplan</button>
+                            }
+                            <button class="btn btn-secondary ms-2" @onclick="LukDetaljer">Luk</button>
+                        </div>
                     </div>
                 </div>
             </div>
         }
     }
 </div>
+
 
 @code {
     private List<UserModel> brugere = new();
@@ -198,38 +212,16 @@
 
     private async Task LoadUsers()
     {
-        try
-        {
-            var users = await UserService.GetAllAsync();
-            if (users is not null)
-                brugere = users;
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine("🚫 Fejl ved indlæsning af brugere: " + ex.Message);
-        }
+        var users = await UserService.GetAllAsync();
+        if (users != null)
+            brugere = users;
     }
 
     private async Task HentAntalAnmodninger()
     {
-        try
-        {
-            var liste = await AnmodningService.GetAlleAsync();
-            anmodningerAntal = liste?.Count(a => a.Status?.ToLower() == "afventer") ?? 0;
-        }
-        catch
-        {
-            anmodningerAntal = 0;
-        }
+        var liste = await AnmodningService.GetAlleAsync();
+        anmodningerAntal = liste?.Count(a => a.Status?.ToLower() == "afventer") ?? 0;
     }
-
-    private string GetRoleClass(string? role) => role?.ToLower() switch
-    {
-        "admin" => "role-admin",
-        "elev" => "role-elev",
-        "kok" => "role-kok",
-        _ => "role-ukendt"
-    };
 
     private void VisDetaljer(UserModel bruger)
     {
@@ -277,4 +269,16 @@
     }
 
     private string GetImageUrl(int id) => $"https://localhost:7013/uploads/{id}.jpg";
+
+    private string GetRoleClass(string? role) => role?.ToLower() switch
+    {
+        "admin" => "role-admin",
+        "elev" => "role-elev",
+        "kok" => "role-kok",
+     
+        _ => "role-ukendt"
+    };
+
 }
+
+

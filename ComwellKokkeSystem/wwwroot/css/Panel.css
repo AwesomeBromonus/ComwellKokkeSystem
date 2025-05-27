@@ -1,298 +1,252 @@
-﻿body {
+﻿/* === Basestil === */
+body {
     font-family: 'Segoe UI', sans-serif;
     background-color: #f5f7fa;
+    color: #1f2d3d;
     margin: 0;
-    padding: 0;
-    color: #1e1e1e;
 }
 
-.admin-container {
-    padding: 2rem;
-    max-width: 1200px;
-    margin: auto;
+h2, h4, h5 {
+    margin: 0.5rem 0;
 }
 
-.admin-header {
-    margin-bottom: 2rem;
-}
-
-    .admin-header h2 {
-        font-size: 1.6rem;
-        font-weight: 600;
-        margin-bottom: 1rem;
-    }
-
-.badge-line {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.8rem;
-}
-
-.badge {
-    display: inline-block;
-    padding: 0.4rem 1rem;
-    border-radius: 50px;
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: white;
-}
-
-    .badge.dark {
-        background-color: #153f4a;
-    }
-
-    .badge.alert {
-        background-color: #0078ff;
-        cursor: pointer;
-        transition: 0.2s;
-    }
-
-        .badge.alert:hover {
-            background-color: #005ec2;
-        }
-
-/* 🧩 Dashboard kort */
-.dashboard-cards {
-    display: flex;
-    gap: 1.5rem;
-    flex-wrap: wrap;
-    margin-bottom: 2.5rem;
-}
-
-.dashboard-card {
-    flex: 1;
-    min-width: 220px;
-    background: white;
-    border-radius: 16px;
-    padding: 1.5rem;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-    transition: transform 0.2s ease;
-    cursor: pointer;
-    text-align: center;
-}
-
-    .dashboard-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 6px 18px rgba(0,0,0,0.12);
-    }
-
-    .dashboard-card .icon {
-        font-size: 2rem;
-        margin-bottom: 0.5rem;
-    }
-
-    .dashboard-card h4 {
-        margin: 0;
-        font-weight: 600;
-        font-size: 1.1rem;
-    }
-
-    .dashboard-card p {
-        margin-top: 0.3rem;
-        font-size: 0.9rem;
-        color: #555;
-    }
-
-    .dashboard-card.highlight {
-        background-color: #0078ff;
-        color: white;
-    }
-
-        .dashboard-card.highlight .icon,
-        .dashboard-card.highlight h4,
-        .dashboard-card.highlight p {
-            color: white;
-        }
-
-/* 🔍 Søgning og filter */
-.search-section {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 2rem;
-    flex-wrap: wrap;
-}
-
-.search-input {
-    flex: 1;
-    padding: 0.6rem 1rem;
-    font-size: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 10px;
-}
-
-.role-filter {
-    padding: 0.6rem 1rem;
-    font-size: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 10px;
-}
-
-/* 👤 Brugerkort */
-.user-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-    gap: 1.2rem;
-    margin-bottom: 3rem;
-}
-
-.user-card {
-    background: white;
-    border-radius: 12px;
-    padding: 1rem;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-    transition: transform 0.2s ease;
-    cursor: pointer;
-}
-
-    .user-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    }
-
-    .user-card h5 {
-        margin: 0;
-        font-size: 1.1rem;
-        font-weight: 600;
-    }
-
-.role-tag {
-    display: inline-block;
-    padding: 0.35rem 0.7rem;
-    font-size: 0.85rem;
-    font-weight: 500;
-    border-radius: 999px;
-    color: white;
+label {
+    font-weight: 600;
     margin-top: 0.5rem;
 }
 
-/* 🎨 Rolle-farver */
-.role-admin {
-    background-color: #e74c3c;
+input, select {
+    font-size: 1rem;
 }
 
-.role-elev {
-    background-color: #2ecc71;
+/* === Admin container === */
+.admin-container {
+    max-width: 1200px;
+    margin: auto;
+    padding: 2rem;
 }
 
-.role-kok {
-    background-color: #8e44ad;
+/* === Header === */
+.admin-header {
+    text-align: center;
+    margin-bottom: 2rem;
 }
 
-.role-hr {
-    background-color: #3498db;
+.username {
+    font-weight: bold;
+    color: #003b4a;
 }
 
-.role-ukendt {
-    background-color: #bdc3c7;
+/* === Dashboard kort === */
+.dashboard-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
 }
 
-/* 🧾 Modal */
+.dashboard-card {
+    background: white;
+    border: 1px solid #d0d0d0;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: 0.2s ease;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+    .dashboard-card:hover {
+        transform: scale(1.02);
+        background-color: #f1f9ff;
+    }
+
+    .dashboard-card.highlight {
+        border-left: 5px solid #007bff;
+    }
+
+/* === Søgning og filtre === */
+.search-section {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.search-input, .role-filter {
+    padding: 0.6rem;
+    border: 1px solid #ccc;
+    border-radius: 0.5rem;
+    min-width: 200px;
+}
+
+/* === Brugeroversigt === */
+.user-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1rem;
+}
+
+.user-card {
+    background: #ffffff;
+    border-radius: 1rem;
+    padding: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: 0 0 8px rgba(0,0,0,0.05);
+    transition: 0.2s ease;
+}
+
+    .user-card:hover {
+        background-color: #eef4fa;
+    }
+
+.user-image {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* === Modal === */
 .modal-backdrop {
     position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.6);
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 1000;
 }
 
 .modal-window {
     background: white;
     padding: 2rem;
-    border-radius: 16px;
-    max-width: 500px;
+    border-radius: 1rem;
     width: 90%;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-    animation: fadeIn 0.3s ease;
+    max-width: 800px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
 }
 
-@keyframes fadeIn {
-    from {
-        transform: scale(0.95);
-        opacity: 0;
-    }
-
-    to {
-        transform: scale(1);
-        opacity: 1;
-    }
-}
-
-.modal-header {
+.modal-header, .modal-footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1rem;
 }
 
-.modal-body p {
-    margin-bottom: 0.5rem;
-}
-
-.modal-footer {
-    display: flex;
-    justify-content: end;
-    gap: 1rem;
+.modal-body {
     margin-top: 1rem;
-}
-
-.btn {
-    padding: 0.5rem 1rem;
-    border-radius: 8px;
-    font-weight: 500;
-    font-size: 0.95rem;
-    border: none;
-    cursor: pointer;
-}
-
-.btn-secondary {
-    background-color: #95a5a6;
-    color: white;
-}
-
-.btn-danger {
-    background-color: #e74c3c;
-    color: white;
-}
-
-.btn-info {
-    background-color: #00bcd4;
-    color: white;
 }
 
 .btn-close {
     background: none;
     border: none;
-    font-size: 1.4rem;
+    font-size: 1.5rem;
     cursor: pointer;
-    margin-left: auto;
-}
-.user-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
 }
 
-.user-info {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 4px;
+/* === Form grid === */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
 }
 
-.user-name {
-    margin: 0;
-}
-
-.role-tag {
-    display: inline-block;
-    padding: 1px 6px;
-    font-size: 0.7rem;
-    font-weight: 500;
-    background-color: #f0f0f0;
-    color: #666;
+.form-control {
+    width: 100%;
+    padding: 0.6rem;
     border: 1px solid #ccc;
-    border-radius: 5px;
+    border-radius: 0.5rem;
 }
 
+/* === Roller === */
+.role-tag {
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: white;
+}
+
+.role-admin {
+    background-color: #007bff;
+}
+
+.role-elev {
+    background-color: #28a745;
+}
+
+.role-kok {
+    background-color: #ff8800;
+}
+
+.role-ukendt {
+    background-color: #6c757d;
+}
+
+/* === Knapper === */
+.btn {
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    border: none;
+    cursor: pointer;
+    margin-right: 0.5rem;
+    transition: 0.2s ease;
+}
+
+    .btn:hover {
+        opacity: 0.9;
+    }
+
+.btn-danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn-warning {
+    background-color: #ffc107;
+    color: black;
+}
+
+.btn-success {
+    background-color: #28a745;
+    color: white;
+}
+
+.btn-outline-secondary {
+    background: transparent;
+    border: 1px solid #ccc;
+    color: #333;
+}
+
+.btn-info {
+    background-color: #17a2b8;
+    color: white;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+/* === Responsiv tilpasning === */
+@media (max-width: 768px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-cards, .user-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .search-section {
+        flex-direction: column;
+    }
+}
