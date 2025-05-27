@@ -1,5 +1,4 @@
-﻿// ComwellKokkeSystem/Service/QuizService/QuizService.cs
-using Modeller;
+﻿using Modeller;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Collections.Generic;
@@ -10,44 +9,54 @@ namespace ComwellKokkeSystem.Service.QuizService
     public class QuizService : IQuizService
     {
         private readonly HttpClient _httpClient;
+        private readonly UserState _userState;
 
-        public QuizService(HttpClient httpClient)
+        public QuizService(HttpClient httpClient, UserState userState)
         {
             _httpClient = httpClient;
+            _userState = userState;
         }
 
-        public async Task<List<Quizzes>?> GetAllQuizzesAsync() // Bruger Quizzes
+        public async Task<List<Quizzes>?> GetAllQuizzesAsync()
         {
             return await _httpClient.GetFromJsonAsync<List<Quizzes>>("api/Quiz");
         }
-        
-        
-        public async Task<QuizWithQuestions?> GetQuizWithQuestionsAsync(string quizId)
+
+        public async Task<QuizWithQuestions?> GetQuizWithQuestionsAsync(int quizId)
         {
             return await _httpClient.GetFromJsonAsync<QuizWithQuestions>($"api/Quiz/{quizId}");
         }
 
         public async Task CreateQuizAsync(CreateQuizRequest request)
         {
+            // MIDLERTIDIGT FJERNET AUTORISATION - INGEN USER-ID HEADER NØDVENDIG
             var response = await _httpClient.PostAsJsonAsync("api/Quiz", request);
             response.EnsureSuccessStatusCode();
         }
 
-        public async Task UpdateQuizAsync(string quizId, Quizzes quizDto) // Bruger Quizzes
+        public async Task UpdateQuizAsync(int quizId, Quizzes quizDto)
         {
-            // Sender Quizzes til API'ets PUT endpoint
-            var response = await _httpClient.PutAsJsonAsync($"api/Quiz/{quizId}", quizDto);
+            if (_userState.Id == null)
+            {
+                throw new UnauthorizedAccessException("Brugeren er ikke logget ind.");
+            }
+
+            var requestMessage = new HttpRequestMessage(HttpMethod.Put, $"api/Quiz/{quizId}");
+            requestMessage.Headers.Add("User-Id", _userState.Id.Value.ToString());
+            requestMessage.Content = JsonContent.Create(quizDto);
+
+            var response = await _httpClient.SendAsync(requestMessage);
             response.EnsureSuccessStatusCode();
         }
 
-        public async Task DeleteQuizAsync(string quizId)
+        public async Task DeleteQuizAsync(int quizId)
         {
             var response = await _httpClient.DeleteAsync($"api/Quiz/{quizId}");
             response.EnsureSuccessStatusCode();
         }
+
         public async Task<Modeller.Quizzes?> GetQuizByIdAsync(int id)
         {
-            // Returnerer null, hvis 404 (ikke fundet), eller den dekompilerer ikke JSON'en
             return await _httpClient.GetFromJsonAsync<Modeller.Quizzes>($"api/Quiz/{id}");
         }
     }
