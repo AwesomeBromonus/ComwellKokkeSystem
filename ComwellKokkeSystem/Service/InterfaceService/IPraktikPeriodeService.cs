@@ -11,4 +11,6 @@ public interface IPraktikperiodeService
     Task<List<Praktikperiode>> GetByElevIdAsync(int elevId);
 
     Task<List<Praktikperiode>> GetByElevplanIdAsync(int elevplanId);
+    Task UpdateAsync(Praktikperiode periode);
+
 }

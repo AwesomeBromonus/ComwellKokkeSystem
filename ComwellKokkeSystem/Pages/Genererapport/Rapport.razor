@@ -3,6 +3,7 @@
 @inject IRapportService RapportService
 @inject IUserService UserService
 @inject IDelmaalService DelmaalService
+@inject IPraktikperiodeService praktikperiodeService
 @inject IJSRuntime JS
 
 @using Modeller
@@ -26,14 +27,18 @@ else
                 <th>Delmål</th>
                 <th>Status</th>
                 <th>Deadline</th>
+                <th>Praktikperiode</th>        
+                <th>Periode-status</th>      
             </tr>
         </thead>
+
         <tbody>
             @foreach (var bruger in brugere)
             {
                 var elevensDelmaal = delmaalListe.Where(d => d.ElevId == bruger.Id);
                 foreach (var d in elevensDelmaal)
                 {
+                    var periode = praktikperioder.FirstOrDefault(p => p.Id == d.PraktikperiodeId);
                     <tr>
                         <td>@bruger.Navn</td>
                         <td>@bruger.Email</td>
@@ -41,22 +46,27 @@ else
                         <td>@d.Beskrivelse</td>
                         <td>@d.Status</td>
                         <td>@d.Deadline.ToShortDateString()</td>
-
+                        <td>@periode?.Navn</td>
+                        <td>@periode?.Status</td>
                     </tr>
                 }
             }
         </tbody>
+
     </table>
 }
 
 @code {
     private List<UserModel>? brugere;
     private List<Modeller.Delmål>? delmaalListe;
+    private List<Praktikperiode> praktikperioder = new();
+
 
     protected override async Task OnInitializedAsync()
     {
         brugere = (await UserService.GetAllAsync()).Where(u => u.Role.ToLower() == "elev").ToList();
         delmaalListe = await DelmaalService.GetAllAsync();
+        praktikperioder = await praktikperiodeService.GetAllAsync(); // eller brug en dedikeret service hvis du har én
     }
 
     private async Task EksporterExcel()
