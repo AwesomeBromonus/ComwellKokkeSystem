@@ -9,6 +9,8 @@
 
 	<ItemGroup>
 	  <Compile Remove="Controllers\ElevplanController-LAPTOP-5IP130V6.cs" />
+	  <Compile Remove="Interfaces\IGenereRapportService.cs" />
+	  <Compile Remove="Repositories\GenereRapportMongoDB.cs" />
 	</ItemGroup>
 
 	<ItemGroup>

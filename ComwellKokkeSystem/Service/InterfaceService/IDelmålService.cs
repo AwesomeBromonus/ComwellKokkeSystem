@@ -10,4 +10,6 @@ public interface IDelmaalService
     Task<Delmål?> GetByIdAsync(int id);                   // Hent enkelt delmål (bruges i controller og modal hvis nødvendigt)
     Task<List<Delmål>> GetByElevplanIdAsync(int elevId);
     Task<List<Delmål>> GetDelmålForElevAsync(int elevId);
+    Task<List<Delmål>> GetAllAsync(); // <- Til rapportvisning
+
 }
