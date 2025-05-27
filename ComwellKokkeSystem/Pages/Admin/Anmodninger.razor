@@ -1,6 +1,6 @@
 ﻿@page "/anmodninger"
 @using Modeller
-@using ComwellKokkeSystem.Service;
+@using ComwellKokkeSystem.Service
 @inject IAnmodningService AnmodningService
 @inject IDelmaalService DelmaalService
 @inject UserState UserState
@@ -8,71 +8,65 @@
 @inject IUnderdelmaalService UnderdelmaalService
 @inject IUserService UserService
 
+<link href="css/Panel.css" rel="stylesheet" />
 
+<div class="admin-full-container">
+    <div class="admin-header">
+        <h2 class="admin-title">📩 Indkomne Delmålsanmodninger</h2>
+        <p class="admin-subtitle">Se og behandl elevanmodninger om statusændring af delmål</p>
+    </div>
 
-
-<h3 class="text-xl font-bold mb-4">📩 Indkomne Delmålsanmodninger</h3>
-
-@if (!UserState.IsLoggedIn)
-{
-    <div class="alert alert-danger">Du skal være logget ind for at se denne side.</div>
-}
-else if (UserState.Role?.ToLower() != "admin" && UserState.Role?.ToLower() != "kok")
-{
-    <div class="alert alert-warning">Denne side er kun for kokke og administratorer.</div>
-}
-else if (anmodninger == null)
-{
-    <p>⏳ Indlæser anmodninger...</p>
-}
-else if (!anmodninger.Any())
-{
-    <div class="alert alert-info">Ingen afventende anmodninger.</div>
-}
-else
-{
-    <ul class="list-group">
-       
-           @foreach (var a in anmodninger)
+    <div class="admin-content">
+        @if (!UserState.IsLoggedIn)
         {
-           
-            Delmål? delmaal = null;
-            <li class="list-group-item mb-3">
-            @if (a.DelmaalId != null && delmaalMap.ContainsKey(a.DelmaalId.Value))
-            {
-                <strong>Delmål: </strong> @delmaalMap[a.DelmaalId.Value].Beskrivelse
-                <br />
-            }
-            else if (a.UnderdelmaalId != null && underdelmaalMap.ContainsKey(a.UnderdelmaalId.Value))
-            {
-                <strong>Underdelmål: </strong> @underdelmaalMap[a.UnderdelmaalId.Value].Beskrivelse
-                <br />
-            }
-
-
-            
-                <strong>Ønsket status: </strong> @a.ØnsketStatus <br />
-                <strong>Anmodet af: </strong> @brugerMap[a.ElevId].Navn <br />
-
-
-
-                <div class="mt-2 d-flex gap-2">
-                    <button class="btn btn-sm btn-success" @onclick="() => BehandlAnmodning(a.Id, true)">✅ Accepter</button>
-                    <button class="btn btn-sm btn-danger" @onclick="() => BehandlAnmodning(a.Id, false)">❌ Afvis</button>
-                </div>
-            </li>
+            <div class="alert alert-danger">Du skal være logget ind for at se denne side.</div>
         }
-      
-    </ul>
-}
+        else if (UserState.Role?.ToLower() != "admin" && UserState.Role?.ToLower() != "kok")
+        {
+            <div class="alert alert-warning">Denne side er kun for kokke og administratorer.</div>
+        }
+        else if (anmodninger == null)
+        {
+            <p>⏳ Indlæser anmodninger...</p>
+        }
+        else if (!anmodninger.Any())
+        {
+            <div class="alert alert-info">Ingen afventende anmodninger.</div>
+        }
+        else
+        {
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                @foreach (var a in anmodninger)
+                {
+                    <div class="card p-4 shadow-sm rounded-3">
+                        @if (a.DelmaalId != null && delmaalMap.ContainsKey(a.DelmaalId.Value))
+                        {
+                            <p><strong>Delmål:</strong> @delmaalMap[a.DelmaalId.Value].Beskrivelse</p>
+                        }
+                        else if (a.UnderdelmaalId != null && underdelmaalMap.ContainsKey(a.UnderdelmaalId.Value))
+                        {
+                            <p><strong>Underdelmål:</strong> @underdelmaalMap[a.UnderdelmaalId.Value].Beskrivelse</p>
+                        }
+
+                        <p><strong>Ønsket status:</strong> @a.ØnsketStatus</p>
+                        <p><strong>Anmodet af:</strong> @brugerMap[a.ElevId].Navn</p>
+
+                        <div class="d-flex gap-3 mt-3">
+                            <button class="btn btn-success rounded-pill px-3 fw-bold" @onclick="() => BehandlAnmodning(a.Id, true)">✅ Accepter</button>
+                            <button class="btn btn-danger rounded-pill px-3 fw-bold" @onclick="() => BehandlAnmodning(a.Id, false)">❌ Afvis</button>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
 
 @code {
     private List<Anmodning>? anmodninger;
     private Dictionary<int, Delmål> delmaalMap = new();
     private Dictionary<int, Underdelmaal> underdelmaalMap = new();
     private Dictionary<int, UserModel> brugerMap = new();
-
-
 
     protected override async Task OnInitializedAsync()
     {
@@ -114,9 +108,10 @@ else
     {
         await AnmodningService.BehandlAsync(anmodningId, accepteret);
 
-        // Genindlæs anmodninger og delmål
         anmodninger = await AnmodningService.GetTilModtagerAsync(UserState.Id.Value);
         delmaalMap.Clear();
+        underdelmaalMap.Clear();
+        brugerMap.Clear();
 
         foreach (var a in anmodninger)
         {
@@ -124,13 +119,24 @@ else
             {
                 var delmaal = await DelmaalService.GetByIdAsync(a.DelmaalId.Value);
                 if (delmaal != null)
-                {
                     delmaalMap[delmaal.Id] = delmaal;
-                }
+            }
+
+            if (a.UnderdelmaalId != null)
+            {
+                var underdelmaal = await UnderdelmaalService.GetByIdAsync(a.UnderdelmaalId.Value);
+                if (underdelmaal != null)
+                    underdelmaalMap[underdelmaal.Id] = underdelmaal;
+            }
+
+            if (!brugerMap.ContainsKey(a.ElevId))
+            {
+                var bruger = await UserService.GetByIdAsync(a.ElevId);
+                if (bruger != null)
+                    brugerMap[a.ElevId] = bruger;
             }
         }
 
         StateHasChanged();
     }
-
 }
