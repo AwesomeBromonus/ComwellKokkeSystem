@@ -10,28 +10,21 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="867a39b7-f00d-4256-9506-36754830a52e" name="Changes" comment="Genere rapport fix">
+    <list default="true" id="867a39b7-f00d-4256-9506-36754830a52e" name="Changes" comment="Sletterrapportside">
+      <change afterPath="$PROJECT_DIR$/../Modeller/Quiz/CreateQuizRequest.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Modeller/Quiz/Question.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Modeller/Quiz/QuizWithQuestions.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Modeller/Quiz/Quizzes.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.ComwellKokkeSystem/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.ComwellKokkeSystem/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ComwellKokkeSystem.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/ComwellKokkeSystem.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Pages/Genererapport/GenereRapport.razor" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Pages/Genererapport/Helpers/EnumerableExtensions.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Pages/Genererapport/Pratikperioder.razor" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Pages/Genererapport/RapportFiltre.razor" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Pages/Genererapport/StudentTable.razor" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Service/InterfaceService/IGenereRapportService.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Service/ServiceService/GenereRapportService.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/ComwellSystemAPI.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/ComwellSystemAPI.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Controllers/PraktikPeriodeController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Controllers/PraktikPeriodeController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Controllers/RapportController.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Interfaces/IGenereRapportService.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Interfaces/IPraktikPeriode.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Interfaces/IPraktikPeriode.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Repositories/GenereRapportMongoDB.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Repositories/UnderdelmaalRepositoryMongodb.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Repositories/UnderdelmaalRepositoryMongodb.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Modeller/QuizDTO.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Modeller/QuizDTO.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Modeller/RapportElevDelmålViewModel.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Modeller/StudentViewModels.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Pages/Quiz/QuizList.razor" beforeDir="false" afterPath="$PROJECT_DIR$/Pages/Quiz/QuizList.razor" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Service/InterfaceService/IQuizService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Service/InterfaceService/Quiz InterfaceService/IQuizService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Service/ServiceService/QuizService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Service/ServiceService/Quiz Service/QuizService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Controllers/QuizController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Controllers/Quiz Controller/QuizController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Interfaces/IQuestion.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Interfaces/Quiz Interfaces/IQuestion.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Interfaces/IQuiz.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Interfaces/Quiz Interfaces/IQuiz.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Repositories/QuestionsRepositoryMongoDB.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Repositories/Quiz Repositories/QuestionsRepositoryMongoDB.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Repositories/QuizRepositoryMongoDB.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Repositories/Quiz Repositories/QuizRepositoryMongoDB.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Modeller/QuizDTO.cs" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -402,7 +395,15 @@
       <option name="project" value="LOCAL" />
       <updated>1748345619318</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="Sletterrapportside">
+      <option name="closed" value="true" />
+      <created>1748353511260</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1748353511260</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -473,6 +474,7 @@
     <MESSAGE value="XML" />
     <MESSAGE value="Quiz fixx" />
     <MESSAGE value="Genere rapport fix" />
-    <option name="LAST_COMMIT_MESSAGE" value="Genere rapport fix" />
+    <MESSAGE value="Sletterrapportside" />
+    <option name="LAST_COMMIT_MESSAGE" value="Sletterrapportside" />
   </component>
 </project>
