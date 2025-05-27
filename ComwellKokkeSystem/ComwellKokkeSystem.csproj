@@ -20,6 +20,7 @@
     <Content Remove="Pages\Rapportside.razor" />
     <Content Remove="Pages\Skabelon.razor" />
     <Content Remove="Pages\Weather.razor" />
+      
   </ItemGroup>
 
   <ItemGroup>
@@ -29,6 +30,7 @@
   <ItemGroup>
     <PackageReference Include="BlazorDownloadFile" Version="2.4.0.2" />
     <PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
+    <PackageReference Include="ClosedXML" Version="0.105.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="9.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="9.0.2" PrivateAssets="all" />
       <PackageReference Include="MudBlazor" Version="6.10.0" />
@@ -46,6 +48,12 @@
 	<ItemGroup>
 	  <Folder Include="wwwroot\Uploads\" />
 	  <Folder Include="wwwroot\uploads\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <_ContentIncludedByDefault Remove="Pages\Genererapport\GenereRapport.razor" />
+	  <_ContentIncludedByDefault Remove="Pages\Genererapport\Pratikperioder.razor" />
+	  <_ContentIncludedByDefault Remove="Pages\Genererapport\RapportFiltre.razor" />
 	</ItemGroup>
     
   

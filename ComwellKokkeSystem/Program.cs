@@ -33,7 +33,6 @@ public class Program
         builder.Services.AddScoped<IDelmaalService, DelmaalService>();
         builder.Services.AddScoped<IBeskedService, BeskedService>();
         builder.Services.AddScoped<IKommentarService, KommentarService>();
-        builder.Services.AddScoped<IGenereRapportService, GenereRapportService>();
         builder.Services.AddScoped<ILæringService, LæringService>();
         builder.Services.AddBlazorDownloadFile();
         builder.Services.AddScoped<IAnmodningService, AnmodningService>();

@@ -42,7 +42,6 @@ builder.Services.AddSingleton<IUnderdelmaalSkabelon, UnderdelmaalSkabelonReposit
 builder.Services.AddSingleton<IQuiz, QuizRepositoryMongoDB>();
 builder.Services.AddSingleton<IQuestion, QuestionRepository>();
 
-builder.Services.AddSingleton<IGenereRapport, GenereRapportMongoDB>();
 
 // Swagger
 builder.Services.AddOpenApi();

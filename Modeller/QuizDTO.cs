@@ -14,7 +14,6 @@ public class Quizzes
     public string CreatorName { get; set; } = string.Empty;
     public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
 }
-
 public class Question
 {
     [BsonId]

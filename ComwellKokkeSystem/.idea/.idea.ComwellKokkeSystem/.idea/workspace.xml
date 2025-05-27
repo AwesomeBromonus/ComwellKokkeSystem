@@ -10,12 +10,28 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="867a39b7-f00d-4256-9506-36754830a52e" name="Changes" comment="Quiz fixx">
-      <change beforePath="$PROJECT_DIR$/Pages/Components/Pratikperioder.razor" beforeDir="false" afterPath="$PROJECT_DIR$/Pages/Genererapport/Pratikperioder.razor" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Pages/Components/RapportFiltre.razor" beforeDir="false" afterPath="$PROJECT_DIR$/Pages/Genererapport/RapportFiltre.razor" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Pages/Components/StudentTable.razor" beforeDir="false" afterPath="$PROJECT_DIR$/Pages/Genererapport/StudentTable.razor" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Pages/Genererapport/GenereRapport.razor" beforeDir="false" afterPath="$PROJECT_DIR$/Pages/Genererapport/GenereRapport.razor" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Modeller/StudentViewModels.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Modeller/StudentViewModels.cs" afterDir="false" />
+    <list default="true" id="867a39b7-f00d-4256-9506-36754830a52e" name="Changes" comment="Genere rapport fix">
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.ComwellKokkeSystem/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.ComwellKokkeSystem/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ComwellKokkeSystem.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/ComwellKokkeSystem.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Pages/Genererapport/GenereRapport.razor" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Pages/Genererapport/Helpers/EnumerableExtensions.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Pages/Genererapport/Pratikperioder.razor" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Pages/Genererapport/RapportFiltre.razor" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Pages/Genererapport/StudentTable.razor" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Program.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Service/InterfaceService/IGenereRapportService.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Service/ServiceService/GenereRapportService.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/ComwellSystemAPI.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/ComwellSystemAPI.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Controllers/PraktikPeriodeController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Controllers/PraktikPeriodeController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Controllers/RapportController.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Interfaces/IGenereRapportService.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Interfaces/IPraktikPeriode.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Interfaces/IPraktikPeriode.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Program.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Repositories/GenereRapportMongoDB.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Repositories/UnderdelmaalRepositoryMongodb.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Repositories/UnderdelmaalRepositoryMongodb.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Modeller/QuizDTO.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Modeller/QuizDTO.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Modeller/RapportElevDelmålViewModel.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Modeller/StudentViewModels.cs" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -57,14 +73,16 @@
   }
 }</component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="file://$PROJECT_DIR$/Pages/Genererapport/GenereRapport.razor" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" root2="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Pages/Genererapport/Helpers/EnumerableExtensions.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Pages/Quiz/TagQuiz.razor" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" root2="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Program.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Service/InterfaceService/IUnderdelmaalService.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Service/ServiceService/ElevplanService.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Service/ServiceService/UnderdelmaalService.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/package-lock.json" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/../ComwellSystemAPI/Controllers/QuizController.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/../ComwellSystemAPI/Interfaces/IQuestion.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/../ComwellSystemAPI/Interfaces/IQuiz.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/../ComwellSystemAPI/Interfaces/IUser.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock://C:/Eksamen/ComwellSystemAPI/Repositories/ElevplanRepositoryMongodb.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/../ComwellSystemAPI/Repositories/QuestionsRepositoryMongoDB.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/../ComwellSystemAPI/Repositories/QuizRepositoryMongoDB.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/../ComwellSystemAPI/Repositories/UserRepositoryMongodb.cs" root0="FORCE_HIGHLIGHTING" />
@@ -72,6 +90,9 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/ce37be1a06b16c6faa02038d2cc477dd3bca5b217ceeb41c5f2ad45c1bf9/ServiceProvider.cs" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="true" />
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 2
 }</component>
@@ -89,7 +110,7 @@
     ".NET Launch Settings Profile.ComwellSystemAPI: https.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "master",
+    "git-widget-placeholder": "Retter",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -373,7 +394,15 @@
       <option name="project" value="LOCAL" />
       <updated>1748289885085</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="Genere rapport fix">
+      <option name="closed" value="true" />
+      <created>1748345619318</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1748345619318</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -443,6 +472,7 @@
     <MESSAGE value="Fjener �" />
     <MESSAGE value="XML" />
     <MESSAGE value="Quiz fixx" />
-    <option name="LAST_COMMIT_MESSAGE" value="Quiz fixx" />
+    <MESSAGE value="Genere rapport fix" />
+    <option name="LAST_COMMIT_MESSAGE" value="Genere rapport fix" />
   </component>
 </project>

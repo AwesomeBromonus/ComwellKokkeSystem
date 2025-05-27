@@ -1,4 +1,6 @@
 ﻿using Modeller;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace ComwellSystemAPI.Interfaces
 {
@@ -18,10 +20,7 @@ namespace ComwellSystemAPI.Interfaces
 
         // Slet en praktikperiode
         Task DeleteAsync(int id);
-
-      
-        Task<List<Praktikperiode>> GetByElevIdAsync(int elevId); // <-- Add this line!
-
+        
         // Hent alle praktikperioder tilknyttet en specifik elevplan
         Task<List<Praktikperiode>> GetByElevplanIdAsync(int elevplanId);
     }
