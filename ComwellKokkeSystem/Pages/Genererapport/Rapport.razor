@@ -22,9 +22,9 @@ else
             <tr>
                 <th>Elevnavn</th>
                 <th>Email</th>
+                <th>Hotel</th>
                 <th>Delmål</th>
                 <th>Status</th>
-                <th>Kommentar</th>
                 <th>Deadline</th>
             </tr>
         </thead>
@@ -37,10 +37,11 @@ else
                     <tr>
                         <td>@bruger.Navn</td>
                         <td>@bruger.Email</td>
+                        <td>@bruger.HotelNavn</td>
                         <td>@d.Beskrivelse</td>
                         <td>@d.Status</td>
-                        <td>@d.Kommentar</td>
                         <td>@d.Deadline.ToShortDateString()</td>
+
                     </tr>
                 }
             }

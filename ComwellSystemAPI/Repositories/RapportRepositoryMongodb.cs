@@ -33,8 +33,7 @@ namespace ComwellSystemAPI.Repositories
             ws.Cell(1, 2).Value = "Email";
             ws.Cell(1, 3).Value = "Delmålbeskrivelse";
             ws.Cell(1, 4).Value = "Status";
-            ws.Cell(1, 5).Value = "Kommentar";
-            ws.Cell(1, 6).Value = "Deadline";
+            ws.Cell(1, 5).Value = "Deadline";
 
             int row = 2;
 
@@ -44,12 +43,13 @@ namespace ComwellSystemAPI.Repositories
 
                 foreach (var d in elevensDelmaal)
                 {
-                    ws.Cell(row, 1).Value = elev.Navn;
-                    ws.Cell(row, 2).Value = elev.Email;
-                    ws.Cell(row, 3).Value = d.Beskrivelse;
-                    ws.Cell(row, 4).Value = d.Status;
-                    ws.Cell(row, 5).Value = d.Kommentar;
-                    ws.Cell(row, 6).Value = d.Deadline.ToShortDateString();
+                    ws.Cell(row, 1).Value = elev?.Navn ?? "";
+                    ws.Cell(row, 2).Value = elev?.Email ?? "";
+                    ws.Cell(row, 3).Value = elev?.HotelNavn ?? "Ukendt"; // ← NY
+                    ws.Cell(row, 4).Value = d?.Beskrivelse ?? "";
+                    ws.Cell(row, 5).Value = d?.Status ?? "";
+                    ws.Cell(row, 6).Value = d?.Kommentar ?? "";
+                    ws.Cell(row, 7).Value = d?.Deadline.ToShortDateString();
                     row++;
                 }
             }
