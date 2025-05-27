@@ -1,76 +1,93 @@
 ﻿@page "/quizcreator"
-@inject HttpClient Http
-@inject NavigationManager NavigationManager
-@inject IAuthService AuthService
-@inject UserState UserState
+@inject HttpClient Http 
+@inject NavigationManager NavigationManager 
+@inject IAuthService AuthService 
+@inject UserState UserState 
 
-<div class="min-h-screen bg-gray-100 flex items-center justify-center p-6 font-sans"> @* Subtil grå baggrund, centrerer indholdet *@
-    <div class="max-w-4xl w-full bg-white rounded-lg shadow-2xl p-8 border border-gray-200"> @* Større og mere fremtrædende hvid boks *@
-        <h3 class="text-4xl font-extrabold text-center mb-8 text-purple-700">Opret Ny Quiz ✨</h3> @* Mere Kahoot-agtig farve og emoji *@
+<div class="min-h-screen bg-gray-100 flex items-center justify-center p-6 font-sans"> @* Subtil grå baggrund, centrerer indholdet. Dette er et Tailwind CSS-udtryk for styling af siden. *@
+    <div class="max-w-4xl w-full bg-white rounded-lg shadow-2xl p-8 border border-gray-200"> @* Større og mere fremtrædende hvid boks, der indeholder formularen. *@
+        <h3 class="text-4xl font-extrabold text-center mb-8 text-purple-700">Opret Ny Quiz ✨</h3> @* Overskrift for siden med styling. *@
 
+        @* Fejlsøgningstip: Hvis siden er blank, tjek da om CSS-frameworket (Tailwind) er korrekt linket i _Layout.cshtml eller index.html. *@
+
+        @* Autentificerings- og Autorisationskontrol *@
         @if (!UserState.IsLoggedInChecked)
         {
+            // Vises mens applikationen tjekker brugerens login-status.
             <p class="text-center text-lg text-gray-600">⏳ Indlæser brugerstatus...</p>
         }
         else if (!UserState.IsLoggedIn)
         {
+            // Vises, hvis brugeren ikke er logget ind.
             <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
                 <strong class="font-bold">🔒 Adgang nægtet!</strong>
                 <span class="block sm:inline"> Du skal være logget ind for at oprette en quiz.</span>
             </div>
+            @* Fejlsøgningstip: Hvis du forventer, at brugeren er logget ind, men ser denne besked, tjek da IAuthService og UserState's logik. Er tokens gemt korrekt? Sendes de med HTTP-anmodninger? *@
         }
         else if (UserState.Role?.ToLower() != "admin" && UserState.Role?.ToLower() != "kok")
         {
+            // Vises, hvis brugeren er logget ind, men ikke har den nødvendige rolle.
             <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded relative mb-4" role="alert">
                 <strong class="font-bold">🚫 Adgang nægtet!</strong>
                 <span class="block sm:inline"> Denne side er kun for kokke og administratorer.</span>
             </div>
+            @* Systemdesign: Dette er en simpel klient-side autorisationskontrol for UX. Den faktiske, robuste autorisationskontrol skal altid ske på serveren (i dit ASP.NET Core API's controllers), da klient-side kontrol let kan omgås. *@
         }
         else
         {
+            @* Formularen vises kun, hvis brugeren er logget ind og autoriseret. *@
             <EditForm Model="@newQuiz" OnValidSubmit="@HandleSubmit">
+                @* DataAnnotationsValidator: Validerer inputfelter baseret på data annotationer defineret i dine Modeller (f.eks. [Required], [StringLength]). *@
                 <DataAnnotationsValidator />
+                @* ValidationSummary: Viser en liste over alle valideringsfejl. *@
                 <ValidationSummary class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" />
 
+                @* Quiz Titel Input *@
                 <div class="mb-6"> @* Mere plads under quiztitel *@
                     <label for="quizTitle" class="block text-gray-700 text-base font-semibold mb-2">Quiz Titel:</label> @* Større label font *@
                     <InputText id="quizTitle" class="shadow-sm appearance-none border border-gray-300 rounded w-full py-3 px-4 text-gray-800 leading-tight focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent" @bind-Value="newQuiz.Title" /> @* Finere border og focus ring *@
                     <ValidationMessage For="@(() => newQuiz.Title)" class="text-red-500 text-sm italic mt-1" /> @* Lidt større fejltekst *@
                 </div>
 
-                <h4 class="text-2xl font-bold mb-5 text-purple-700">Spørgsmål 🤔</h4> @* Større og med emoji *@
+                <h4 class="text-2xl font-bold mb-5 text-purple-700">Spørgsmål 🤔</h4> @* Overskrift for spørgsmålssektionen. *@
+                @* Itererer gennem listen af spørgsmål (questions) og viser en formular for hvert spørgsmål. *@
                 @foreach (var question in questions)
                 {
-                    var currentQuestion = question;
-                    <div class="bg-white p-6 rounded-xl shadow-lg mb-6 border border-gray-200"> @* Fremtrædende kort for spørgsmål *@
-                        <div class="mb-5"> @* Mere plads under spørgsmålstekst *@
+                    var currentQuestion = question; // Sikrer, at loop-variablen er fanget korrekt i lambda-udtryk.
+
+                    <div class="bg-white p-6 rounded-xl shadow-lg mb-6 border border-gray-200"> @* Fremtrædende kort for hvert spørgsmål. *@
+                        @* Spørgsmålstekst Input *@
+                        <div class="mb-5">
                             <label for="@($"questionText_{currentQuestion.TempId}")" class="block text-gray-700 text-base font-semibold mb-2">Spørgsmålstekst:</label>
                             <InputText id="@($"questionText_{currentQuestion.TempId}")" class="shadow-sm appearance-none border border-gray-300 rounded w-full py-3 px-4 text-gray-800 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" @bind-Value="currentQuestion.Text" />
                             <ValidationMessage For="@(() => currentQuestion.Text)" class="text-red-500 text-sm italic mt-1" />
                         </div>
 
                         <h5 class="text-xl font-semibold mb-4 text-gray-700">Valgmuligheder</h5>
+                        @* Itererer gennem valgmulighederne for det aktuelle spørgsmål. *@
                         @for (int i = 0; i < currentQuestion.Options.Count; i++)
                         {
-                            var optionIndex = i;
-                            <div class="flex items-center mb-3"> @* Mere plads mellem valgmuligheder *@
+                            var optionIndex = i; // Fanger loop-variablen for at undgå problemer i lambda-udtrykket.
+                            <div class="flex items-center mb-3">
                                 <InputText class="shadow-sm appearance-none border border-gray-300 rounded w-full py-2.5 px-3 text-gray-800 leading-tight focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent mr-2" @bind-Value="currentQuestion.Options[optionIndex]" placeholder="@($"Valgmulighed {i + 1}")" />
-                                <button type="button" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300 transform hover:scale-105" @onclick="() => RemoveOption(currentQuestion, optionIndex)">-</button> @* Lidt mere interaktiv knap *@
+                                <button type="button" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300 transform hover:scale-105" @onclick="() => RemoveOption(currentQuestion, optionIndex)">-</button> @* Knap til at fjerne en valgmulighed. *@
                             </div>
                         }
-                        <button type="button" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300 transform hover:scale-105 mb-5" @onclick="() => AddOption(currentQuestion)">➕ Tilføj Valgmulighed</button> @* Ny ikon og lidt mindre knap *@
+                        <button type="button" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300 transform hover:scale-105 mb-5" @onclick="() => AddOption(currentQuestion)">➕ Tilføj Valgmulighed</button> @* Knap til at tilføje en ny valgmulighed. *@
 
-                        <div class="mb-6"> @* Mere plads under korrekt svar *@
+                        @* Korrekt Svar Indeks Input *@
+                        <div class="mb-6">
                             <label for="@($"correctAnswer_{currentQuestion.TempId}")" class="block text-gray-700 text-base font-semibold mb-2">Korrekt Svar (Valgmulighedsindeks - 0-baseret):</label>
                             <InputNumber id="@($"correctAnswer_{currentQuestion.TempId}")" class="shadow-sm appearance-none border border-gray-300 rounded w-full py-3 px-4 text-gray-800 leading-tight focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent" @bind-Value="currentQuestion.CorrectAnswerIndex" />
                             <ValidationMessage For="@(() => currentQuestion.CorrectAnswerIndex)" class="text-red-500 text-sm italic mt-1" />
                         </div>
-                        <button type="button" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 px-5 rounded-lg shadow-md transition duration-300 transform hover:scale-105" @onclick="() => RemoveQuestion(currentQuestion)">🗑️ Fjern Spørgsmål</button> @* Ny ikon og lidt mindre knap *@
+                        <button type="button" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 px-5 rounded-lg shadow-md transition duration-300 transform hover:scale-105" @onclick="() => RemoveQuestion(currentQuestion)">🗑️ Fjern Spørgsmål</button> @* Knap til at fjerne hele spørgsmålet. *@
                     </div>
                 }
                 <div class="flex justify-between items-center mt-8"> @* Placer knapper side om side og juster *@
-                    <button type="button" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 transform hover:scale-105" @onclick="AddQuestion">➕ Tilføj Spørgsmål</button> @* Lidt mindre knap *@
-                    <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-8 rounded-lg shadow-xl transition duration-300 transform hover:scale-105">🚀 Opret Quiz</button> @* Lidt mindre knap, Kahoot-farve *@
+                    <button type="button" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 transform hover:scale-105" @onclick="AddQuestion">➕ Tilføj Spørgsmål</button> @* Knap til at tilføje et nyt spørgsmål. *@
+                    <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-8 rounded-lg shadow-xl transition duration-300 transform hover:scale-105">🚀 Opret Quiz</button> @* Submit-knap til at sende formularen. *@
                 </div>
             </EditForm>
         }
@@ -78,57 +95,119 @@
 </div>
 
 @code {
+    // Model for den nye quiz, der oprettes. Modeller.Quizzes er din delt datamodel.
     private Modeller.Quizzes newQuiz = new Modeller.Quizzes();
+    // Liste til at holde de spørgsmål, der er tilknyttet den nye quiz, som vises i UI.
     private List<QuestionViewModel> questions = new List<QuestionViewModel>();
 
+    // Unødvendig kode: @inject HttpClient Http
+    // Du har allerede brugt HttpClient i den forrige version af denne fil. Men i den nye struktur skal du bruge
+    // IQuizApiService (som bruger HttpClient internt).
+    // RETTELSE: Fjern @inject HttpClient Http.
+    // Ligeledes, hvis du har en IQuizApiService injiceret et sted, vil den bruge HttpClient internt.
+
+    // Unødvendig kode: @inject IAuthService AuthService
+    // Du bruger UserState til at tjekke login og rolle, som sandsynligvis får sine data fra AuthService.
+    // Hvis UserState er tilstrækkelig, er AuthService injektionen direkte her unødvendig.
+    // RETTELSE: Du bruger faktisk ikke AuthService direkte i denne fil. Du bruger UserState.
+    // Hvis UserState korrekt reflekterer login-status via AuthService, kan denne linje fjernes.
+
+    // Fælles Modeller (Modeller projektet):
+    // `Modeller.Quizzes` og `Modeller.Question` er dine delt datamodeller. De er defineret i et separat
+    // projekt, så både din Blazor klient og dit ASP.NET Core API kan bruge dem, hvilket sikrer typesikkerhed
+    // ved overførsel af data mellem frontend og backend.
+
+    // QuestionViewModel: En hjælpeklasse, der udvider Modeller.Question.
+    // Den tilføjer UI-specifikke egenskaber (TempId), som er nyttige for Blazor's rendering
+    // (f.eks. til @key attributter i foreach-loops for at forbedre rendering-performance),
+    // men som ikke sendes til databasen.
     private class QuestionViewModel : Modeller.Question
     {
-        public Guid TempId { get; set; } = Guid.NewGuid();
+        public Guid TempId { get; set; } = Guid.NewGuid(); // Unik ID for Blazor rendering, ikke database-relateret.
     }
 
+    /// <summary>
+    /// Kaldes når komponenten initialiseres.
+    /// </summary>
     protected override void OnInitialized()
     {
+        // Tilføjer et første tomt spørgsmål, når siden indlæses for en bedre brugeroplevelse.
         AddQuestion();
     }
 
+    /// <summary>
+    /// Tilføjer et nyt tomt spørgsmål til listen.
+    /// Spørgsmålet initialiseres med to tomme valgmuligheder.
+    /// </summary>
     private void AddQuestion()
     {
-        questions.Add(new QuestionViewModel { Options = new List<string> { "", "" } });
+        questions.Add(new QuestionViewModel { Options = new List<string> { "", "" } }); // Starter med 2 tomme valgmuligheder.
     }
 
+    /// <summary>
+    /// Fjerner et specifikt spørgsmål fra listen.
+    /// </summary>
+    /// <param name="questionToRemove">Spørgsmålet, der skal fjernes.</param>
     private void RemoveQuestion(QuestionViewModel questionToRemove)
     {
         questions.Remove(questionToRemove);
     }
 
+    /// <summary>
+    /// Tilføjer en tom valgmulighed til et specifikt spørgsmål.
+    /// </summary>
+    /// <param name="question">Spørgsmålet, der skal have en ny valgmulighed.</param>
     private void AddOption(QuestionViewModel question)
     {
         question.Options.Add("");
     }
 
+    /// <summary>
+    /// Fjerner en valgmulighed fra et specifikt spørgsmål ud fra dens indeks.
+    /// Sikrer, at der altid er mindst én valgmulighed tilbage (eller den mindste påkrævede mængde).
+    /// </summary>
+    /// <param name="question">Spørgsmålet, hvorfra valgmuligheden skal fjernes.</param>
+    /// <param name="index">Indekset for valgmuligheden, der skal fjernes.</param>
     private void RemoveOption(QuestionViewModel question, int index)
     {
-        if (question.Options.Count > 1)
+        // Systemdesign: Dette sikrer en minimumsgrænse for valgmuligheder.
+        if (question.Options.Count > 1) // Sikrer, at mindst én valgmulighed forbliver. Du kan justere dette tal.
         {
             question.Options.RemoveAt(index);
         }
     }
 
+    /// <summary>
+    /// Håndterer indsendelsen af formularen for at oprette en ny quiz.
+    /// </summary>
     private async Task HandleSubmit()
     {
+        // Autorisationskontrol på klient-siden (for UX). Serveren skal også udføre denne kontrol.
         if (!UserState.IsLoggedIn || (UserState.Role?.ToLower() != "admin" && UserState.Role?.ToLower() != "kok"))
         {
             Console.WriteLine("Fejl: Brugeren er ikke autoriseret til at oprette quizzer.");
+            // Fejlsøgningstip: Hvis denne meddelelse vises, selvom brugeren er logget ind, tjek UserState's logik og de roller, der returneres fra din autentificeringstjeneste.
             return;
         }
 
+        // Sætter opretterens navn baseret på den loggede brugers brugernavn.
         newQuiz.CreatorName = UserState.Username;
 
+        // Opretter anmodningsobjektet, der skal sendes til API'en.
+        // `Modeller.CreateQuizRequest` er en DTO (Data Transfer Object) defineret i dit Modeller-projekt,
+        // som matcher den forventede input-struktur i din ASP.NET Core API-controller.
         var request = new Modeller.CreateQuizRequest
         {
             Quiz = newQuiz,
+            // Mapper QuestionViewModel-objekter til Modeller.Question-objekter,
+            // da TempId ikke skal sendes til API'en/databasen.
             Questions = questions.Select(q => new Modeller.Question
             {
+                // _id bør typisk ikke sendes fra klienten ved oprettelse, da det genereres på serveren (MongoDB.Bson.ObjectId.GenerateNewId()).
+                // Du har en `if (string.IsNullOrEmpty(quiz._id))` i din QuizService, som håndterer dette.
+                // Det samme gælder for question._id.
+                // UNØDVENDIG: q._id (hvis den er tom) - den server-side service genererer den.
+                // q._id = q._id, // Kan fjernes eller sættes til null, hvis du altid genererer på serveren.
                 Text = q.Text,
                 Options = q.Options,
                 CorrectAnswerIndex = q.CorrectAnswerIndex
@@ -137,21 +216,30 @@
 
         try
         {
+            // Sender POST-anmodningen til din API's QuizController.
+            // HttpClient sender JSON-serialiseret data til det specificerede endpoint.
+            // Systemdesign: Dette er interaktionen mellem din Blazor klient (frontend) og din ASP.NET Core API (backend).
             var response = await Http.PostAsJsonAsync("api/Quiz", request);
 
             if (response.IsSuccessStatusCode)
             {
+                // Quizzen blev oprettet succesfuldt, naviger til quizlisten.
                 NavigationManager.NavigateTo("/quizlist");
             }
             else
             {
+                // Håndterer API-fejl (f.eks. valideringsfejl, serverfejl).
                 var errorContent = await response.Content.ReadAsStringAsync();
                 Console.WriteLine($"Error creating quiz: {response.StatusCode} - {errorContent}");
+                // Fejlsøgningstip: Hvis `response.IsSuccessStatusCode` er false, tjek `response.StatusCode` (f.eks. 400 Bad Request, 500 Internal Server Error)
+                // og `errorContent` for at se den specifikke fejlmeddelelse fra din API. Brug breakpoints i din API-controller.
             }
         }
         catch (Exception ex)
         {
+            // Fanger generelle netværksfejl eller andre uventede undtagelser.
             Console.WriteLine($"Exception during quiz creation: {ex.Message}");
+            // Fejlsøgningstip: Forbindelsesproblemer eller uforudsete serverfejl kan fanges her. Tjek at din API kører og er tilgængelig på den baseadresse, der er sat i Program.cs (`https://localhost:7013/`). Tjek også browserens konsol for CORS-fejl.
         }
     }
 }

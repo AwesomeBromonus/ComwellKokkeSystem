@@ -1,18 +1,18 @@
-﻿@page "/quizdetails/{QuizId:int}"
-@using ComwellKokkeSystem.Service.QuizService
-@using Modeller
-@inject IQuizService QuizService
-@inject NavigationManager NavigationManager
-
+﻿@page "/quizdetails/{QuizId:int}" 
+@using ComwellKokkeSystem.Service.QuizService 
+@using Modeller 
+@inject IQuizService QuizService 
+@inject NavigationManager NavigationManager 
 <div class="min-h-screen bg-gray-100 flex items-center justify-center p-6 font-sans">
     <div class="max-w-4xl w-full bg-white rounded-lg shadow-2xl p-8 border border-gray-200">
         <h3 class="text-4xl font-extrabold text-center mb-8 text-purple-700">Quiz Detaljer 📋</h3>
 
+        @* Betinget rendering baseret på indlæsningsstatus og om quizzen er fundet *@
         @if (quiz == null)
         {
             @if (isLoading)
             {
-                <p class="text-center text-lg text-gray-600"><em>Loading quiz...</em></p>
+                <p class="text-center text-lg text-gray-600"><em>Indlæser quiz...</em></p>
             }
             else
             {
@@ -21,6 +21,7 @@
         }
         else
         {
+            @* Visning af quiz-metadata *@
             <div class="bg-gray-50 p-6 rounded-lg shadow-inner mb-6 border border-gray-100">
                 <h4 class="text-3xl font-bold mb-2 text-blue-700">@quiz.Quiz.Title</h4>
                 <p class="text-gray-600 text-lg mb-2">Skaber: <span class="font-semibold text-gray-800">@quiz.Quiz.CreatorName</span></p>
@@ -28,6 +29,7 @@
             </div>
 
             <h5 class="text-2xl font-bold mb-5 text-purple-700">Spørgsmål: 🤔</h5>
+            @* Betinget rendering af spørgsmål, hvis de findes *@
             @if (quiz.Questions != null && quiz.Questions.Any())
             {
                 <ol class="list-decimal list-inside space-y-4">
@@ -50,6 +52,7 @@
                 <p class="text-center text-lg text-gray-600">Denne quiz har ingen spørgsmål endnu.</p>
             }
 
+            @* Handlingsknapper *@
             <div class="flex justify-center mt-8 space-x-4">
                 <button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 transform hover:scale-105" @onclick="GoBackToQuizList">Tilbage til Quiz Liste</button>
                 <button class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 transform hover:scale-105" @onclick="() => StartQuiz(quiz.Quiz.Id)">Start Quiz 🚀</button>
@@ -59,35 +62,54 @@
 </div>
 
 @code {
+    // [Parameter]: Angiver, at denne egenskab kan modtage værdier fra URL-ruten.
+    // {QuizId:int} i @page-direktivet mapper til denne egenskab.
     [Parameter]
     public int QuizId { get; set; }
 
+    // Objekt til at holde den hentede quiz med dens spørgsmål. Nullable.
     private Modeller.QuizWithQuestions? quiz;
+    // Flag til at indikere, om data indlæses.
     private bool isLoading = true;
 
+    /// <summary>
+    /// Livscyklusmetode: Kaldes, når komponenten er initialiseret, og før den første rendering.
+    /// Bruges til asynkrone datahentningsopgaver.
+    /// </summary>
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            isLoading = true;
-            quiz = await QuizService.GetQuizWithQuestionsAsync(QuizId); // Fjernet .ToString()
+            isLoading = true; // Sætter indlæsningsflag.
+            // Henter quizdata med spørgsmål fra klient-side QuizService, som derefter kalder API'en.
+            quiz = await QuizService.GetQuizWithQuestionsAsync(QuizId);
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error loading quiz {QuizId}: {ex.Message}");
-            quiz = null;
+            // FEJLSØGNINGSTIP: Hvis der opstår en fejl her, kan det skyldes:
+            // 1. API'en er ikke tilgængelig eller svarer med en fejl (tjek browserens netværksfaneblad og API-logs).
+            // 2. Dataformatet fra API'en matcher ikke 'QuizWithQuestions' modellen.
+            Console.WriteLine($"Fejl ved indlæsning af quiz {QuizId}: {ex.Message}");
+            quiz = null; // Sætter quiz til null for at vise "Quiz ikke fundet".
         }
         finally
         {
-            isLoading = false;
+            isLoading = false; // Rydder indlæsningsflag, uanset succes eller fejl.
         }
     }
 
+    /// <summary>
+    /// Navigerer tilbage til siden med listen over quizzes.
+    /// </summary>
     private void GoBackToQuizList()
     {
         NavigationManager.NavigateTo("/quizlist");
     }
 
+    /// <summary>
+    /// Navigerer til siden for at tage quizzen.
+    /// </summary>
+    /// <param name="quizId">ID'et for den quiz, der skal tages.</param>
     private void StartQuiz(int quizId)
     {
         NavigationManager.NavigateTo($"/taketquiz/{quizId}");

@@ -1,14 +1,21 @@
-﻿// CreateQuizRequest.cs
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
-namespace Modeller
+namespace Modeller;
+// Namespace: "Modeller" indeholder fælles datamodeller, der bruges på tværs af både frontend (Blazor WASM) og backend (ASP.NET Core API).
+
+/// <summary>
+/// Datatransferobjekt (DTO) brugt til at sende data for oprettelse af en ny quiz fra klienten til API'en.
+/// Dette sikrer, at quiz- og spørgsmålsdata pakkes korrekt sammen til ét API-kald.
+/// </summary>
+public class CreateQuizRequest
 {
-    public class CreateQuizRequest
-    {
-        // Vigtigt: Quizzes og Question klasserne skal være tilgængelige
-        // via 'using Modeller;' eller fuld namespace-kvalifikation.
-        // Da de også er i Modeller namespace, er det fint.
-        public Quizzes Quiz { get; set; } = new Quizzes(); // Initialiser for at undgå null-reference
-        public List<Question> Questions { get; set; } = new List<Question>();
-    }
+    // Egenskab: Quiz-objektet, der skal oprettes.
+    // Initialiseres her for at undgå null-referencer, når et nyt CreateQuizRequest-objekt instansieres.
+    // Dette er god praksis for at undgå NullReferenceException ved senere adgang til .Quiz.
+    public Quizzes Quiz { get; set; } = new Quizzes();
+
+    // Egenskab: En liste af Question-objekter tilknyttet den nye quiz.
+    // Hvert spørgsmål vil blive oprettet separat i databasen og derefter linket til quizzen via ID'er.
+    // Initialiseres her for at undgå null-referencer.
+    public List<Question> Questions { get; set; } = new List<Question>();
 }

@@ -1,14 +1,15 @@
-﻿@page "/quizlist"
-@using ComwellKokkeSystem.Service.QuizService
-@inject NavigationManager NavigationManager
-@inject IJSRuntime JSRuntime
-@inject IAuthService AuthService
-@inject IQuizService QuizService
+﻿@page "/quizlist" 
+@using ComwellKokkeSystem.Service.QuizService 
+@inject NavigationManager NavigationManager 
+@inject IJSRuntime JSRuntime 
+@inject IAuthService AuthService 
+@inject IQuizService QuizService 
 
 <div class="min-h-screen bg-gray-100 flex items-center justify-center p-6 font-sans">
     <div class="max-w-4xl w-full bg-white rounded-lg shadow-2xl p-8 border border-gray-200">
         <h3 class="text-4xl font-extrabold text-center mb-8 text-purple-700">Tilgængelige Quizzer 📚</h3>
 
+        @* Betinget rendering baseret på autorisationsstatus og login. *@
         @if (!isAuthorizedChecked)
         {
             <p class="text-center text-lg text-gray-600">⏳ Tjekker brugerstatus...</p>
@@ -22,12 +23,14 @@
         }
         else
         {
+            @* Visning af quiz-listen eller besked, hvis ingen quizzer er tilgængelige. *@
             @if (quizzes == null)
             {
-                <p class="text-center text-lg text-gray-600"><em>Loading quizzes...</em></p>
+                <p class="text-center text-lg text-gray-600"><em>Indlæser quizzer...</em></p>
             }
             else if (quizzes.Any())
             {
+                @* Visning af fejlmeddelelse, hvis en sådan er sat *@
                 @if (!string.IsNullOrEmpty(errorMessage))
                 {
                     <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
@@ -41,6 +44,7 @@
                         <li class="bg-gray-50 p-5 rounded-xl shadow-md hover:shadow-lg transition duration-300 ease-in-out flex justify-between items-center border border-gray-200">
                             <a href="/quizdetails/@quiz.Id" class="text-2xl font-semibold text-blue-700 hover:text-blue-800 transition duration-300">@quiz.Title</a>
                             <div class="flex space-x-3">
+                                @* Knap til at slette quiz. Bemærk: Autorisation for sletning er aktuelt deaktiveret i API'en. *@
                                 <button class="bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 px-5 rounded-lg shadow-sm transition duration-300 transform hover:scale-105" @onclick="() => DeleteQuiz(quiz.Id)">Slet 🗑️</button>
                             </div>
                         </li>
@@ -52,6 +56,7 @@
                 <p class="text-center text-lg text-gray-600">Ingen quizzer tilgængelige. Hvorfor ikke <a href="/quizcreator" class="text-blue-600 hover:underline font-semibold">oprette en</a>?</p>
             }
 
+            @* Handlingsknapper *@
             <div class="text-center mt-8">
                 <button class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg shadow-xl transition duration-300 transform hover:scale-105" @onclick="NavigateToCreate">Opret Ny Quiz 🎉</button>
                 <button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-xl transition duration-300 transform hover:scale-105 ml-4" @onclick="RefreshQuizzes">Opdater Liste 🔄</button>
@@ -62,74 +67,109 @@
 
 @code {
     private List<Modeller.Quizzes>? quizzes;
-    private int? loggedInUserId;
-    private bool isAuthorizedChecked = false;
-    private bool isLoggedIn = false;
-    private string errorMessage = string.Empty;
+    private int? loggedInUserId; // Holder ID'et på den logget ind bruger (nullable int).
+    private bool isAuthorizedChecked = false; // Flag for at indikere, om autorisation er tjekket.
+    private bool isLoggedIn = false; // Flag for at indikere login-status.
+    private string errorMessage = string.Empty; // Bruges til at vise fejlmeddelelser til brugeren.
 
+    /// <summary>
+    /// Livscyklusmetode: Kaldes, når komponenten er initialiseret. Bruges til initial datahentning.
+    /// </summary>
     protected override async Task OnInitializedAsync()
     {
-        await LoadQuizzes();
+        await LoadQuizzes(); // Kalder en hjælpe-metode til at indlæse quizzer.
     }
 
+    /// <summary>
+    /// Hjælpe-metode til at indlæse quizzer og opdatere login-status.
+    /// </summary>
     private async Task LoadQuizzes()
     {
         try
         {
+            // Henter det aktuelle bruger-ID fra AuthService.
             loggedInUserId = await AuthService.GetCurrentUserIdAsync();
+            // Opdaterer login-status.
             isLoggedIn = loggedInUserId.HasValue;
-            isAuthorizedChecked = true;
+            isAuthorizedChecked = true; // Angiver, at autorisationstjekket er udført.
 
             if (isLoggedIn)
             {
+                // Hvis logget ind, hentes alle quizzes fra klient-side QuizService.
                 quizzes = await QuizService.GetAllQuizzesAsync();
             }
             else
             {
+                // Hvis ikke logget ind, tømmes quiz-listen.
                 quizzes = null;
             }
         }
         catch (Exception ex)
         {
+            // FEJLSØGNINGSTIP: Hvis en fejl opstår her, kan det skyldes API'en er nede,
+            // netværksproblemer, eller problemer med autentifikationsservice.
+            // Tjek browserens netværksfaneblad og API-logs.
             errorMessage = $"Fejl ved hentning af quizzer: {ex.Message}";
-            Console.WriteLine(errorMessage);
+            Console.WriteLine(errorMessage); // Logger fejl til konsollen.
         }
     }
 
+    /// <summary>
+    /// Navigerer til siden for oprettelse af en ny quiz.
+    /// </summary>
     private void NavigateToCreate()
     {
         NavigationManager.NavigateTo("/quizcreator");
     }
 
+    // UØDVENDIG KODE: Denne metode 'NavigateToEdit' er defineret, men den tilhørende knap
+    // og rute (/quizeditor/{quizId}) er ikke til stede i din QuizList.razor UI.
+    // Hvis du ikke har en redigeringsside, kan denne metode fjernes.
+    /// <summary>
+    /// Navigerer til siden for redigering af en quiz.
+    /// </summary>
+    /// <param name="quizId">ID'et for den quiz, der skal redigeres.</param>
     private void NavigateToEdit(int quizId)
     {
         NavigationManager.NavigateTo($"/quizeditor/{quizId}");
     }
 
+    /// <summary>
+    /// Håndterer sletning af en quiz.
+    /// </summary>
+    /// <param name="quizId">ID'et for den quiz, der skal slettes.</param>
     private async Task DeleteQuiz(int quizId)
     {
+        // Viser en JavaScript-bekræftelsesdialog.
         bool confirmed = await JSRuntime.InvokeAsync<bool>("confirm", "Er du sikker på, at du vil slette denne quiz og alle dens spørgsmål?");
         if (confirmed)
         {
             try
             {
                 Console.WriteLine($"Forsøger at slette quiz med ID: {quizId}");
+                // Kalder klient-side QuizService til at slette quizzen.
                 await QuizService.DeleteQuizAsync(quizId);
-                await LoadQuizzes(); // Genindlæs quizzer fra serveren
-                errorMessage = string.Empty;
+                await LoadQuizzes(); // Genindlæser listen over quizzer for at opdatere UI'en.
+                errorMessage = string.Empty; // Rydder eventuelle tidligere fejlmeddelelser.
             }
             catch (Exception ex)
             {
+                // FEJLSØGNINGSTIP: Hvis sletning fejler:
+                // 1. Tjek API'ens 'DeleteQuiz' endpoint for fejl (via Postman/Swagger og API-logs).
+                // 2. Tjek, om API'en returnerer en succesfuld statuskode, som 'EnsureSuccessStatusCode()' forventer.
                 errorMessage = $"Kunne ikke slette quiz: {ex.Message}";
                 Console.WriteLine($"Fejl ved sletning af quiz: {ex.Message}");
-                await JSRuntime.InvokeVoidAsync("alert", errorMessage);
+                await JSRuntime.InvokeVoidAsync("alert", errorMessage); // Viser fejlmeddelelse til brugeren.
             }
         }
     }
 
+    /// <summary>
+    /// Opdaterer listen over quizzer ved at kalde <see cref="LoadQuizzes"/> igen.
+    /// </summary>
     private async Task RefreshQuizzes()
     {
         await LoadQuizzes();
-        StateHasChanged();
+        StateHasChanged(); // Tvinger Blazor til at re-rendere komponenten.
     }
 }
