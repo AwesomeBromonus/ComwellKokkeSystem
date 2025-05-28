@@ -1,64 +1,39 @@
-﻿using ComwellSystemAPI.Interfaces;
-using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
-using System;
-using Modeller;
+﻿using Microsoft.AspNetCore.Mvc;
+using ComwellSystemAPI.Interfaces;
 
 namespace ComwellSystemAPI.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/rapport")]
     public class RapportController : ControllerBase
     {
-        private readonly IGenereRapport _rapportService;
+        private readonly IRapportRepository _rapportRepo;
 
-        public RapportController(IGenereRapport rapportService)
+        public RapportController(IRapportRepository rapportRepo)
         {
-            _rapportService = rapportService;
-        }
-       
-        [HttpGet("delmaal-with-underdelmaal/{year}")]
-        public async Task<IActionResult> GetDelmaalWithUnderdelmaal(int year)
-        {
-            var delmaal = await _rapportService.GetAllDelmaalWithUnderdelmaalAsync(year);
-            return Ok(delmaal);
-        }
-        
-
-        [HttpGet("praktikperioder/{year}")]
-        public async Task<IActionResult> GetPraktikperioder(int year)
-        {
-            var perioder = await _rapportService.GetPraktikPerioderAsync(year);
-            return Ok(perioder);
+            _rapportRepo = rapportRepo;
         }
 
-        [HttpGet("delmaal/{year}")]
-        public async Task<IActionResult> GetDelmaal(int year)
-        {
-            var delmaal = await _rapportService.GetDelmålAsync(year);
-            return Ok(delmaal);
-        }
-
-        [HttpGet("brugere/{year}")]
-        public async Task<IActionResult> GetBrugere(int year)
-        {
-            var brugere = await _rapportService.GetBrugereAsync(year);
-            return Ok(brugere);
-        }
-
-        [HttpGet("export/excel/{year}")]
-        public async Task<IActionResult> ExportToExcel(int year)
+        [HttpGet("excel")]
+        public async Task<IActionResult> DownloadExcelRapport()
         {
             try
             {
-                var fileContent = await _rapportService.ExportToExcelAsync(year);
-                return File(fileContent, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"rapport_{year}.xlsx");
+                var excelData = await _rapportRepo.GenererElevDelmaalExcelAsync();
+
+                return File(
+                    excelData,
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    $"Elevrapport_{DateTime.Now:yyyyMMddHHmmss}.xlsx"
+                );
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Fejl ved eksport til Excel: {ex.Message}");
+                Console.WriteLine("❌ FEJL i Excel-generering:");
+                Console.WriteLine(ex.ToString()); // <-- vigtigt
+                return StatusCode(500, "Fejl: " + ex.Message);
             }
         }
-        
+
     }
 }

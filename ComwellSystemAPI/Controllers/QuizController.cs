@@ -1,11 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Modeller; // Indeholder Quizzes, Question, QuizWithQuestions, CreateQuizRequest
-using ComwellSystemAPI.Interfaces; // For IQuiz, IQuestion, IUserRepository
+using Modeller;
+using ComwellSystemAPI.Interfaces;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization; // Nødvendig for at få brugerens information
 
 namespace ComwellSystemAPI.Controllers;
 
@@ -21,7 +19,7 @@ public class QuizController : ControllerBase
     {
         _quizRepo = quizRepo;
         _questionRepo = questionRepo;
-        _userRepo = userRepo; 
+        _userRepo = userRepo;
     }
 
     [HttpGet]
@@ -31,9 +29,8 @@ public class QuizController : ControllerBase
         return Ok(quizzes);
     }
 
-    // RETTET: id parameter er nu int. Rute constraint er :int
     [HttpGet("{id:int}")]
-    public async Task<IActionResult> GetQuiz(int id) // <--- RETTET til int
+    public async Task<IActionResult> GetQuiz(int id)
     {
         var quiz = await _quizRepo.GetQuizByIdAsync(id);
         if (quiz == null)
@@ -42,10 +39,9 @@ public class QuizController : ControllerBase
         }
 
         var questions = new List<Question>();
-        // RETTET: questionId er nu int
-        foreach (var questionId in quiz.QuestionsIds) // quiz.QuestionsIds er nu List<int>
+        foreach (var questionId in quiz.QuestionsIds)
         {
-            var question = await _questionRepo.GetQuestionByIdAsync(questionId); // Brug int questionId
+            var question = await _questionRepo.GetQuestionByIdAsync(questionId);
             if (question != null)
             {
                 questions.Add(question);
@@ -61,9 +57,7 @@ public class QuizController : ControllerBase
         return Ok(quizWithQuestions);
     }
 
-   
     [HttpPost]
-
     public async Task<IActionResult> CreateQuiz([FromBody] CreateQuizRequest request)
     {
         if (!ModelState.IsValid)
@@ -75,12 +69,11 @@ public class QuizController : ControllerBase
         {
             return BadRequest("Quiz og spørgsmålsdata er påkrævet.");
         }
-        
-        
-        // --- Håndtering af QuestionIds i Quiz ---
-        request.Quiz.QuestionsIds = new List<int>();
 
-        // --- Opret spørgsmål og tilføj deres ID'er til quizzen ---
+        // MIDLERTIDIGT FJERNET AUTORISATION - SÆTTER STANDARD CREATORUSERID
+        request.Quiz.CreatorUserId = "0"; // Midlertidig standardværdi
+
+        request.Quiz.QuestionsIds = new List<int>();
         foreach (var question in request.Questions)
         {
             if (string.IsNullOrWhiteSpace(question.Text) || !question.Options.Any())
@@ -92,13 +85,10 @@ public class QuizController : ControllerBase
             request.Quiz.QuestionsIds.Add(question.Id);
         }
 
-        // --- Opret quizzen ---
         await _quizRepo.CreateQuizAsync(request.Quiz);
-
         return CreatedAtAction(nameof(GetQuiz), new { id = request.Quiz.Id }, request.Quiz);
     }
 
-    // HTTP PUT for at opdatere en eksisterende quiz
     [HttpPut("{id:int}")]
     public async Task<IActionResult> UpdateQuiz(int id, [FromBody] Quizzes quiz)
     {
@@ -113,63 +103,52 @@ public class QuizController : ControllerBase
             return NotFound();
         }
 
-        // --- AUTORISATIONSLOGIK START ---
-        string? currentUserIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-        if (string.IsNullOrEmpty(currentUserIdString))
+        // Hent brugerens ID fra headeren
+        if (!Request.Headers.TryGetValue("User-Id", out var userIdString) || string.IsNullOrEmpty(userIdString))
         {
-            return Unauthorized("Brugeren er ikke logget ind.");
+            return Unauthorized("Bruger-ID mangler i anmodningen.");
         }
 
-        // Kontroller om den loggede bruger er skaberen af quizzen
-        if (existingQuiz.CreatorUserId != currentUserIdString)
+        // Valider brugeren eksisterer
+        if (!int.TryParse(userIdString, out var userId))
         {
-            // Hvis brugeren ikke er skaberen, returneres Forbid (403 Forbidden)
+            return BadRequest("Ugyldigt bruger-ID format.");
+        }
+
+        var user = await _userRepo.GetByIdAsync(userId);
+        if (user == null)
+        {
+            return Unauthorized("Brugeren findes ikke.");
+        }
+
+        // Kontroller om brugeren er skaberen af quizzen
+        if (existingQuiz.CreatorUserId != userIdString)
+        {
             return Forbid("Du har ikke tilladelse til at opdatere denne quiz.");
         }
-        // --- AUTORISATIONSLOGIK SLUT ---
 
-        // Kun opdater felter der kan ændres af brugeren, ikke CreatorUserId/Name eller CreatedDate
         existingQuiz.Title = quiz.Title;
-        existingQuiz.QuestionsIds = quiz.QuestionsIds; // Hvis du vil tillade at opdatere spørgsmål direkte via quizzen
-
-        await _quizRepo.UpdateQuizAsync(existingQuiz); // Opdater den eksisterende quiz-objekt
+        existingQuiz.QuestionsIds = quiz.QuestionsIds;
+        await _quizRepo.UpdateQuizAsync(existingQuiz);
         return NoContent();
     }
 
-     [HttpDelete("{id:int}")]
+    [HttpDelete("{id:int}")]
     public async Task<IActionResult> DeleteQuiz(int id)
     {
         var quiz = await _quizRepo.GetQuizByIdAsync(id);
         if (quiz == null)
         {
-            return NotFound(); // Quizzen findes ikke
+            return NotFound();
         }
 
-        // --- AUTORISATIONSLOGIK START ---
-        string? currentUserIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-        if (string.IsNullOrEmpty(currentUserIdString))
-        {
-            return Unauthorized("Brugeren er ikke logget ind.");
-        }
-
-        // Kontroller om den loggede bruger er skaberen af quizzen
-        if (quiz.CreatorUserId != currentUserIdString)
-        {
-            // Hvis brugeren ikke er skaberen, returneres Forbid (403 Forbidden)
-            return Forbid("Du har ikke tilladelse til at slette denne quiz.");
-        }
-        // --- AUTORISATIONSLOGIK SLUT ---
-
-        // Slet først de tilknyttede spørgsmål
+        // MIDLERTIDIGT FJERNET AUTORISATION - ALLE KAN SLETTE
         foreach (var questionId in quiz.QuestionsIds)
         {
             await _questionRepo.DeleteQuestionAsync(questionId);
         }
-        // Slet derefter selve quizzen
+
         await _quizRepo.DeleteQuizAsync(id);
-        
         return NoContent();
     }
 }

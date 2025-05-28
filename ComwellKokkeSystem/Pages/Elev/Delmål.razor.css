@@ -1,0 +1,127 @@
+﻿/* === Gør al tekst mindre som standard === */
+body, .container, .list-group, .form-control, .form-select, .modal, ul, li, label, textarea, select, button {
+    font-size: 0.85rem;
+}
+
+/* === Behold større skrift på overskrift og praktikperiode-knapper === */
+h1 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 2.2rem;
+    color: #003b4a;
+    margin-bottom: 2rem;
+}
+
+
+/* === Praktikperiode-knapper === */
+.praktikperiode-btn {
+    min-width: 220px;
+    margin-right: 1rem;
+    margin-bottom: 1rem;
+}
+
+/* === Status dropdowns === */
+select.form-select,
+select.form-select-sm {
+    border-radius: 0.5rem;
+    padding: 0.375rem 0.75rem;
+}
+
+/* === Kommentarer === */
+textarea.form-control {
+    border-radius: 0.5rem;
+    resize: vertical;
+}
+
+.comment-box {
+    margin-top: 1rem;
+}
+
+    .comment-box ul {
+        padding-left: 1.25rem;
+    }
+
+    .comment-box li {
+        margin-bottom: 0.25rem;
+    }
+
+/* === Delmål-liste === */
+.list-group-item {
+    border: 1px solid #ddd;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    padding: 1rem;
+}
+
+.table-sm td {
+    vertical-align: middle;
+}
+
+/* === Anmod knapper === */
+.btn-outline-secondary {
+    min-width: 100px;
+}
+
+/* === Handling knapper (rediger/slet/tilføj) === */
+.btn-sm {
+    font-size: 0.875rem;
+    padding: 0.3rem 0.6rem;
+    border-radius: 0.375rem;
+}
+
+/* === Modals === */
+.modal-content {
+    border-radius: 1rem;
+    padding: 1rem;
+    background-color: #fff;
+}
+
+.modal-header {
+    border-bottom: 1px solid #dee2e6;
+}
+
+.modal-title {
+    font-weight: bold;
+    color: #003b4a;
+}
+
+.modal-footer button {
+    min-width: 100px;
+}
+
+.praktikperiode-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center; /* ⬅ centrér knapperne */
+    gap: 10rem; /* ⬅ mellemrum mellem kortene */
+    margin-bottom: 2rem;
+}
+
+
+.praktikperiode-kort {
+    flex: 0 1 180px; /* bredde maks 180px, juster efter behov */
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+
+ 
+
+.praktik-btn {
+    width: 100%;
+    font-weight: 600;
+    color: white;
+    padding: 0.4rem 0.6rem;
+    font-size: 1rem;
+    border: none;
+    border-radius: 6px;
+    transition: background-color 0.3s ease;
+}
+
+    .praktik-btn.ikke-valgt {
+        background-color: #c0392b; /* rød */
+    }
+
+    .praktik-btn.valgt {
+        background-color: #27ae60; /* grøn */
+    }

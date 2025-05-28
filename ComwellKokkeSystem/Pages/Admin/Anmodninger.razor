@@ -8,10 +8,12 @@
 @inject IUnderdelmaalService UnderdelmaalService
 @inject IUserService UserService
 
+<link href="css/Anmodninger.css" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;700&display=swap" rel="stylesheet" />
 
+<h3 class="anmodning-overskrift">📩 Indkomne Delmålsanmodninger</h3>
+<br />
 
-
-<h3 class="text-xl font-bold mb-4">📩 Indkomne Delmålsanmodninger</h3>
 
 @if (!UserState.IsLoggedIn)
 {
@@ -32,37 +34,34 @@ else if (!anmodninger.Any())
 else
 {
     <ul class="list-group">
-       
-           @foreach (var a in anmodninger)
-        {
-           
-            Delmål? delmaal = null;
-            <li class="list-group-item mb-3">
-            @if (a.DelmaalId != null && delmaalMap.ContainsKey(a.DelmaalId.Value))
+        <div class="anmodning-container">
+            @foreach (var a in anmodninger)
             {
-                <strong>Delmål: </strong> @delmaalMap[a.DelmaalId.Value].Beskrivelse
-                <br />
-            }
-            else if (a.UnderdelmaalId != null && underdelmaalMap.ContainsKey(a.UnderdelmaalId.Value))
-            {
-                <strong>Underdelmål: </strong> @underdelmaalMap[a.UnderdelmaalId.Value].Beskrivelse
-                <br />
-            }
+                <div class="anmodning-kort">
+                    @if (a.DelmaalId != null && delmaalMap.ContainsKey(a.DelmaalId.Value))
+                    {
+                        <strong>Delmål: </strong> @delmaalMap[a.DelmaalId.Value].Beskrivelse
 
+                        <br />
+                    }
+                    else if (a.UnderdelmaalId != null && underdelmaalMap.ContainsKey(a.UnderdelmaalId.Value))
+                    {
+                        <strong>Underdelmål </strong> @underdelmaalMap[a.UnderdelmaalId.Value].Beskrivelse
 
-            
-                <strong>Ønsket status: </strong> @a.ØnsketStatus <br />
-                <strong>Anmodet af: </strong> @brugerMap[a.ElevId].Navn <br />
+                        <br />
+                    }
 
+                    <strong>Ønsket status: </strong> @a.ØnsketStatus<br />
+                    <strong>Anmodet af: </strong> @brugerMap[a.ElevId].Navn<br />
 
-
-                <div class="mt-2 d-flex gap-2">
-                    <button class="btn btn-sm btn-success" @onclick="() => BehandlAnmodning(a.Id, true)">✅ Accepter</button>
-                    <button class="btn btn-sm btn-danger" @onclick="() => BehandlAnmodning(a.Id, false)">❌ Afvis</button>
+                    <div class="mt-2 d-flex gap-2">
+                        <button class="btn btn-sm btn-success" @onclick="() => BehandlAnmodning(a.Id, true)">✅ Accepter</button>
+                        <button class="btn btn-sm btn-danger" @onclick="() => BehandlAnmodning(a.Id, false)">❌ Afvis</button>
+                    </div>
                 </div>
-            </li>
-        }
-      
+            }
+        </div>
+
     </ul>
 }
 
