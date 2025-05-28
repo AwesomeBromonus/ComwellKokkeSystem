@@ -1,10 +1,8 @@
 ﻿@page "/laering"
 @using Microsoft.AspNetCore.Components.Forms
 @using Modeller
-@inject ILæringService LæringService
-@inject UserState userState
-
-
+@inject ILæringService LæringService  // Tjeneste til at hente og uploade læringsmaterialer
+@inject UserState userState           // Indeholder information om den nuværende bruger (f.eks. rolle)
 
 <h3 class="text-2xl font-semibold mb-4">📚 Læringsmaterialer</h3>
 
@@ -18,6 +16,7 @@
 
 @if (VisForm && (userState.Role == "admin" || userState.Role == "kok"))
 {
+    <!-- Formular til oprettelse af nyt læringsmateriale -->
     <div class="bg-gray-100 p-4 rounded shadow mb-4">
         <form onsubmit="return false;">
             <div class="mb-2">
@@ -45,6 +44,7 @@
 
 @if (Materialer.Count > 0)
 {
+    <!-- Viser eksisterende materialer -->
     <div class="grid gap-4">
         @foreach (var item in Materialer)
         {
@@ -69,23 +69,44 @@ else
 }
 
 @code {
+    // Liste over alle læringsmaterialer hentet fra tjenesten
     private List<Modeller.Læring> Materialer = new();
+
+    // Det læringsobjekt som brugeren er ved at oprette
     private Modeller.Læring nyLæring = new();
+
+    // Den valgte fil fra InputFile
     private IBrowserFile? valgtFil;
+
+    // Bruges til at vise/skjule oprettelsesformular
     private bool VisForm = false;
 
+    /// <summary>
+    /// Henter læringsmaterialer ved komponentinitialisering
+    /// </summary>
     protected override async Task OnInitializedAsync()
     {
         Materialer = await LæringService.HentAlleAsync();
     }
 
+    /// <summary>
+    /// Skifter mellem at vise og skjule formular til oprettelse
+    /// </summary>
     private void ToggleForm() => VisForm = !VisForm;
 
+    /// <summary>
+    /// Håndterer filvalg fra InputFile-komponenten
+    /// </summary>
+    /// <param name="e">Event data med valgt fil</param>
     private void HandleFileChange(InputFileChangeEventArgs e)
     {
         valgtFil = e.File;
     }
 
+    /// <summary>
+    /// Uploader det nye læringsmateriale samt tilhørende fil.
+    /// Hvis upload lykkes, nulstilles formularen og materialer hentes på ny.
+    /// </summary>
     private async Task HandleUpload()
     {
         if (valgtFil == null) return;
@@ -94,13 +115,18 @@ else
 
         if (success)
         {
-            nyLæring = new Modeller.Læring();
+            nyLæring = new Modeller.Læring();               // Nulstil formular
             valgtFil = null;
             VisForm = false;
-            Materialer = await LæringService.HentAlleAsync();
+            Materialer = await LæringService.HentAlleAsync();  // Genindlæs materialer
         }
     }
 
+    /// <summary>
+    /// Returnerer emoji-ikon afhængig af filtype
+    /// </summary>
+    /// <param name="type">Filtype som f.eks. pdf, jpg, mp4</param>
+    /// <returns>En emoji repræsentation af filtypen</returns>
     private string GetIkon(string type) => type.ToLower() switch
     {
         "pdf" => "📄",
