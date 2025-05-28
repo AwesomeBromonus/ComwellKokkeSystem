@@ -129,8 +129,12 @@ public class DelmålRepository : IDelmål
         var filter = Builders<Delmål>.Filter.Eq(d => d.Id, id);
         await _collection.DeleteOneAsync(filter);
     }
+    public async Task<List<Delmål>> GetAllAsync()
+    {
+        return await _collection.Find(_ => true).ToListAsync();
+    }
 
 
 
- 
+
 }

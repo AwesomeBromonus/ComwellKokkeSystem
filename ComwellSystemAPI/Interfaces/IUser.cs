@@ -11,6 +11,7 @@ public interface IUserRepository
     Task UpdateUserAsync(UserModel bruger);
     Task AssignElevplanToUserAsync(int userId, int elevplanId);
     Task<List<UserModel>> GetAdminsOgKokkeAsync();
+
     
 
 }

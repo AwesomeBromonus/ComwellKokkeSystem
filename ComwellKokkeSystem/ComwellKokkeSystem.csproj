@@ -11,6 +11,8 @@
 
 	<ItemGroup>
 	  <Compile Remove="Pages\DelmålOversigt.cs" />
+	  <Compile Remove="Service\InterfaceService\IGenereRapportService.cs" />
+	  <Compile Remove="Service\ServiceService\GenereRapportService.cs" />
 	</ItemGroup>
 
   <ItemGroup>

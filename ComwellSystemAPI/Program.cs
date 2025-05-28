@@ -41,6 +41,8 @@ builder.Services.AddSingleton<IAnmodningRepository, AnmodningRepositoryMongo>();
 builder.Services.AddSingleton<IUnderdelmaalSkabelon, UnderdelmaalSkabelonRepository>();
 builder.Services.AddSingleton<IQuiz, QuizRepositoryMongoDB>();
 builder.Services.AddSingleton<IQuestion, QuestionRepository>();
+builder.Services.AddSingleton<IRapportRepository, RapportRepository>();
+
 
 
 // Swagger

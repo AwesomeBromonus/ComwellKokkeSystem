@@ -51,5 +51,10 @@ public class DelmaalService : IDelmaalService
     {
         await _http.DeleteAsync($"api/delmaal/{id}");
     }
+    public async Task<List<Delmål>> GetAllAsync()
+    {
+        return await _http.GetFromJsonAsync<List<Delmål>>("api/delmaal/all");
+    }
+
 }
 

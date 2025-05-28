@@ -71,4 +71,11 @@ public class DelmaalController : ControllerBase
         var result = await _repo.GetByElevIdAsync(elevId);
         return Ok(result);
     }
+    [HttpGet("all")]
+    public async Task<IActionResult> GetAll()
+    {
+        var result = await _repo.GetAllAsync();
+        return Ok(result);
+    }
+
 }

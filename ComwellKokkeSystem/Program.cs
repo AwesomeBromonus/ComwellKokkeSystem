@@ -8,6 +8,7 @@ using ComwellKokkeSystem.Service.Elev;
 using ComwellKokkeSystem.Service.QuizService;
 
 
+
 public class Program
 {
     public static async Task Main(string[] args)
@@ -33,6 +34,7 @@ public class Program
         builder.Services.AddScoped<IDelmaalService, DelmaalService>();
         builder.Services.AddScoped<IBeskedService, BeskedService>();
         builder.Services.AddScoped<IKommentarService, KommentarService>();
+       
         builder.Services.AddScoped<ILæringService, LæringService>();
         builder.Services.AddBlazorDownloadFile();
         builder.Services.AddScoped<IAnmodningService, AnmodningService>();
@@ -40,7 +42,8 @@ public class Program
         builder.Services.AddScoped<IUnderdelmaalService, UnderdelmaalService>();
         builder.Services.AddScoped<IDelmaalSkabelonService, DelmaalSkabelonService>();
         builder.Services.AddScoped<IUnderdelmaalSkabelonService, UnderdelmaalSkabelonService>();
-        builder.Services.AddScoped<IQuizService, QuizService>(); 
+        builder.Services.AddScoped<IQuizService, QuizService>();
+        builder.Services.AddScoped<IRapportService, RapportService>();
 
 
 
