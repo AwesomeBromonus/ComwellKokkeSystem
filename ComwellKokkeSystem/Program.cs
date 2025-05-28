@@ -34,7 +34,8 @@ public class Program
         builder.Services.AddScoped<IDelmaalService, DelmaalService>();
       
         builder.Services.AddScoped<IKommentarService, KommentarService>();
-       
+        builder.Services.AddScoped<IQuizService, QuizService>();
+
         builder.Services.AddScoped<ILæringService, LæringService>();
         builder.Services.AddBlazorDownloadFile();
         builder.Services.AddScoped<IAnmodningService, AnmodningService>();

@@ -137,7 +137,7 @@ else
             }
 
             var file = e.File;
-            var stream = file.OpenReadStream(maxAllowedSize: 5_000_000); // max 5MB
+            var stream = file.OpenReadStream(maxAllowedSize: 5_000_000); 
             var content = new MultipartFormDataContent
             {
                 { new StreamContent(stream), "file", $"{UserState.Id}.jpg" }

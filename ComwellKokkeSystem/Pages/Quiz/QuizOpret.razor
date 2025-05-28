@@ -1,7 +1,8 @@
 ﻿@page "/quizcreator"
-@inject HttpClient Http
+@using ComwellKokkeSystem.Service
 @inject NavigationManager NavigationManager
 @inject IAuthService AuthService
+@inject IQuizService QuizService
 @inject UserState UserState
 
 <div class="min-h-screen bg-gray-100 flex items-center justify-center p-6 font-sans"> @* Subtil grå baggrund, centrerer indholdet *@
@@ -125,33 +126,32 @@
         newQuiz.CreatorName = UserState.Username;
 
         var request = new Modeller.CreateQuizRequest
-        {
-            Quiz = newQuiz,
-            Questions = questions.Select(q => new Modeller.Question
             {
-                Text = q.Text,
-                Options = q.Options,
-                CorrectAnswerIndex = q.CorrectAnswerIndex
-            }).ToList()
-        };
-
+                Quiz = newQuiz,
+                Questions = questions.Select(q => new Modeller.Question
+                {
+                    Text = q.Text,
+                    Options = q.Options,
+                    CorrectAnswerIndex = q.CorrectAnswerIndex
+                }).ToList()
+            };
         try
         {
-            var response = await Http.PostAsJsonAsync("api/Quiz", request);
-
-            if (response.IsSuccessStatusCode)
+            bool success = await QuizService.CreateQuizAsync(request);
+            if (success)
             {
                 NavigationManager.NavigateTo("/quizlist");
             }
             else
             {
-                var errorContent = await response.Content.ReadAsStringAsync();
-                Console.WriteLine($"Error creating quiz: {response.StatusCode} - {errorContent}");
+                Console.WriteLine("Fejl under oprettelse af quiz.");
             }
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Exception during quiz creation: {ex.Message}");
         }
+
     }
+
 }

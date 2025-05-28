@@ -3,6 +3,7 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using static System.Net.WebRequestMethods;
 
 namespace ComwellKokkeSystem.Service.QuizService
 {
@@ -27,11 +28,10 @@ namespace ComwellKokkeSystem.Service.QuizService
             return await _httpClient.GetFromJsonAsync<QuizWithQuestions>($"api/Quiz/{quizId}");
         }
 
-        public async Task CreateQuizAsync(CreateQuizRequest request)
+        public async Task<bool> CreateQuizAsync(CreateQuizRequest request)
         {
-            // MIDLERTIDIGT FJERNET AUTORISATION - INGEN USER-ID HEADER NØDVENDIG
             var response = await _httpClient.PostAsJsonAsync("api/Quiz", request);
-            response.EnsureSuccessStatusCode();
+            return response.IsSuccessStatusCode;
         }
 
         public async Task UpdateQuizAsync(int quizId, Quizzes quizDto)
