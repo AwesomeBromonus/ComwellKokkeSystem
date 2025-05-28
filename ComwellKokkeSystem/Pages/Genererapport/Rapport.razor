@@ -3,9 +3,9 @@
 @inject IRapportService RapportService
 @inject IUserService UserService
 @inject IDelmaalService DelmaalService
+@inject IUnderdelmaalService UnderdelmaalService
 @inject IPraktikperiodeService praktikperiodeService
 @inject IJSRuntime JS
-
 @using Modeller
 
 <h3 class="mb-4">📊 Elevrapport</h3>
@@ -25,10 +25,13 @@ else
                 <th>Email</th>
                 <th>Hotel</th>
                 <th>Delmål</th>
-                <th>Status</th>
-                <th>Deadline</th>
-                <th>Praktikperiode</th>        
-                <th>Status</th>      
+                <th>Delmål Deadline</th>
+                <th>Delmål Status</th>
+                <th>Underdelmål</th>
+                <th>Underdelmål Deadline</th>
+                <th>Underdelmål Status</th>
+                <th>Praktikperiode</th>
+                <th>Praktikperiode Status</th>
             </tr>
         </thead>
 
@@ -38,35 +41,68 @@ else
                 var elevensDelmaal = delmaalListe.Where(d => d.ElevId == bruger.Id);
                 foreach (var d in elevensDelmaal)
                 {
+                    var underdelmaal = underdelmaalMap.ContainsKey(d.Id) ? underdelmaalMap[d.Id] : new List<Underdelmaal>();
                     var periode = praktikperioder.FirstOrDefault(p => p.Id == d.PraktikperiodeId);
-                    <tr>
-                        <td>@bruger.Navn</td>
-                        <td>@bruger.Email</td>
-                        <td>@bruger.HotelNavn</td>
-                        <td>@d.Beskrivelse</td>
-                        <td>@d.Status</td>
-                        <td>@d.Deadline.ToShortDateString()</td>
-                        <td>@periode?.Navn</td>
-                        <td>@periode?.Status</td>
-                    </tr>
+
+                    if (underdelmaal.Any())
+                    {
+                        foreach (var u in underdelmaal)
+                        {
+                            <tr>
+                                <td>@bruger.Navn</td>
+                                <td>@bruger.Email</td>
+                                <td>@bruger.HotelNavn</td>
+                                <td>@d.Beskrivelse</td>
+                                <td>@d.Deadline.ToShortDateString()</td>
+                                <td>@d.Status</td>
+                                <td>@u.Beskrivelse</td>
+                                <td>@u.Deadline.ToShortDateString()</td>
+                                <td>@u.Status</td>
+                                <td>@periode?.Navn</td>
+                                <td>@periode?.Status</td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td>@bruger.Navn</td>
+                            <td>@bruger.Email</td>
+                            <td>@bruger.HotelNavn</td>
+                            <td>@d.Beskrivelse</td>
+                            <td>@d.Deadline.ToShortDateString()</td>
+                            <td>@d.Status</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>@periode?.Navn</td>
+                            <td>@periode?.Status</td>
+                        </tr>
+                    }
                 }
             }
         </tbody>
-
     </table>
 }
 
 @code {
     private List<UserModel>? brugere;
-    private List<Modeller.Delmål>? delmaalListe;
+    private List<Delmål>? delmaalListe;
     private List<Praktikperiode> praktikperioder = new();
-
+    private Dictionary<int, List<Underdelmaal>> underdelmaalMap = new();
 
     protected override async Task OnInitializedAsync()
     {
         brugere = (await UserService.GetAllAsync()).Where(u => u.Role.ToLower() == "elev").ToList();
         delmaalListe = await DelmaalService.GetAllAsync();
         praktikperioder = await praktikperiodeService.GetAllAsync();
+
+        // Hent alle underdelmål og læg dem i dictionary
+        foreach (var d in delmaalListe)
+        {
+            var under = await UnderdelmaalService.GetByDelmaalIdAsync(d.Id);
+            underdelmaalMap[d.Id] = under ?? new();
+        }
     }
 
     private async Task EksporterExcel()
