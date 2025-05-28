@@ -1,6 +1,6 @@
 ﻿@page "/anmodninger"
 @using Modeller
-@using ComwellKokkeSystem.Service;
+@using ComwellKokkeSystem.Service
 @inject IAnmodningService AnmodningService
 @inject IDelmaalService DelmaalService
 @inject UserState UserState
@@ -71,8 +71,6 @@ else
     private Dictionary<int, Underdelmaal> underdelmaalMap = new();
     private Dictionary<int, UserModel> brugerMap = new();
 
-
-
     protected override async Task OnInitializedAsync()
     {
         if (UserState.Id == null)
@@ -113,9 +111,10 @@ else
     {
         await AnmodningService.BehandlAsync(anmodningId, accepteret);
 
-        // Genindlæs anmodninger og delmål
         anmodninger = await AnmodningService.GetTilModtagerAsync(UserState.Id.Value);
         delmaalMap.Clear();
+        underdelmaalMap.Clear();
+        brugerMap.Clear();
 
         foreach (var a in anmodninger)
         {
@@ -123,13 +122,24 @@ else
             {
                 var delmaal = await DelmaalService.GetByIdAsync(a.DelmaalId.Value);
                 if (delmaal != null)
-                {
                     delmaalMap[delmaal.Id] = delmaal;
-                }
+            }
+
+            if (a.UnderdelmaalId != null)
+            {
+                var underdelmaal = await UnderdelmaalService.GetByIdAsync(a.UnderdelmaalId.Value);
+                if (underdelmaal != null)
+                    underdelmaalMap[underdelmaal.Id] = underdelmaal;
+            }
+
+            if (!brugerMap.ContainsKey(a.ElevId))
+            {
+                var bruger = await UserService.GetByIdAsync(a.ElevId);
+                if (bruger != null)
+                    brugerMap[a.ElevId] = bruger;
             }
         }
 
         StateHasChanged();
     }
-
 }

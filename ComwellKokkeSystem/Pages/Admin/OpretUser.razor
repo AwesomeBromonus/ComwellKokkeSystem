@@ -3,83 +3,92 @@
 @inject NavigationManager NavManager
 @using Modeller
 
-<div class="d-flex justify-content-center align-items-center" style="min-height: 100vh; background-color: #f5f5f5;">
-    <div class="p-5 shadow" style="background-color: white; border-radius: 20px; width: 100%; max-width: 600px;">
-        <h2 class="text-center mb-4" style="color: #003b4a;">Opret ny bruger</h2>
+<link href="css/Panel.css" rel="stylesheet" />
 
+<div class="admin-full-container">
+    <div class="admin-header">
+        <h2 class="admin-title">👤 Opret ny bruger</h2>
+        <p class="admin-subtitle">Udfyld formularen for at oprette en ny bruger i systemet.</p>
+    </div>
+
+    <div class="admin-content">
         <EditForm Model="@newUser" OnValidSubmit="HandleRegister">
             <DataAnnotationsValidator />
             <ValidationSummary />
 
+            <div class="card shadow-sm border-0 p-4 rounded-4 bg-white">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="form-group">
+                        <label>Brugernavn</label>
+                        <InputText class="form-control rounded-pill" @bind-Value="newUser.Username" />
+                    </div>
 
-            <div class="form-group mb-3">
-                <label>Username</label>
-                <InputText type="username" class="form-control rounded-pill" @bind-Value="newUser.Username" />
+                    <div class="form-group">
+                        <label>Adgangskode</label>
+                        <InputText type="password" class="form-control rounded-pill" @bind-Value="newUser.Password" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Navn</label>
+                        <InputText class="form-control rounded-pill" @bind-Value="newUser.Navn" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Email</label>
+                        <InputText class="form-control rounded-pill" @bind-Value="newUser.Email" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Telefonnummer</label>
+                        <InputText class="form-control rounded-pill" @bind-Value="newUser.Tlf" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Adresse</label>
+                        <InputText class="form-control rounded-pill" @bind-Value="newUser.Adresse" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Startdato</label>
+                        <InputDate class="form-control rounded-pill" @bind-Value="newUser.StartDato" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Slutdato (valgfri)</label>
+                        <InputDate class="form-control rounded-pill" @bind-Value="newUser.SlutDato" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Hotel</label>
+                        <select class="form-control rounded-pill" @onchange="OnHotelChanged">
+                            <option value="">Vælg hotel</option>
+                            @foreach (var hotel in comwellHoteller)
+                            {
+                                <option value="@hotel.Id">@hotel.Navn</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Rolle</label>
+                        <InputSelect class="form-control rounded-pill" @bind-Value="newUser.Role">
+                            <option value="elev">Elev</option>
+                            <option value="kok">Kok</option>
+                            <option value="admin">Admin</option>
+                        </InputSelect>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary mt-4 w-100 fw-bold rounded-pill">➕ Opret Bruger</button>
+
+                @if (!string.IsNullOrEmpty(message))
+                {
+                    <div class="alert @(registerSuccess ? "alert-success" : "alert-danger") mt-3">
+                        @message
+                    </div>
+                }
             </div>
-
-            <div class="form-group mb-3">
-                <label>Adgangskode</label>
-                <InputText type="password" class="form-control rounded-pill" @bind-Value="newUser.Password" />
-            </div>
-
-            <div class="form-group mb-3">
-                <label>Navn</label>
-                <InputText class="form-control rounded-pill" @bind-Value="newUser.Navn" />
-            </div>
-
-            <div class="form-group mb-3">
-                <label>Email</label>
-                <InputText class="form-control rounded-pill" @bind-Value="newUser.Email" />
-            </div>
-
-            <div class="form-group mb-3">
-                <label>Telefonnummer</label>
-                <InputText class="form-control rounded-pill" @bind-Value="newUser.Tlf" />
-            </div>
-
-            <div class="form-group mb-3">
-                <label>Adresse</label>
-                <InputText class="form-control rounded-pill" @bind-Value="newUser.Adresse" />
-            </div>
-
-            <div class="form-group mb-3">
-                <label>Startdato</label>
-                <InputDate class="form-control rounded-pill" @bind-Value="newUser.StartDato" />
-            </div>
-
-            <div class="form-group mb-3">
-                <label>Slutdato (valgfri)</label>
-                <InputDate class="form-control rounded-pill" @bind-Value="newUser.SlutDato" />
-            </div>
-
-            <div class="form-group mb-3">
-                <label>Hotel</label>
-               <select class="form-control rounded-pill" @onchange="OnHotelChanged">
-                <option value="0">Vælg hotel</option>
-                <option value="1">Kongeborgh</option>
-                <option value="2">Holte</option>
-                </select>
-            </div>
-
-            <div class="form-group mb-4">
-                <label>Rolle</label>
-                <InputSelect class="form-control rounded-pill" @bind-Value="newUser.Role">
-                    <option value="elev">Elev</option>
-                    <option value="kok">Kok</option>
-                    <option value="HR">HR</option>
-                    <option value="admin">Admin</option>
-                </InputSelect>
-            </div>
-
-            <button type="submit" class="btn btn-primary w-100">Opret Bruger</button>
         </EditForm>
-
-        @if (!string.IsNullOrEmpty(message))
-        {
-            <div class="alert @(registerSuccess ? "alert-success" : "alert-danger") mt-3">
-                @message
-            </div>
-        }
     </div>
 </div>
 
@@ -93,10 +102,30 @@
     private string message = "";
     private bool registerSuccess = false;
 
+    private List<Hoteller> comwellHoteller = new()
+    {
+        new Hoteller { Id = 1, Navn = " Aarhus" },
+        new Hoteller { Id = 2, Navn = "Borupgaard" },
+        new Hoteller { Id = 3, Navn = "Bygholm Park" },
+        new Hoteller { Id = 4, Navn = "Centralværkstedet" },
+        new Hoteller { Id = 5, Navn = "Copenhagen Portside" },
+        new Hoteller { Id = 6, Navn = "H.C. Andersen Odense" },
+        new Hoteller { Id = 7, Navn = "Holte" },
+        new Hoteller { Id = 8, Navn = "Hvide Hus Aalborg" },
+        new Hoteller { Id = 9, Navn = "Kellers Park" },
+        new Hoteller { Id = 10, Navn = "Klarskovgaard" },
+        new Hoteller { Id = 11, Navn = "Kolding" },
+        new Hoteller { Id = 12, Navn = "Kongebrogaarden" },
+        new Hoteller { Id = 13, Navn = "Køge Strand" },
+        new Hoteller { Id = 14, Navn = "Middelfart" },
+        new Hoteller { Id = 15, Navn = "Rebild Bakker" },
+        new Hoteller { Id = 16, Navn = "Roskilde" },
+        new Hoteller { Id = 17, Navn = "Sorø" }
+    };
+
     private async Task HandleRegister()
     {
         var success = await AuthService.Register(newUser);
-
         registerSuccess = success;
 
         if (success)
@@ -110,18 +139,17 @@
             message = "Noget gik galt – brugeren blev ikke oprettet.";
         }
     }
+
     private void OnHotelChanged(ChangeEventArgs e)
     {
         if (int.TryParse(e.Value?.ToString(), out int id))
         {
-            newUser.HotelId = id;
-
-            newUser.HotelNavn = id switch
+            var valgtHotel = comwellHoteller.FirstOrDefault(h => h.Id == id);
+            if (valgtHotel != null)
             {
-                1 => "Kongeborgh",
-                2 => "Holte",
-                _ => null
-            };
+                newUser.HotelId = valgtHotel.Id;
+                newUser.HotelNavn = valgtHotel.Navn;
+            }
         }
     }
 }

@@ -17,15 +17,14 @@ else if (!UserState.IsLoggedIn)
 {
     <div class="alert alert-warning">🔒 Du skal være logget ind for at se denne side.</div>
 }
-else if (UserState.Role?.ToLower() != "elev")
+else if (!UserState.IsElevAdgang)
 {
-    <div class="alert alert-danger">🚫 Adgang nægtet – kun elever har adgang til denne side.</div>
+    <div class="alert alert-danger">🚫 Adgang nægtet – kun elever og kokke har adgang til denne side.</div>
 }
 else
 {
     <div class="card shadow-sm border-0 mb-4 bg-light p-4 rounded-4">
-        <h5 class="fw-bold">Velkommen til Comwells elev system, @UserState.Username!</h5>
-       
+        <h5 class="fw-bold">Velkommen til Comwells elevsystem, @UserState.Username!</h5>
     </div>
 
     @if (elevplanLoading)

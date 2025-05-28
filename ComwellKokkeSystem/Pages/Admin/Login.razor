@@ -1,6 +1,5 @@
 ﻿@page "/login"
 @layout LoginLayout
-
 @inject IAuthService AuthService
 @inject NavigationManager NavManager
 @inject UserState UserState
@@ -64,10 +63,9 @@
             NavManager.NavigateTo(UserState.Role?.ToLower() switch
             {
                 "admin" => "/administrator",
-                "elev" => "/mitoverblik",
+                "elev" or "kok" => "/mitoverblik",
                 _ => "/"
             }, forceLoad: true);
-            return;
         }
 
         var storedUser = await localStorage.GetItemAsync<string>("rememberedUsername");
@@ -101,6 +99,8 @@
                 var user = await AuthService.GetUserByUsername(login.Username);
                 if (user != null)
                 {
+                   
+
                     await UserState.SetUserAsync(
                         user.Username,
                         user.Role,
@@ -111,10 +111,11 @@
                         user.Email
                     );
 
+                    // Rollebaseret redirect
                     NavManager.NavigateTo(user.Role?.ToLower() switch
                     {
                         "admin" => "/administrator",
-                        "elev" => "/mitoverblik",
+                        "elev" or "kok" => "/mitoverblik",
                         _ => "/"
                     });
                 }
