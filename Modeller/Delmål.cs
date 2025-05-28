@@ -23,17 +23,7 @@ namespace Modeller
         
         // Liste af underdelmål tilknyttet til dette delmål
         public List<Underdelmaal> UnderdelmaalList { get; set; } = new();
-        public string CalculatedStatus // Hvis du vil have en samlet status for delmålet
-        {
-            get
-            {
-                if (!UnderdelmaalList.Any()) return "Ikke påbegyndt"; // Eller hvad der giver mening
-                if (UnderdelmaalList.All(u => u.Status == "Fuldført")) return "Fuldført";
-                if (UnderdelmaalList.Any(u => u.Status == "Påbegyndt")) return "Påbegyndt"; // Eller en anden status
-                return "Ikke fuldført"; // Standard
-            }
-        }
-
+      
 
     }
 
