@@ -4,6 +4,9 @@
 @using Modeller
 @using System.Linq
 
+<link href="css/Delmaal.css" rel="stylesheet" />
+
+
 <h3>🧾 Elevplanskabelon</h3>
 
 @if (skabeloner == null)
@@ -23,22 +26,22 @@ else
                 <table class="table table-striped mb-0">
                     <thead>
                         <tr>
-                            <th>Beskrivelse</th>
-                            <th>Underdelmål</th>
-                            <th>Handlinger</th>
+                            <th class="beskrivelse-col">Beskrivelse</th>
+                            <th class="underdelmaal-col text-center">Underdelmål</th>
+                            <th class="handlinger-col text-end">Handlinger</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach (var s in periodeSkabeloner)
                         {
                             <tr>
-                                <td>@s.Beskrivelse</td>
-                                <td>
+                                <td class="beskrivelse-col">@s.Beskrivelse</td>
+                                <td class="underdelmaal-col">
                                     <button class="btn btn-sm btn-outline-secondary" @onclick="() => ToggleUnderdelmaalVisning(s.Id)">
                                         @(udvidetDelmaalId == s.Id ? "⬆️ Skjul" : "⬇️ Vis")
                                     </button>
                                 </td>
-                                <td>
+                                <td class="handlinger-col">
                                     <button class="btn btn-sm btn-warning me-1" @onclick="() => RedigerSkabelon(s)">✏️</button>
                                     <button class="btn btn-sm btn-danger me-1" @onclick="() => SletSkabelon(s.Id)">🗑️</button>
                                     <button class="btn btn-sm btn-success" @onclick="() => ÅbenUnderdelmaalModal(s.Id)">➕ Underdelmål</button>
@@ -50,31 +53,30 @@ else
                                 if (relevanteUnderdelmaal.Any())
                                 {
                                     <tr>
-                                        <td colspan="6">
+                                        <td colspan="3">
                                             <ul class="list-group list-group-flush">
-                                               @foreach (var u in relevanteUnderdelmaal)
-{
-    <li class="list-group-item d-flex justify-content-between align-items-center">
-        <div>
-            <strong>@u.Beskrivelse</strong><br />
-            <small class="text-muted">🗓 Deadline-dage: @u.Deadline</small>
-        </div>
-        <div>
-            <button class="btn btn-sm btn-warning me-1" @onclick="() => RedigerUnderdelmaal(u)">✏️</button>
-            <button class="btn btn-sm btn-danger" @onclick="() => SletUnderdelmaal(u.Id, s.Id)">🗑️</button>
-        </div>
-    </li>
-}
-
+                                                @foreach (var u in relevanteUnderdelmaal)
+                                                {
+                                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                        <div>
+                                                            <strong>@u.Beskrivelse</strong><br />
+                                                            <small class="text-muted">🗓 Deadline-dage: @u.Deadline</small>
+                                                        </div>
+                                                        <div>
+                                                            <button class="btn btn-sm btn-warning me-1" @onclick="() => RedigerUnderdelmaal(u)">✏️</button>
+                                                            <button class="btn btn-sm btn-danger" @onclick="() => SletUnderdelmaal(u.Id, s.Id)">🗑️</button>
+                                                        </div>
+                                                    </li>
+                                                }
                                             </ul>
                                         </td>
                                     </tr>
                                 }
                             }
-
                         }
                     </tbody>
                 </table>
+
             </div>
         }
     }
