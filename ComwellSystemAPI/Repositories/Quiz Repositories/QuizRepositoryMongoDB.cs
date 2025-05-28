@@ -120,17 +120,17 @@ public class QuizRepositoryMongoDB : IQuiz
     /// Navngivningen af parameteren `quizDto` er lidt misvisende her, da det er selve domæneobjektet `Quizzes`
     /// der modtages, ikke en særskilt DTO. Men det er en lille detalje.
     /// </remarks>
-    public async Task UpdateQuizAsync(Quizzes quizDto)
+    public async Task UpdateQuizAsync(Quizzes quizzes)
     {
         try
         {
             // Erstatter et eksisterende quiz-dokument baseret på dets ID med det nye 'quizDto' objekt.
-            await _quizzes.ReplaceOneAsync(q => q.Id == quizDto.Id, quizDto);
-            Console.WriteLine($"Quiz med ID {quizDto.Id} blev opdateret.");
+            await _quizzes.ReplaceOneAsync(q => q.Id == quizzes.Id, quizzes);
+            Console.WriteLine($"Quiz med ID {quizzes.Id} blev opdateret.");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Fejl ved opdatering af quiz med ID {quizDto.Id}: {ex.Message}");
+            Console.WriteLine($"Fejl ved opdatering af quiz med ID {quizzes.Id}: {ex.Message}");
             throw;
         }
     }
