@@ -5,8 +5,6 @@ namespace Modeller;
 
 public class Quizzes
 {
-    [BsonId]
-    [BsonRepresentation(MongoDB.Bson.BsonType.Int32)]
     public int Id { get; set; } 
     public string Title { get; set; } = string.Empty;
     public List<int> QuestionsIds { get; set; } = new List<int>(); // <--- VIGTIGT: Skal være List<int>
@@ -17,8 +15,7 @@ public class Quizzes
 
 public class Question
 {
-    [BsonId]
-    [BsonRepresentation(MongoDB.Bson.BsonType.Int32)]
+  
     public int Id { get; set; } 
     public string Text { get; set; } = string.Empty;
     public List<string> Options { get; set; } = new List<string>();
