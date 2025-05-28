@@ -54,7 +54,7 @@ public class DelmålRepository : IDelmål
             Id = næsteId++,
             DelmaalId = delmaal.Id,
             Beskrivelse = s.Beskrivelse,
-            DeadlineOffsetDage = s.DeadlineOffsetDage,
+            Deadline = s.Deadline,
             Status = "Ikke fuldført"
         }).ToList();
 

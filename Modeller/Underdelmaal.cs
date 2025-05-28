@@ -13,8 +13,8 @@ namespace Modeller
         public int DelmaalId { get; set; } // FK til det oprettede delmål
         public string Beskrivelse { get; set; } = "";
         public string Status { get; set; } = "Ikke påbegyndt";
-        public int DeadlineOffsetDage { get; set; } = 0;
-        
+        public DateTime Deadline { get; set; }
+
     }
 
 }
