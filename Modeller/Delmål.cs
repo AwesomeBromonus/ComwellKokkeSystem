@@ -20,10 +20,7 @@ namespace Modeller
         public int ElevplanId { get; set; }
         public int ElevId { get; set; }
         public int? DelmaalSkabelonId { get; set; } 
-        
-        // Liste af underdelmål tilknyttet til dette delmål
-        public List<Underdelmaal> UnderdelmaalList { get; set; } = new();
-      
+          
 
     }
 

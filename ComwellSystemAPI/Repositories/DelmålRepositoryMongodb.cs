@@ -90,17 +90,9 @@ public class DelmålRepository : IDelmål
 
     public async Task<List<Delmål>> GetByElevIdAsync(int elevId)
     {
-        var delmaal = await _collection.Find(d => d.ElevId == elevId).ToListAsync();
-        // hent og tilføj underdelmål til hvert hovedmål 
-        foreach (var dm in delmaal)
-        {
-            dm.UnderdelmaalList = await _underdelmaalCollection
-                .Find(ud => ud.DelmaalId == dm.Id)
-                .ToListAsync();
-        }
-        return delmaal;
-
+        return await _collection.Find(d => d.ElevId == elevId).ToListAsync();
     }
+
     public async Task<List<Delmål>> GetAllForYearAsync(int year)
     {
         // Henter alle delmål. Hvis du har ekstremt mange delmål,
