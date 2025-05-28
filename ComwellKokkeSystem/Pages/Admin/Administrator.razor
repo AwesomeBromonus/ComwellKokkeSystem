@@ -73,16 +73,16 @@
            (string.IsNullOrWhiteSpace(valgtRolle) || b.Role?.ToLower() == valgtRolle) &&
            (string.IsNullOrWhiteSpace(valgtHotel) || b.HotelNavn == valgtHotel)))
             {
-                <div class="user-card" @onclick="@(() => VisDetaljer(b))">
-                    <div class="user-content">
-                        <div class="user-info">
-                            <h5>@b.Navn</h5>
-                            <span class="role-tag @GetRoleClass(b.Role)">@b.Role</span>
-                        </div>
-                        <img src="@GetImageUrl(b.Id)" onerror="this.style.display='none';"
-                             class="user-image rounded-circle" width="64" height="64" alt="" />
+                <div class="user-card d-flex justify-content-between align-items-center p-3 shadow-sm border rounded" @onclick="@(() => VisDetaljer(b))" style="background-color: #fff;">
+                    <div class="user-text">
+                        <h5 class="mb-1">@b.Navn</h5>
+                        <span class="role-tag @GetRoleClass(b.Role)">@b.Role</span><br />
+                        <small class="text-muted">@b.HotelNavn</small>
                     </div>
+                    <img src="@GetImageUrl(b.Id)" onerror="this.style.display='none';" class="user-image rounded-circle ms-3" style="width: 64px; height: 64px; object-fit: cover;" alt="Brugerbillede" />
                 </div>
+
+               
             }
         </div>
 
