@@ -8,7 +8,6 @@ namespace Modeller
 {
     public class Elev : UserModel
     {
-       
         public string Rolle { get; set; } = "Elev";
     }
 }

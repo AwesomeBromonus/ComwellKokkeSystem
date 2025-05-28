@@ -32,7 +32,6 @@ builder.Services.AddSingleton<IElevplan, ElevplanRepository>();
 builder.Services.AddSingleton<IPraktikperiode, PraktikperiodeRepository>();
 builder.Services.AddSingleton<IUserRepository, UserRepositoryMongodb>();
 builder.Services.AddSingleton<IDelmål, DelmålRepository>();
-
 builder.Services.AddSingleton<ILæring, LæringRepositoryMongoDB>();
 builder.Services.AddSingleton<IUnderdelmaal, UnderdelmaalRepository>();
 builder.Services.AddSingleton<IKommentar, KommentarRepository>();
