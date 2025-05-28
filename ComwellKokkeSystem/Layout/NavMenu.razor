@@ -23,16 +23,23 @@
                 <NavLink class="nav-link" href="/rapportside">📊 Rapport</NavLink>
                 <NavLink class="nav-link" href="/quizcreator">✍️ Lav en Quiz</NavLink>
             }
+            else if (UserState.Role?.ToLower() == "kok")
+            {
+                <NavLink class="nav-link" href="/mitoverblik" Match="NavLinkMatch.All">🗂️ Mit overblik</NavLink>
+                <NavLink class="nav-link" href="/anmodninger">📬 Anmodninger</NavLink>
+            }
+
             else if (UserState.IsElevAdgang)
             {
                 <NavLink class="nav-link" href="/mitoverblik" Match="NavLinkMatch.All">🗂️ Mit overblik</NavLink>
             }
-
+           
             @if (UserState.IsLoggedIn)
             {
                 <NavLink class="nav-link" href="/laering">📚 Læring</NavLink>
                <NavLink class="nav-link" href="/quizlist">🧠 Quizzes</NavLink>
                 <NavLink class="nav-link" href="/minprofil">🙍‍♂️ Min profil</NavLink>
+                
             }
         </nav>
     </div>
