@@ -8,12 +8,9 @@ public class PraktikperiodeRepository : IPraktikperiode
 {
     private readonly IMongoCollection<Praktikperiode> _collection;
 
-    public PraktikperiodeRepository()
+    public PraktikperiodeRepository(IMongoDatabase database)
     {
-        var mongoUri = "mongodb+srv://Brobolo:Bromus12344321@cluster0.k4kon.mongodb.net/"; // your real connection string
-        var client = new MongoClient(mongoUri);
-        var db = client.GetDatabase("Comwell");
-        _collection = db.GetCollection<Praktikperiode>("Praktikperioder");
+        _collection = database.GetCollection<Praktikperiode>("Praktikperioder");
     }
 
     public async Task<List<Praktikperiode>> GetAllAsync() =>

@@ -6,14 +6,10 @@ public class ElevplanRepository : IElevplan
 {
     private readonly IMongoCollection<Elevplan> _elevplanCollection;
 
-    public ElevplanRepository()
+    public ElevplanRepository(IMongoDatabase database)
     {
-        var mongoUri = "mongodb+srv://Brobolo:Bromus12344321@cluster0.k4kon.mongodb.net/";
-        var client = new MongoClient(mongoUri);
-        var database = client.GetDatabase("Comwell");
         _elevplanCollection = database.GetCollection<Elevplan>("Elevplaner");
     }
-
     // Hent alle elevplaner
     public async Task<List<Elevplan>> GetAllAsync()
     {

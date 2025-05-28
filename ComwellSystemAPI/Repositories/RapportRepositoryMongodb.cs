@@ -11,17 +11,12 @@ namespace ComwellSystemAPI.Repositories
         private readonly IMongoCollection<Delmål> _delmaalCollection;
         private readonly IMongoCollection<Praktikperiode> _praktikperiodeCollection;
 
-        public RapportRepository()
+        public RapportRepository(IMongoDatabase database)
         {
-            var client = new MongoClient("mongodb+srv://Brobolo:Bromus12344321@cluster0.k4kon.mongodb.net/"); // <- din connection string
-            var database = client.GetDatabase("Comwell");
-
             _userCollection = database.GetCollection<UserModel>("Brugere");
             _delmaalCollection = database.GetCollection<Delmål>("Delmål");
             _praktikperiodeCollection = database.GetCollection<Praktikperiode>("Praktikperioder");
-
         }
-
         public async Task<byte[]> GenererElevDelmaalExcelAsync()
         {
             var brugere = await _userCollection.Find(_ => true).ToListAsync();

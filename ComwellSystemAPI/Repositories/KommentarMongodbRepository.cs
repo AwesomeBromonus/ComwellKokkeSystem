@@ -8,13 +8,10 @@ namespace ComwellSystemAPI.Repositories
     {
         private readonly IMongoCollection<Kommentar> _collection;
 
-        public KommentarRepository()
+        public KommentarRepository(IMongoDatabase database)
         {
-            var client = new MongoClient("mongodb+srv://Brobolo:Bromus12344321@cluster0.k4kon.mongodb.net/");
-            var db = client.GetDatabase("Comwell");
-            _collection = db.GetCollection<Kommentar>("Kommentarer");
+            _collection = database.GetCollection<Kommentar>("Kommentarer");
         }
-
         // Tilføjer en ny kommentar til databasen
         public async Task AddAsync(Kommentar kommentar)
         {

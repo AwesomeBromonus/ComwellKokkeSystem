@@ -11,22 +11,11 @@ public class QuizRepositoryMongoDB : IQuiz
 {
     private readonly IMongoCollection<Quizzes> _quizzes;
 
-    public QuizRepositoryMongoDB()
+    public QuizRepositoryMongoDB(IMongoDatabase database)
     {
-        try
-        {
-            var client = new MongoClient("mongodb+srv://Bromus:Bromus12344321@cluster0.k4kon.mongodb.net/");
-            var db = client.GetDatabase("Comwell");
-            _quizzes = db.GetCollection<Quizzes>("Quizzes");
-            Console.WriteLine("Forbindelse til MongoDB etableret.");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Fejl ved forbindelse til MongoDB: {ex.Message}");
-            throw;
-        }
+        _quizzes = database.GetCollection<Quizzes>("Quizzes");
+        Console.WriteLine("✅ Forbindelse til MongoDB gennem DI etableret.");
     }
-
     public async Task<List<Quizzes>> GetQuizzesAsync()
     {
         try

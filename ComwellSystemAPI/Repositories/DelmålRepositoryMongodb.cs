@@ -6,14 +6,15 @@ public class DelmålRepository : IDelmål
 {
     private readonly IMongoCollection<Delmål> _collection;
     private readonly IMongoCollection<Underdelmaal> _underdelmaalCollection;
+    private readonly IMongoCollection<UnderdelmaalSkabelon> _underdelSkabelonCollection;
 
-    public DelmålRepository()
+    public DelmålRepository(IMongoDatabase database)
     {
-        var client = new MongoClient("mongodb+srv://Brobolo:Bromus12344321@cluster0.k4kon.mongodb.net/");
-        var db = client.GetDatabase("Comwell");
-        _collection = db.GetCollection<Delmål>("Delmål");
-        _underdelmaalCollection = db.GetCollection<Underdelmaal>("Underdelmaal");
+        _collection = database.GetCollection<Delmål>("Delmål");
+        _underdelmaalCollection = database.GetCollection<Underdelmaal>("Underdelmaal");
+        _underdelSkabelonCollection = database.GetCollection<UnderdelmaalSkabelon>("UnderdelmaalSkabelon");
     }
+
 
     public async Task AddAsync(Delmål delmaal)
     {   

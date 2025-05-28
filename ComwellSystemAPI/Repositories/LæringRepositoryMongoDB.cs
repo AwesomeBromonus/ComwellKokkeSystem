@@ -8,13 +8,10 @@ namespace ComwellSystemAPI.Repositories
     {
         private readonly IMongoCollection<Læring> _collection;
 
-        public LæringRepositoryMongoDB()
+        public LæringRepositoryMongoDB(IMongoDatabase database)
         {
-            var client = new MongoClient("mongodb+srv://Bromus:Bromus12344321@cluster0.k4kon.mongodb.net/");
-            var db = client.GetDatabase("Comwell");
-            _collection = db.GetCollection<Læring>("Laering");
+            _collection = database.GetCollection<Læring>("Laering");
         }
-
         public async Task<List<Læring>> GetAllAsync() => await _collection.Find(_ => true).ToListAsync();
 
         public async Task<Læring?> GetByIdAsync(int id) =>

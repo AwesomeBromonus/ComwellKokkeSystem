@@ -7,13 +7,11 @@ namespace ComwellSystemAPI.Repositories
     {
         private readonly IMongoCollection<UserModel> _userCollection;
 
-        public UserRepositoryMongodb()
+        public UserRepositoryMongodb(IMongoDatabase database)
         {
-            var mongoUri = "mongodb+srv://Brobolo:Bromus12344321@cluster0.k4kon.mongodb.net/";
-            var client = new MongoClient(mongoUri);
-            var database = client.GetDatabase("Comwell");
             _userCollection = database.GetCollection<UserModel>("Brugere");
         }
+
 
         public async Task AddAsync(UserModel user)
         {
