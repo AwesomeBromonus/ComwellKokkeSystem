@@ -3,7 +3,7 @@
 @using ComwellKokkeSystem.Service
 @inject IAnmodningService AnmodningService
 @inject IDelmaalService DelmaalService
-@inject UserState UserState
+@inject IUserStateService UserState
 @inject NavigationManager Nav
 @inject IUnderdelmaalService UnderdelmaalService
 @inject IUserService UserService
@@ -18,7 +18,7 @@
 {
     <div class="alert alert-danger">Du skal være logget ind for at se denne side.</div>
 }
-else if (UserState.Role?.ToLower() != "admin" && UserState.Role?.ToLower() != "kok")
+else if (!UserState.IsInRole("admin") && !UserState.IsInRole("kok"))
 {
     <div class="alert alert-warning">Denne side er kun for kokke og administratorer.</div>
 }

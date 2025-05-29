@@ -3,7 +3,7 @@
 @inject IElevplanService ElevplanService
 @inject IAnmodningService AnmodningService
 @inject NavigationManager NavManager
-@inject UserState UserState
+@inject IUserStateService UserState
 @using Modeller
 @using ComwellKokkeSystem.Service
 
@@ -27,7 +27,7 @@
         <!-- ✅ Header -->
         <div class="admin-header">
             <h2>🛠 Administratorpanel</h2>
-            <p>Velkommen, <span class="username">@UserState.Navn</span></p>
+            <p>Velkommen, <span class="username">@UserState.CurrentUser?.Navn</span></p>
         </div>
 
         <!-- 🚀 Hurtig adgang -->
@@ -46,6 +46,10 @@
                 <p><strong>@anmodningerAntal</strong> afventer</p>
             </div>
         </div>
+
+     
+    }
+
 
         <!-- 🔍 Filtrering -->
         <div class="search-section">
@@ -81,7 +85,7 @@
                     <img src="@GetImageUrl(b.Id)" onerror="this.style.display='none';" class="user-image rounded-circle ms-3" style="width: 64px; height: 64px; object-fit: cover;" alt="Brugerbillede" />
                 </div>
 
-               
+
             }
         </div>
 
@@ -164,8 +168,9 @@
                     </div>
                 </div>
             </div>
-        }
+        
     }
+
 </div>
 
 
@@ -275,7 +280,7 @@
         "admin" => "role-admin",
         "elev" => "role-elev",
         "kok" => "role-kok",
-     
+
         _ => "role-ukendt"
     };
 
