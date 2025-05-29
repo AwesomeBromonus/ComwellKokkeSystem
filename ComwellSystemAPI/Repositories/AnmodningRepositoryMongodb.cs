@@ -8,12 +8,11 @@ namespace ComwellSystemAPI.Repositories
     public class AnmodningRepositoryMongo : IAnmodningRepository
     {
         private readonly IMongoCollection<Anmodning> _collection;
+        private readonly IMongoDatabase _database;
 
-
-        public AnmodningRepositoryMongo()
+        public AnmodningRepositoryMongo(IMongoDatabase database)
         {
-            var client = new MongoClient("mongodb+srv://Brobolo:Bromus12344321@cluster0.k4kon.mongodb.net/");
-            var database = client.GetDatabase("Comwell");
+            _database = database;
             _collection = database.GetCollection<Anmodning>("Anmodninger");
         }
 
@@ -71,6 +70,7 @@ namespace ComwellSystemAPI.Repositories
 
                     if (underdelmaal != null)
                     {
+                        //Her bliver status på underdelmål sat til den ønskede status hvis accepteret
                         underdelmaal.Status = anmodning.ØnsketStatus;
                         await underdelmaalCollection.ReplaceOneAsync(filter, underdelmaal);
                     }
@@ -83,6 +83,7 @@ namespace ComwellSystemAPI.Repositories
 
                     if (delmaal != null)
                     {
+                        //Her bliver status på delmål sat til den ønskede status hvis accepteret
                         delmaal.Status = anmodning.ØnsketStatus;
                         await delmaalCollection.ReplaceOneAsync(filter, delmaal);
                     }

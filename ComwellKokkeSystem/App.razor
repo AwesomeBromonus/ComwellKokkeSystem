@@ -9,12 +9,11 @@
     </NotFound>
 </Router>
 @code {
-
-    [Inject] public UserState UserState { get; set; }
+    [Inject] public IUserStateService UserStateService { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        await UserState.InitializeAsync();  // ← denne er KRITISK!
+        await UserStateService.InitializeAsync(); // ← stadig kritisk!
     }
 }
-    
+

@@ -1,27 +1,27 @@
 ﻿@page "/mitoverblik"
 @inject NavigationManager NavManager
-@inject UserState UserState
+@inject IUserStateService UserStateService
 @using ComwellKokkeSystem.Service
 @inject IElevplanService ElevplanService
 
 <h3 class="mb-4">🎓 Mit Elev Overblik</h3>
 
-@if (!UserState.IsLoggedInChecked)
+@if (!UserStateService.IsLoggedInChecked)
 {
     <p>⏳ Indlæser brugerstatus...</p>
 }
-else if (!UserState.IsLoggedIn)
+else if (!UserStateService.IsLoggedIn)
 {
     <div class="alert alert-warning">🔒 Du skal være logget ind for at se denne side.</div>
 }
-else if (!UserState.IsElevAdgang)
+else if (UserStateService.CurrentUser?.Role?.ToLower() != "elev" && UserStateService.CurrentUser?.Role?.ToLower() != "kok")
 {
     <div class="alert alert-danger">🚫 Adgang nægtet – kun elever og kokke har adgang til denne side.</div>
 }
 else
 {
     <div class="card shadow-sm border-0 mb-4 bg-light p-4 rounded-4">
-        <h5 class="fw-bold">Velkommen til Comwells elevsystem, @UserState.Username!</h5>
+        <h5 class="fw-bold">Velkommen til Comwells elevsystem, @UserStateService.CurrentUser?.Navn!</h5>
     </div>
 
     @if (elevplanLoading)
@@ -83,7 +83,7 @@ else
             </div>
         </div>
 
-        <!-- Cooking GIF -->
+        <!-- GIF Section -->
         <div class="row g-4 mb-4">
             <div class="col-md-6">
                 <div class="gif-item">
@@ -106,11 +106,16 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        if (UserState.IsLoggedIn && UserState.Id.HasValue)
+        if (UserStateService.IsLoggedIn && UserStateService.CurrentUser?.Id != null)
         {
             try
             {
-                aktivElevplan = await ElevplanService.GetElevplanByIdAsync(UserState.Id.Value);
+                var planer = await ElevplanService.GetElevplanerForElevAsync(UserStateService.CurrentUser.Id);
+
+                if (planer != null && planer.Any())
+                    aktivElevplan = planer.FirstOrDefault(); // vælg første plan hvis der er flere
+                else
+                    fejlbesked = "Ingen elevplaner fundet.";
             }
             catch (Exception ex)
             {
@@ -121,8 +126,11 @@ else
         elevplanLoading = false;
     }
 
+
     private void GåTilDelmål(int elevplanId)
     {
         NavManager.NavigateTo($"/delmaal/{elevplanId}");
     }
+
+   
 }

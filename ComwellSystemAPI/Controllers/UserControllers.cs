@@ -17,6 +17,14 @@ namespace ComwellSystemAPI.Controllers
             _env = env;
         }
 
+        [HttpPost]
+        public async Task<IActionResult> AddUser([FromBody] UserModel user)
+        {
+            await _userRepo.AddAsync(user);
+            return Ok();
+        }
+
+
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] UserModel model)
         {
@@ -37,7 +45,7 @@ namespace ComwellSystemAPI.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginModel model)
+        public async Task<IActionResult> Login([FromBody] UserModel model)
         {
             if (string.IsNullOrWhiteSpace(model.Username) || string.IsNullOrWhiteSpace(model.Password))
                 return BadRequest("Udfyld brugernavn og adgangskode.");
@@ -46,7 +54,7 @@ namespace ComwellSystemAPI.Controllers
             if (user == null || user.Password != model.Password)
                 return Unauthorized("Forkert brugernavn eller adgangskode.");
 
-            var response = new LoginResponse
+            var response = new UserModel
             {
                 Id = user.Id,
                 Username = user.Username,

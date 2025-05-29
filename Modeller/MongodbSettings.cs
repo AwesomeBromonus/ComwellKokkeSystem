@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 
 namespace Modeller
 {
-    public class Elev : UserModel
+    public class MongoDbSettings
     {
-        public string Rolle { get; set; } = "Elev";
+        public string ConnectionString { get; set; } = "";
+        public string DatabaseName { get; set; } = "";
     }
+
 }

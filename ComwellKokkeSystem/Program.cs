@@ -18,7 +18,6 @@ public class Program
         builder.RootComponents.Add<App>("#app");
         builder.RootComponents.Add<HeadOutlet>("head::after");
 
-        builder.Services.AddSingleton<UserState>();
 
         builder.Services.AddScoped(sp => new HttpClient
         {
@@ -32,9 +31,10 @@ public class Program
         builder.Services.AddScoped<IPraktikperiodeService, PraktikperiodeService>();
         builder.Services.AddScoped<IAuthService, AuthService>();
         builder.Services.AddScoped<IDelmaalService, DelmaalService>();
-        builder.Services.AddScoped<IBeskedService, BeskedService>();
+      
         builder.Services.AddScoped<IKommentarService, KommentarService>();
-       
+        builder.Services.AddScoped<IQuizService, QuizService>();
+
         builder.Services.AddScoped<ILæringService, LæringService>();
         builder.Services.AddBlazorDownloadFile();
         builder.Services.AddScoped<IAnmodningService, AnmodningService>();
@@ -44,6 +44,7 @@ public class Program
         builder.Services.AddScoped<IUnderdelmaalSkabelonService, UnderdelmaalSkabelonService>();
         builder.Services.AddScoped<IQuizService, QuizService>();
         builder.Services.AddScoped<IRapportService, RapportService>();
+        builder.Services.AddScoped<IUserStateService, UserStateService>();
 
 
 
@@ -52,8 +53,8 @@ public class Program
         await builder.Build().RunAsync();
 
         var host = builder.Build();
-        var userState = host.Services.GetRequiredService<UserState>();
-        await userState.InitializeAsync(); // <- Henter fra localStorage ved start
+        var userState = host.Services.GetRequiredService<IUserStateService>();
+        await userState.InitializeAsync();
         await host.RunAsync();
     }
 }

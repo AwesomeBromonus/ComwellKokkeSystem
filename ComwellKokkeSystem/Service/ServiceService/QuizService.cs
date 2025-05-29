@@ -9,9 +9,9 @@ namespace ComwellKokkeSystem.Service.QuizService
     public class QuizService : IQuizService
     {
         private readonly HttpClient _httpClient;
-        private readonly UserState _userState;
+        private readonly IUserStateService _userState;
 
-        public QuizService(HttpClient httpClient, UserState userState)
+        public QuizService(HttpClient httpClient, IUserStateService userState)
         {
             _httpClient = httpClient;
             _userState = userState;
@@ -27,19 +27,16 @@ namespace ComwellKokkeSystem.Service.QuizService
             return await _httpClient.GetFromJsonAsync<QuizWithQuestions>($"api/Quiz/{quizId}");
         }
 
-        public async Task CreateQuizAsync(CreateQuizRequest request)
+        public async Task<bool> CreateQuizAsync(CreateQuizRequest request)
         {
-            // MIDLERTIDIGT FJERNET AUTORISATION - INGEN USER-ID HEADER NØDVENDIG
             var response = await _httpClient.PostAsJsonAsync("api/Quiz", request);
-            response.EnsureSuccessStatusCode();
+            return response.IsSuccessStatusCode;
         }
 
         public async Task UpdateQuizAsync(int quizId, Quizzes quizDto)
         {
             if (_userState.Id == null)
-            {
                 throw new UnauthorizedAccessException("Brugeren er ikke logget ind.");
-            }
 
             var requestMessage = new HttpRequestMessage(HttpMethod.Put, $"api/Quiz/{quizId}");
             requestMessage.Headers.Add("User-Id", _userState.Id.Value.ToString());
@@ -55,9 +52,9 @@ namespace ComwellKokkeSystem.Service.QuizService
             response.EnsureSuccessStatusCode();
         }
 
-        public async Task<Modeller.Quizzes?> GetQuizByIdAsync(int id)
+        public async Task<Quizzes?> GetQuizByIdAsync(int id)
         {
-            return await _httpClient.GetFromJsonAsync<Modeller.Quizzes>($"api/Quiz/{id}");
+            return await _httpClient.GetFromJsonAsync<Quizzes>($"api/Quiz/{id}");
         }
     }
 }

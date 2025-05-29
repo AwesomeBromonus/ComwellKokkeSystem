@@ -55,6 +55,11 @@ public class DelmaalService : IDelmaalService
     {
         return await _http.GetFromJsonAsync<List<Delmål>>("api/delmaal/all");
     }
+    public async Task<List<Delmål>> GetDelmaalMedDeadlineIndenFor14DageAsync()
+    {
+        return await _http.GetFromJsonAsync<List<Delmål>>("api/delmaal/deadlines-14dage") ?? new List<Delmål>();
+    }
+
 
 }
 

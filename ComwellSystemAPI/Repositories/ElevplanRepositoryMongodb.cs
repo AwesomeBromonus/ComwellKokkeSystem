@@ -6,14 +6,10 @@ public class ElevplanRepository : IElevplan
 {
     private readonly IMongoCollection<Elevplan> _elevplanCollection;
 
-    public ElevplanRepository()
+    public ElevplanRepository(IMongoDatabase database)
     {
-        var mongoUri = "mongodb+srv://Brobolo:Bromus12344321@cluster0.k4kon.mongodb.net/";
-        var client = new MongoClient(mongoUri);
-        var database = client.GetDatabase("Comwell");
         _elevplanCollection = database.GetCollection<Elevplan>("Elevplaner");
     }
-
     // Hent alle elevplaner
     public async Task<List<Elevplan>> GetAllAsync()
     {
@@ -21,21 +17,21 @@ public class ElevplanRepository : IElevplan
     }
 
 
-    // Hent én plan ud fra int-ID
+    // Henn plan ud fra int-ID
     public async Task<Elevplan?> GetByIdAsync(int id)
     {
         return await _elevplanCollection.Find(p => p.Id == id).FirstOrDefaultAsync();
 
     }
 
-    // Hent alle elevplaner for en specifik elev
+    // Hent En elevplan for en specifik elev
     public async Task<List<Elevplan>> GetByElevIdAsync(int elevId)
     {
         return await _elevplanCollection.Find(p => p.ElevId == elevId).ToListAsync();
     }
 
 
-    // Opret ny plan med manuelt tildelt ID (næste ledige heltal)
+    // Opret ny plan med manuelt tildelt ID (nï¿½ste ledige heltal)
     public async Task AddAsync(Elevplan plan)
     {
         plan.Id = await GetNextIdAsync();
@@ -56,7 +52,7 @@ public class ElevplanRepository : IElevplan
         await _elevplanCollection.DeleteOneAsync(filter);
     }
 
-    // Hent næste ledige ID ved at finde max eksisterende ID og lægge 1 til
+    // Hent nÃ¦ste ledige ID ved at finde max eksisterende ID og lÃ¦gge 1 til
     private async Task<int> GetNextIdAsync()
     {
         var sort = Builders<Elevplan>.Sort.Descending(p => p.Id);

@@ -1,6 +1,5 @@
 ﻿using ComwellSystemAPI.Interfaces;
 using ComwellSystemAPI.Repositories;
-using ComwellSystemAPI.Interfaces;
 using Modeller;
 using MongoDB.Driver;
 
@@ -8,13 +7,10 @@ public class UnderdelmaalRepository : IUnderdelmaal
 {
     private readonly IMongoCollection<Underdelmaal> _collection;
 
-    public UnderdelmaalRepository()
+    public UnderdelmaalRepository(IMongoDatabase database)
     {
-        var client = new MongoClient("mongodb+srv://Brobolo:Bromus12344321@cluster0.k4kon.mongodb.net/");
-        var db = client.GetDatabase("Comwell");
-        _collection = db.GetCollection<Underdelmaal>("Underdelmaal");
+        _collection = database.GetCollection<Underdelmaal>("Underdelmaal");
     }
-
     public async Task AddAsync(Underdelmaal underdelmaal)
     {
         underdelmaal.Id = await GetNextIdAsync();

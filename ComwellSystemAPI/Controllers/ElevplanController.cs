@@ -29,7 +29,7 @@ public class ElevplanController : ControllerBase
     }
 
 
-    // ✅ NYT ENDPOINT: Hent elevplaner for en specifik elev
+    //  Hent elevplaner for en specifik elev
     [HttpGet("elev/{elevId}")]
     public async Task<ActionResult<List<Modeller.Elevplan>>> GetByElevId(int elevId)
     {

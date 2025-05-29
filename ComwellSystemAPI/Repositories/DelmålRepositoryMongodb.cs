@@ -6,14 +6,15 @@ public class DelmålRepository : IDelmål
 {
     private readonly IMongoCollection<Delmål> _collection;
     private readonly IMongoCollection<Underdelmaal> _underdelmaalCollection;
+    private readonly IMongoCollection<UnderdelmaalSkabelon> _underdelSkabelonCollection;
 
-    public DelmålRepository()
+    public DelmålRepository(IMongoDatabase database)
     {
-        var client = new MongoClient("mongodb+srv://Brobolo:Bromus12344321@cluster0.k4kon.mongodb.net/");
-        var db = client.GetDatabase("Comwell");
-        _collection = db.GetCollection<Delmål>("Delmål");
-        _underdelmaalCollection = db.GetCollection<Underdelmaal>("Underdelmaal");
+        _collection = database.GetCollection<Delmål>("Delmål");
+        _underdelmaalCollection = database.GetCollection<Underdelmaal>("Underdelmaal");
+        _underdelSkabelonCollection = database.GetCollection<UnderdelmaalSkabelon>("UnderdelmaalSkabelon");
     }
+
 
     public async Task AddAsync(Delmål delmaal)
     {   
@@ -53,7 +54,7 @@ public class DelmålRepository : IDelmål
             Id = næsteId++,
             DelmaalId = delmaal.Id,
             Beskrivelse = s.Beskrivelse,
-            DeadlineOffsetDage = s.DeadlineOffsetDage,
+            Deadline = s.Deadline,
             Status = "Ikke fuldført"
         }).ToList();
 
@@ -89,17 +90,9 @@ public class DelmålRepository : IDelmål
 
     public async Task<List<Delmål>> GetByElevIdAsync(int elevId)
     {
-        var delmaal = await _collection.Find(d => d.ElevId == elevId).ToListAsync();
-        // hent og tilføj underdelmål til hvert hovedmål 
-        foreach (var dm in delmaal)
-        {
-            dm.UnderdelmaalList = await _underdelmaalCollection
-                .Find(ud => ud.DelmaalId == dm.Id)
-                .ToListAsync();
-        }
-        return delmaal;
-
+        return await _collection.Find(d => d.ElevId == elevId).ToListAsync();
     }
+
     public async Task<List<Delmål>> GetAllForYearAsync(int year)
     {
         // Henter alle delmål. Hvis du har ekstremt mange delmål,
@@ -135,6 +128,18 @@ public class DelmålRepository : IDelmål
     }
 
 
+    public async Task<List<Delmål>> GetWithDeadlineWithinDaysAsync(int antalDage)
+    {
+        var nu = DateTime.Now;
+        var grænse = nu.AddDays(antalDage);
+
+        var filter = Builders<Delmål>.Filter.And(
+            Builders<Delmål>.Filter.Gte(d => d.Deadline, nu),
+            Builders<Delmål>.Filter.Lte(d => d.Deadline, grænse)
+        );
+
+        return await _collection.Find(filter).ToListAsync();
+    }
 
 
 }

@@ -9,6 +9,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
+using Microsoft.Extensions.Options;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,12 +29,32 @@ builder.Services.AddCors(options =>
 });
 
 
+// Bind MongoDbSettings fra appsettings.json
+builder.Services.Configure<MongoDbSettings>(
+    builder.Configuration.GetSection("MongoDbSettings"));
+
+// Registrér MongoClient som singleton
+builder.Services.AddSingleton<IMongoClient>(sp =>
+{
+    var settings = sp.GetRequiredService<IOptions<MongoDbSettings>>().Value;
+    return new MongoClient(settings.ConnectionString);
+});
+
+
+// Registrér selve databasen som singleton ✅
+builder.Services.AddSingleton<IMongoDatabase>(sp =>
+{
+    var settings = sp.GetRequiredService<IOptions<MongoDbSettings>>().Value;
+    var client = sp.GetRequiredService<IMongoClient>();
+    return client.GetDatabase(settings.DatabaseName);
+});
+
+
 // Repositories
 builder.Services.AddSingleton<IElevplan, ElevplanRepository>();
 builder.Services.AddSingleton<IPraktikperiode, PraktikperiodeRepository>();
 builder.Services.AddSingleton<IUserRepository, UserRepositoryMongodb>();
 builder.Services.AddSingleton<IDelmål, DelmålRepository>();
-builder.Services.AddSingleton<IBesked, BeskedRepositoryMongoDB>();
 builder.Services.AddSingleton<ILæring, LæringRepositoryMongoDB>();
 builder.Services.AddSingleton<IUnderdelmaal, UnderdelmaalRepository>();
 builder.Services.AddSingleton<IKommentar, KommentarRepository>();

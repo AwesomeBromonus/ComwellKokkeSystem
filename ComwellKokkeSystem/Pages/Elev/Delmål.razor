@@ -8,7 +8,8 @@
 @inject NavigationManager Nav
 @inject IAnmodningService AnmodningService
 @inject IAuthService AuthService
-@inject UserState UserState
+@inject IUserStateService UserState
+
 @inject IUserService UserService
 @inject IUnderdelmaalService UnderdelmaalService
 @inject IPraktikperiodeService praktikperiodeService
@@ -78,6 +79,10 @@ else
                         <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
                             <div>
                                 <strong>@d.Beskrivelse</strong><br />
+                                <small class="@((d.Deadline < DateTime.Today) ? "text-danger" : "text-muted")">
+                                    🗓 Deadline: @d.Deadline.ToString("dd-MM-yyyy")
+                                </small><br />
+
 
                                 <button class="border-0 bg-transparent text-dark p-0"
                                         style="font-size: 1.2rem;"
@@ -366,7 +371,8 @@ else
 
                         <div class="mb-3">
                             <label>Deadline offset (dage):</label>
-                            <InputNumber class="form-control" @bind-Value="nyUnderdelmaal.DeadlineOffsetDage" />
+                            <InputDate class="form-control" @bind-Value="nyUnderdelmaal.Deadline" />
+
                         </div>
 
                         <div class="modal-footer">
@@ -468,7 +474,7 @@ else
                 Id = u.Id,
                 DelmaalId = u.DelmaalId,
                 Beskrivelse = u.Beskrivelse,
-                DeadlineOffsetDage = u.DeadlineOffsetDage,
+                Deadline = u.Deadline,
                 Status = u.Status
             };
         valgtDelmaalTilUnderdelmaal = u.DelmaalId;
