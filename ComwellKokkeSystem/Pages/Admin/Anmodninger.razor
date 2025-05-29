@@ -14,7 +14,6 @@
 <h3 class="anmodning-overskrift">📩 Indkomne Delmålsanmodninger</h3>
 <br />
 
-
 @if (!UserState.IsLoggedIn)
 {
     <div class="alert alert-danger">Du skal være logget ind for at se denne side.</div>
@@ -40,15 +39,11 @@ else
                 <div class="anmodning-kort">
                     @if (a.DelmaalId != null && delmaalMap.ContainsKey(a.DelmaalId.Value))
                     {
-                        <strong>Delmål: </strong> @delmaalMap[a.DelmaalId.Value].Beskrivelse
-
-                        <br />
+                        <strong>Delmål: </strong> @delmaalMap[a.DelmaalId.Value].Beskrivelse <br />
                     }
                     else if (a.UnderdelmaalId != null && underdelmaalMap.ContainsKey(a.UnderdelmaalId.Value))
                     {
-                        <strong>Underdelmål </strong> @underdelmaalMap[a.UnderdelmaalId.Value].Beskrivelse
-
-                        <br />
+                        <strong>Underdelmål: </strong> @underdelmaalMap[a.UnderdelmaalId.Value].Beskrivelse <br />
                     }
 
                     <strong>Ønsket status: </strong> @a.ØnsketStatus<br />
@@ -61,9 +56,9 @@ else
                 </div>
             }
         </div>
-
     </ul>
 }
+
 <br />
 <h3 class="anmodning-overskrift">⏳ Delmål med deadline inden for 14 dage</h3>
 
@@ -80,7 +75,10 @@ else
     <ul class="list-group">
         @foreach (var d in delmaalMedDeadline14Dage)
         {
+            var elevNavn = eleverMedDeadline.FirstOrDefault(e => e.Id == d.ElevId)?.Navn ?? "Ukendt";
+
             <li class="list-group-item">
+                <strong>Elev:</strong> @elevNavn <br />
                 <strong>Beskrivelse:</strong> @d.Beskrivelse <br />
                 <strong>Deadline:</strong> @d.Deadline.ToString("dd-MM-yyyy") <br />
                 <strong>Status:</strong> @d.Status
@@ -89,15 +87,14 @@ else
     </ul>
 }
 
-
-
 @code {
     private List<Anmodning>? anmodninger;
     private Dictionary<int, Delmål> delmaalMap = new();
     private Dictionary<int, Underdelmaal> underdelmaalMap = new();
     private Dictionary<int, UserModel> brugerMap = new();
-    private List<Delmål> delmaalMedDeadline14Dage = new();
 
+    private List<Delmål> delmaalMedDeadline14Dage = new();
+    private List<UserModel> eleverMedDeadline = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -132,10 +129,20 @@ else
             }
         }
 
-        // 🔽 Tilføjet dette
         delmaalMedDeadline14Dage = await DelmaalService.GetDelmaalMedDeadlineIndenFor14DageAsync();
-    }
 
+        var elevIds = delmaalMedDeadline14Dage
+            .Select(d => d.ElevId)
+            .Distinct()
+            .ToList();
+
+        foreach (var elevId in elevIds)
+        {
+            var bruger = await UserService.GetByIdAsync(elevId);
+            if (bruger != null)
+                eleverMedDeadline.Add(bruger);
+        }
+    }
 
     private async Task BehandlAnmodning(int anmodningId, bool accepteret)
     {
@@ -172,5 +179,4 @@ else
 
         StateHasChanged();
     }
-
 }

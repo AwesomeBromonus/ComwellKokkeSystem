@@ -4,7 +4,6 @@
 @inject IAnmodningService AnmodningService
 @inject NavigationManager NavManager
 @inject UserState UserState
-
 @using Modeller
 @using ComwellKokkeSystem.Service
 
@@ -43,7 +42,7 @@
             </div>
             <div class="dashboard-card highlight" @onclick="@(() => NavManager.NavigateTo("/anmodninger"))">
                 <div class="icon">📥</div>
-                <h4>Anmodninger</h4>
+                <h4>Notifikationer</h4>
                 <p><strong>@anmodningerAntal</strong> afventer</p>
             </div>
         </div>
@@ -179,6 +178,7 @@
     private string valgtRolle = "";
     private string valgtHotel = "";
     private int anmodningerAntal = 0;
+
     private List<Elevplan> elevplaner = new();
 
     private List<string> alleHoteller = new()

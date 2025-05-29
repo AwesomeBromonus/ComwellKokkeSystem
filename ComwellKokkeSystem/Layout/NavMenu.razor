@@ -18,7 +18,7 @@
             else if (UserState.Role?.ToLower() == "admin")
             {
                 <NavLink class="nav-link" href="/administrator" Match="NavLinkMatch.All">🏠 Adminpanel</NavLink>
-                <NavLink class="nav-link" href="/anmodninger">📬 Anmodninger</NavLink>
+                <NavLink class="nav-link" href="/anmodninger">📬 Notifikationer</NavLink>
                 <NavLink class="nav-link" href="/delmaalskabeloner">🧾 Skabelon</NavLink>
                 <NavLink class="nav-link" href="/rapportside">📊 Rapport</NavLink>
                 <NavLink class="nav-link" href="/quizcreator">✍️ Lav en Quiz</NavLink>
@@ -26,7 +26,7 @@
             else if (UserState.Role?.ToLower() == "kok")
             {
                 <NavLink class="nav-link" href="/mitoverblik" Match="NavLinkMatch.All">🗂️ Mit overblik</NavLink>
-                <NavLink class="nav-link" href="/anmodninger">📬 Anmodninger</NavLink>
+                <NavLink class="nav-link" href="/anmodninger">📬 Notifikationer</NavLink>
             }
 
             else if (UserState.IsElevAdgang)

@@ -25,7 +25,8 @@ namespace ComwellKokkeSystem.Service
 
         public async Task<UserModel?> GetByUsernameAsync(string username)
         {
-            return await _http.GetFromJsonAsync<UserModel>($"api/users/byusername/{username}");
+            return await _http.GetFromJsonAsync<UserModel>($"api/users/{username}");
+
         }
 
         public async Task<bool> ValidateLoginAsync(string username, string password)
