@@ -412,3 +412,54 @@ body::before {
         transform: translate(0, 0);
     }
 }
+
+/* Elev-specifik styling */
+.detail-section {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 30px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+    .detail-grid div {
+        margin-bottom: 15px;
+    }
+
+    .detail-grid label {
+        display: block;
+        font-weight: 600;
+        color: #4a5568;
+        margin-bottom: 5px;
+    }
+
+    .detail-grid p {
+        margin: 0;
+        padding: 8px 12px;
+        background: #f8fafc;
+        border-radius: 6px;
+    }
+
+.full-width {
+    grid-column: span 2;
+}
+
+.progress-bar {
+    height: 8px;
+    background: #e2e8f0;
+    border-radius: 4px;
+    margin: 10px 0;
+}
+
+.progress {
+    height: 100%;
+    background: linear-gradient(90deg, #0ea5e9, #38bdf8);
+    border-radius: 4px;
+    transition: width 0.5s ease;
+}
