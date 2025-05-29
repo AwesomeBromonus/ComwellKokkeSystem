@@ -77,5 +77,12 @@ public class DelmaalController : ControllerBase
         var result = await _repo.GetAllAsync();
         return Ok(result);
     }
+    [HttpGet("deadlines-14dage")]
+    public async Task<IActionResult> GetDelmaalMedDeadlineIndenFor14Dage()
+    {
+        var result = await _repo.GetWithDeadlineWithinDaysAsync(14);
+        return Ok(result);
+    }
+
 
 }

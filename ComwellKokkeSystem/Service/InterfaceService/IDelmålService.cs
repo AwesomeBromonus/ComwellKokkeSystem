@@ -11,5 +11,7 @@ public interface IDelmaalService
     Task<List<Delmål>> GetByElevplanIdAsync(int elevId);
     Task<List<Delmål>> GetDelmålForElevAsync(int elevId);
     Task<List<Delmål>> GetAllAsync(); // <- Til rapportvisning
+    Task<List<Delmål>> GetDelmaalMedDeadlineIndenFor14DageAsync();
+
 
 }

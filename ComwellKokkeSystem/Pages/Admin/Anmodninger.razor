@@ -64,12 +64,40 @@ else
 
     </ul>
 }
+<br />
+<h3 class="anmodning-overskrift">⏳ Delmål med deadline inden for 14 dage</h3>
+
+@if (delmaalMedDeadline14Dage == null)
+{
+    <p>⏳ Indlæser delmål med snarlig deadline...</p>
+}
+else if (!delmaalMedDeadline14Dage.Any())
+{
+    <p>❕ Ingen deadlines tilgængelig.</p>
+}
+else
+{
+    <ul class="list-group">
+        @foreach (var d in delmaalMedDeadline14Dage)
+        {
+            <li class="list-group-item">
+                <strong>Beskrivelse:</strong> @d.Beskrivelse <br />
+                <strong>Deadline:</strong> @d.Deadline.ToString("dd-MM-yyyy") <br />
+                <strong>Status:</strong> @d.Status
+            </li>
+        }
+    </ul>
+}
+
+
 
 @code {
     private List<Anmodning>? anmodninger;
     private Dictionary<int, Delmål> delmaalMap = new();
     private Dictionary<int, Underdelmaal> underdelmaalMap = new();
     private Dictionary<int, UserModel> brugerMap = new();
+    private List<Delmål> delmaalMedDeadline14Dage = new();
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -100,12 +128,14 @@ else
             {
                 var bruger = await UserService.GetByIdAsync(a.ElevId);
                 if (bruger != null)
-                {
                     brugerMap[a.ElevId] = bruger;
-                }
             }
         }
+
+        // 🔽 Tilføjet dette
+        delmaalMedDeadline14Dage = await DelmaalService.GetDelmaalMedDeadlineIndenFor14DageAsync();
     }
+
 
     private async Task BehandlAnmodning(int anmodningId, bool accepteret)
     {
@@ -142,4 +172,5 @@ else
 
         StateHasChanged();
     }
+
 }

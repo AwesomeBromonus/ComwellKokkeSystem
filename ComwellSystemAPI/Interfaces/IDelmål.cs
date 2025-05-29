@@ -16,6 +16,8 @@ namespace ComwellSystemAPI.Interfaces
         
         Task<List<Delmål>> GetAllForYearAsync(int year);
         Task<List<Delmål>> GetAllAsync();
+        Task<List<Delmål>> GetWithDeadlineWithinDaysAsync(int antalDage);
+
 
     }
 }

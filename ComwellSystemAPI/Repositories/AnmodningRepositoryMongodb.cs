@@ -70,6 +70,7 @@ namespace ComwellSystemAPI.Repositories
 
                     if (underdelmaal != null)
                     {
+                        //Her bliver status på underdelmål sat til den ønskede status hvis accepteret
                         underdelmaal.Status = anmodning.ØnsketStatus;
                         await underdelmaalCollection.ReplaceOneAsync(filter, underdelmaal);
                     }
@@ -82,6 +83,7 @@ namespace ComwellSystemAPI.Repositories
 
                     if (delmaal != null)
                     {
+                        //Her bliver status på delmål sat til den ønskede status hvis accepteret
                         delmaal.Status = anmodning.ØnsketStatus;
                         await delmaalCollection.ReplaceOneAsync(filter, delmaal);
                     }

@@ -128,6 +128,18 @@ public class DelmålRepository : IDelmål
     }
 
 
+    public async Task<List<Delmål>> GetWithDeadlineWithinDaysAsync(int antalDage)
+    {
+        var nu = DateTime.Now;
+        var grænse = nu.AddDays(antalDage);
+
+        var filter = Builders<Delmål>.Filter.And(
+            Builders<Delmål>.Filter.Gte(d => d.Deadline, nu),
+            Builders<Delmål>.Filter.Lte(d => d.Deadline, grænse)
+        );
+
+        return await _collection.Find(filter).ToListAsync();
+    }
 
 
 }
