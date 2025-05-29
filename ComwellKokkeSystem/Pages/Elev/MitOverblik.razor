@@ -8,80 +8,71 @@
 <link href="css/Panel.css" rel="stylesheet" />
 
 <div class="admin-container">
-    <!-- Header med brugervelkomst -->
+    <!-- Header -->
     <div class="admin-header">
-        <h2>🎓 Mit Elev Overblik</h2>
-        <p>Velkommen til Comwells elevsystem, <span class="username">@UserStateService.CurrentUser?.Navn</span>!</p>
+        <h2>Velkommen, @UserStateService.CurrentUser?.Navn!</h2>
+        <p>Din elevportal hos Comwell</p>
     </div>
 
-    <!-- Dashboard kort -->
+    <!-- XP Progress -->
+    <div class="xp-section">
+        <div class="xp-progress-container">
+            <div class="xp-progress-bar">
+                <div class="xp-progress-fill" style="width: 48%"></div>
+            </div>
+            <div class="xp-text">
+                <span class="xp-current">483</span>
+                <span class="xp-total">/1000 XP</span>
+            </div>
+        </div>
+        <div class="level-badge">
+            <span class="level-name">Tomat</span>
+            <span class="level-label">Nuværende niveau</span>
+        </div>
+    </div>
+
+    <!-- Dashboard Cards -->
     <div class="dashboard-cards">
-        <!-- Elevplan kort -->
+        <!-- Elevplan Card -->
         <div class="dashboard-card" @onclick="@(() => GoToSubGoals(currentElevplan?.Id ?? 0))">
-            <div class="icon">📋</div>
-            <h4>Din Elevplan</h4>
-            @if (currentElevplan != null)
-            {
-                <p>@currentElevplan.StartDato.ToShortDateString() - @currentElevplan.SlutDato.ToShortDateString()</p>
-            }
-            else
-            {
-                <p>Ingen aktiv plan</p>
-            }
-        </div>
-
-        <!-- XP kort -->
-        <div class="dashboard-card highlight" @onclick="GoToLevelUp">
-            <div class="icon">🔥</div>
-            <h4>Point & Niveau</h4>
-            <p><strong>483 XP</strong> (Mål: 1000 XP)</p>
-            <div class="progress-bar">
-                <div class="progress" style="width: 48%"></div>
+            <div class="card-icon">📋</div>
+            <div class="card-content">
+                <h4>Din Elevplan</h4>
+                @if (currentElevplan != null)
+                {
+                    <p class="card-dates">
+                        @currentElevplan.StartDato.ToShortDateString() - @currentElevplan.SlutDato.ToShortDateString()
+                    </p>
+                }
+                <span class="card-action">Se detaljer →</span>
             </div>
-            <p>Nuværende: <strong>Tomat 🍳</strong></p>
         </div>
 
-        <!-- Læring kort -->
+        <!-- Læring Card -->
         <div class="dashboard-card" @onclick="GoToLearning">
-            <div class="icon">📚</div>
-            <h4>Læring</h4>
-            <p>Udforsk materialer og forbedr dine færdigheder</p>
+            <div class="card-icon">📚</div>
+            <div class="card-content">
+                <h4>Læring</h4>
+                <p>Udforsk materialer og forbedr dine færdigheder</p>
+                <span class="card-action">Gå til læring →</span>
+            </div>
         </div>
 
-        <!-- Quiz kort -->
+        <!-- Quiz Card -->
         <div class="dashboard-card" @onclick="GoToQuiz">
-            <div class="icon">❓</div>
-            <h4>Quizzer</h4>
-            <p>Test din viden med sjove quizzes</p>
+            <div class="card-icon">❓</div>
+            <div class="card-content">
+                <h4>Quizzer</h4>
+                <p>Test din viden med sjove udfordringer</p>
+                <span class="card-action">Tag en quiz →</span>
+            </div>
         </div>
     </div>
-
-    <!-- Elevplan detaljer -->
-    @if (currentElevplan != null)
-    {
-        <div class="detail-section">
-            <h3>📝 Elevplan detaljer</h3>
-            <div class="detail-grid">
-                <div>
-                    <label>Startdato:</label>
-                    <p>@currentElevplan.StartDato.ToShortDateString()</p>
-                </div>
-                <div>
-                    <label>Slutdato:</label>
-                    <p>@currentElevplan.SlutDato.ToShortDateString()</p>
-                </div>
-                <div class="full-width">
-                    <label>Kommentar:</label>
-                    <p>@currentElevplan.Kommentar</p>
-                </div>
-            </div>
-        </div>
-    }
 </div>
 
 @code {
     private Modeller.Elevplan? currentElevplan;
-    
+
     protected override async Task OnInitializedAsync()
     {
         if (UserStateService.IsLoggedIn && UserStateService.CurrentUser?.Id != null)
@@ -92,7 +83,6 @@
     }
 
     private void GoToSubGoals(int elevplanId) => NavManager.NavigateTo($"/delmaal/{elevplanId}");
-    private void GoToLevelUp() => NavManager.NavigateTo("/niveauopgradering");
     private void GoToLearning() => NavManager.NavigateTo("/laering");
     private void GoToQuiz() => NavManager.NavigateTo("/quizlist");
 }
