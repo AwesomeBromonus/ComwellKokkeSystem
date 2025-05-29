@@ -1,7 +1,8 @@
 ﻿@page "/mitoverblik"
 @inject NavigationManager NavManager
 @inject IUserStateService UserStateService
-@inject HttpClient Http
+@using ComwellKokkeSystem.Service
+@inject IElevplanService ElevplanService
 
 <h3 class="mb-4">🎓 Mit Elev Overblik</h3>
 
@@ -99,7 +100,7 @@ else
 }
 
 @code {
-    private Elevplan? aktivElevplan;
+    private Modeller.Elevplan? aktivElevplan;
     private string? fejlbesked;
     private bool elevplanLoading = true;
 
@@ -109,29 +110,27 @@ else
         {
             try
             {
-                aktivElevplan = await Http.GetFromJsonAsync<Elevplan>($"api/elevplan/byuser/{UserStateService.CurrentUser.Id}");
+                var planer = await ElevplanService.GetElevplanerForElevAsync(UserStateService.CurrentUser.Id);
+
+                if (planer != null && planer.Any())
+                    aktivElevplan = planer.FirstOrDefault(); // vælg første plan hvis der er flere
+                else
+                    fejlbesked = "Ingen elevplaner fundet.";
             }
             catch (Exception ex)
             {
                 fejlbesked = "Fejl under hentning af elevplan: " + ex.Message;
             }
         }
+
         elevplanLoading = false;
     }
+
 
     private void GåTilDelmål(int elevplanId)
     {
         NavManager.NavigateTo($"/delmaal/{elevplanId}");
     }
 
-    public class Elevplan
-    {
-        public int Id { get; set; }
-        public DateTime OprettetDato { get; set; }
-        public string Kommentar { get; set; } = "";
-        public DateTime StartDato { get; set; }
-        public DateTime SlutDato { get; set; }
-        public int ElevId { get; set; }
-        public List<int> PraktikperiodeIds { get; set; } = new();
-    }
+   
 }
