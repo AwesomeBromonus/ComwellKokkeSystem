@@ -5,7 +5,8 @@
 @inject IPraktikperiodeService PraktikService
 @inject IDelmaalService DelmaalService
 @inject IAuthService AuthService
-@inject HttpClient Http
+@inject IUserService UserService
+@inject IDelmaalSkabelonService DelmaalSkabelonService
 @inject NavigationManager Nav
 
 <link href="css/Panel.css" rel="stylesheet" />
@@ -125,7 +126,7 @@
 
         erTilladt = true;
         praktikPerioder = await PraktikService.GetAllAsync();
-        brugere = await Http.GetFromJsonAsync<List<Modeller.UserModel>>("api/users/all");
+        brugere = await UserService.GetAllAsync();
     }
 
     private async Task GemElevplan()
@@ -142,14 +143,11 @@
         elevplan.OprettetDato = DateTime.Now;
         elevplan.PraktikperiodeIds = new List<int>();
 
-        var elevplanResponse = await Http.PostAsJsonAsync("api/elevplan", elevplan);
-        if (!elevplanResponse.IsSuccessStatusCode)
-        {
-            fejlbesked = "Kunne ikke oprette elevplan.";
-            return;
-        }
+        await ElevplanService.AddElevplanAsync(elevplan);
 
-        var oprettetPlan = await elevplanResponse.Content.ReadFromJsonAsync<Modeller.Elevplan>();
+        var elevplaner = await ElevplanService.GetElevplanerForElevAsync(valgtElevId);
+        var oprettetPlan = elevplaner?.OrderByDescending(e => e.OprettetDato).FirstOrDefault();
+
         if (oprettetPlan == null)
         {
             fejlbesked = "Fejl ved indlæsning af oprettet elevplan.";
@@ -158,26 +156,23 @@
 
         for (int i = 1; i <= 3; i++)
         {
-            var praktik = new Modeller.Praktikperiode
+            var praktik = new Praktikperiode
                 {
                     Navn = $"Praktikperiode {i}",
                     ElevId = valgtElevId,
                     ElevplanId = oprettetPlan.Id
                 };
 
-            var praktikResponse = await Http.PostAsJsonAsync("api/praktikperiode", praktik);
-            if (!praktikResponse.IsSuccessStatusCode)
-            {
-                fejlbesked = $"Kunne ikke oprette praktikperiode {i}.";
-                return;
-            }
+            await PraktikService.AddAsync(praktik);
 
-            var oprettetPraktik = await praktikResponse.Content.ReadFromJsonAsync<Modeller.Praktikperiode>();
+            var praktikperioder = await PraktikService.GetAllAsync();
+            var oprettetPraktik = praktikperioder.LastOrDefault(p => p.ElevplanId == oprettetPlan.Id && p.Navn == praktik.Navn);
+
             if (oprettetPraktik != null)
             {
                 oprettetPlan.PraktikperiodeIds.Add(oprettetPraktik.Id);
 
-                var skabeloner = await Http.GetFromJsonAsync<List<Modeller.DelmaalSkabelon>>($"api/delmaalskabelon/periode/{i}");
+                var skabeloner = await DelmaalSkabelonService.GetByPeriodeAsync(i);
                 if (skabeloner != null)
                 {
                     foreach (var skabelon in skabeloner)
@@ -185,7 +180,6 @@
                         var delmaal = new Modeller.Delmål
                             {
                                 Beskrivelse = skabelon.Beskrivelse,
-                                Deadline = elevplan.StartDato.AddDays(skabelon.DeadlineOffsetDage),
                                 Status = "Ikke fuldført",
                                 Ansvarlig = skabelon.Ansvarlig,
                                 Igangsætter = skabelon.Igangsætter,
@@ -197,22 +191,28 @@
                                 DelmaalSkabelonId = skabelon.Id
                             };
 
-                        await Http.PostAsJsonAsync("api/delmaal", delmaal);
+                        await DelmaalService.AddDelmaalAsync(delmaal);
                     }
                 }
             }
         }
 
-        await Http.PutAsJsonAsync($"api/elevplan/{oprettetPlan.Id}", oprettetPlan);
-        var assignResponse = await Http.PutAsJsonAsync($"api/users/{valgtElevId}/assign-elevplan", new { ElevplanId = oprettetPlan.Id });
+        await ElevplanService.UpdateElevplanAsync(oprettetPlan);
+        await UserService.AssignElevplanToUserAsync(valgtElevId, oprettetPlan.Id);
 
-        if (!assignResponse.IsSuccessStatusCode)
+        // ✅ Fjern eleven fra listen så UI opdateres korrekt
+        var elev = brugere.FirstOrDefault(b => b.Id == valgtElevId);
+        if (elev != null)
         {
-            fejlbesked = "Elevplan blev oprettet, men kunne ikke tildeles brugeren.";
-            return;
+            brugere.Remove(elev);
         }
 
         success = true;
+        valgtElevId = 0;
+        StateHasChanged();
+        await Task.Delay(2000);
         Nav.NavigateTo("/administrator");
     }
+
 }
+

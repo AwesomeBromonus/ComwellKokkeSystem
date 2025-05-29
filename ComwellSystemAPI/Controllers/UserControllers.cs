@@ -135,17 +135,19 @@ namespace ComwellSystemAPI.Controllers
         }
 
         [HttpPut("{id}/assign-elevplan")]
-        public async Task<IActionResult> AssignElevplan(int id, [FromBody] AssignElevplanRequest request)
+        public async Task<IActionResult> AssignElevplan(int id, [FromBody] int elevplanId)
         {
             var bruger = await _userRepo.GetByIdAsync(id);
             if (bruger == null)
                 return NotFound("Bruger ikke fundet.");
 
-            bruger.ElevplanId = request.ElevplanId;
+            bruger.ElevplanId = elevplanId;
             await _userRepo.UpdateUserAsync(bruger);
 
             return Ok("Elevplan tildelt.");
         }
+
+
 
         [HttpPut("{id}/skiftkode")]
         public async Task<IActionResult> SkiftAdgangskode(int id, [FromBody] string nyAdgangskode)
@@ -200,8 +202,4 @@ namespace ComwellSystemAPI.Controllers
         }
     }
 
-    public class AssignElevplanRequest
-    {
-        public int ElevplanId { get; set; }
-    }
 }

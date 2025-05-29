@@ -15,7 +15,6 @@ namespace Modeller
         public string Password { get; set; } = "";        // Kodeord (ikke hashed)
         public string Role { get; set; } = "";            // "elev", "admin", etc.
 
-        // 👇 Felter fra dine MongoDB-dokumenter
         public string Navn { get; set; } = "";
         public string Email { get; set; } = "";
         public string Tlf { get; set; } = "";
