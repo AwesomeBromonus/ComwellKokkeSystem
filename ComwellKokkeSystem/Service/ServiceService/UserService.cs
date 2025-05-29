@@ -6,7 +6,8 @@ namespace ComwellKokkeSystem.Service
     public class UserService : IUserService
     {
         private readonly HttpClient _http;
-
+        
+        //Konstruktor
         public UserService(HttpClient http)
         {
             _http = http;
