@@ -47,9 +47,9 @@ namespace ComwellKokkeSystem.Service
 
         public async Task AssignElevplanToUserAsync(int userId, int elevplanId)
         {
-            var payload = new { userId, elevplanId };
-            await _http.PutAsJsonAsync("api/users/assign-elevplan", payload);
+            await _http.PutAsJsonAsync($"api/users/{userId}/assign-elevplan", elevplanId);
         }
+
 
         public async Task<List<UserModel>> GetAdminsOgKokkeAsync()
         {
