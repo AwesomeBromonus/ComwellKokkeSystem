@@ -24,7 +24,7 @@ public class ElevplanRepository : IElevplan
 
     }
 
-    // Hent alle elevplaner for en specifik elev
+    // Hent En elevplan for en specifik elev
     public async Task<List<Elevplan>> GetByElevIdAsync(int elevId)
     {
         return await _elevplanCollection.Find(p => p.ElevId == elevId).ToListAsync();

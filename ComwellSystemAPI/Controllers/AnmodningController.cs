@@ -66,6 +66,8 @@ namespace ComwellSystemAPI.Controllers
             var liste = await _repo.GetAlleAsync();
             return Ok(liste);
         }
+
+        // PUT: api/behandl/id
         [HttpPut("behandl/{id}")]
         public async Task<IActionResult> Behandl(int id, [FromBody] bool accepteret)
         {
@@ -73,7 +75,7 @@ namespace ComwellSystemAPI.Controllers
             if (anmodning == null)
                 return NotFound();
 
-            await _repo.BehandlAsync(id, accepteret); // ✅ Kald korrekt logik
+            await _repo.BehandlAsync(id, accepteret); 
             return Ok();
         }
 

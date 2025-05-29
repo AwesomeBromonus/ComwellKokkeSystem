@@ -6,7 +6,7 @@ public interface IAnmodningRepository
     Task<Anmodning?> GetByIdAsync(int id);
     Task<List<Anmodning>> GetTilModtagerAsync(int modtagerId);
     Task UpdateAsync(Anmodning anmodning);
-    Task<List<Anmodning>> GetAlleAsync(); // valgfri – hvis du vil vise alle anmodninger
+    Task<List<Anmodning>> GetAlleAsync(); 
     Task BehandlAsync(int id, bool accepteret);
 
 }

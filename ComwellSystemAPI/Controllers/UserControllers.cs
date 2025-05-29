@@ -17,6 +17,14 @@ namespace ComwellSystemAPI.Controllers
             _env = env;
         }
 
+        [HttpPost]
+        public async Task<IActionResult> AddUser([FromBody] UserModel user)
+        {
+            await _userRepo.AddAsync(user);
+            return Ok();
+        }
+
+
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] UserModel model)
         {
