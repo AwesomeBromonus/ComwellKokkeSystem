@@ -1,7 +1,8 @@
 ﻿@inherits LayoutComponentBase
-@inject UserState UserState
+@inject IUserStateService UserState
 @inject NavigationManager NavManager
 @implements IDisposable
+@using ComwellKokkeSystem.Service
 
 <link href="css/Panel.css" rel="stylesheet" />
 <link href="css/admin.css" rel="stylesheet" />
@@ -15,7 +16,7 @@
     {
         <p class="text-danger text-center">🔒 Du er ikke logget ind.</p>
     }
-    else if (UserState.Role?.ToLower() != "admin")
+    else if (UserState.CurrentUser?.Role?.ToLower() != "admin")
     {
         <p class="text-danger text-center">🚫 Kun administratorer har adgang til denne side.</p>
     }

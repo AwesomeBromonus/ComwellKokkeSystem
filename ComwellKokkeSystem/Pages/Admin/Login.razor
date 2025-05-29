@@ -2,7 +2,7 @@
 @layout LoginLayout
 @inject IAuthService AuthService
 @inject NavigationManager NavManager
-@inject UserState UserState
+@inject IUserStateService UserState
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 @using Modeller
 
@@ -48,7 +48,7 @@
 </EditForm>
 
 @code {
-    private LoginModel login = new();
+    private UserModel login = new();
     private string message = "";
     private bool isLoading = false;
     private bool rememberMe = false;
@@ -60,7 +60,7 @@
 
         if (UserState.IsLoggedIn)
         {
-            NavManager.NavigateTo(UserState.Role?.ToLower() switch
+            NavManager.NavigateTo(UserState.CurrentUser?.Role?.ToLower() switch
             {
                 "admin" => "/administrator",
                 "elev" or "kok" => "/mitoverblik",
@@ -99,19 +99,8 @@
                 var user = await AuthService.GetUserByUsername(login.Username);
                 if (user != null)
                 {
-                   
+                    await UserState.SetUserAsync(user);
 
-                    await UserState.SetUserAsync(
-                        user.Username,
-                        user.Role,
-                        user.Id,
-                        user.HotelId,
-                        user.ElevplanId,
-                        user.Navn,
-                        user.Email
-                    );
-
-                    // Rollebaseret redirect
                     NavManager.NavigateTo(user.Role?.ToLower() switch
                     {
                         "admin" => "/administrator",

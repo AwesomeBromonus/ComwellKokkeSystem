@@ -1,18 +1,16 @@
 ﻿@inherits LayoutComponentBase
-@inject UserState UserState
+@inject IUserStateService userStateService
 @inject NavigationManager NavManager
 @implements IDisposable
-
 
 <link href="css/Panel.css" rel="stylesheet" />
 <link href="css/admin.css" rel="stylesheet" />
 
 <div class="admin-layout">
-    <!-- Brug kun NavMenu direkte -->
     <NavMenu />
 
     <main class="admin-content">
-        @if (!UserState.IsLoggedInChecked)
+        @if (!userStateService.IsLoggedInChecked)
         {
             <p class="text-muted">⏳ Indlæser brugerdata...</p>
         }
@@ -26,22 +24,22 @@
 @code {
     protected override async Task OnInitializedAsync()
     {
-        UserState.OnChange += StateHasChanged;
+        userStateService.OnChange += StateHasChanged;
 
-        if (!UserState.IsLoggedInChecked)
+        if (!userStateService.IsLoggedInChecked)
         {
-            await UserState.InitializeAsync();
+            await userStateService.InitializeAsync();
         }
     }
 
     public void Dispose()
     {
-        UserState.OnChange -= StateHasChanged;
+        userStateService.OnChange -= StateHasChanged;
     }
 
     private async Task Logout()
     {
-        await UserState.LogoutAsync();
+        await userStateService.LogoutAsync();
         NavManager.NavigateTo("/login", true);
-        }
+    }
 }

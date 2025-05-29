@@ -2,11 +2,12 @@
 @using Microsoft.AspNetCore.Components.Forms
 @using Modeller
 @inject ILæringService LæringService  // Tjeneste til at hente og uploade læringsmaterialer
-@inject UserState userState           // Indeholder information om den nuværende bruger (f.eks. rolle)
+@inject IUserStateService UserStateService
+      
 
 <h3 class="text-2xl font-semibold mb-4">📚 Læringsmaterialer</h3>
 
-@if (userState.Role == "admin" || userState.Role == "kok")
+@if (UserStateService.CurrentUser?.Role == "admin" || UserStateService.CurrentUser?.Role == "kok")
 {
     <button @onclick="ToggleForm"
             class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition mb-4">
@@ -14,7 +15,7 @@
     </button>
 }
 
-@if (VisForm && (userState.Role == "admin" || userState.Role == "kok"))
+@if (VisForm && (UserStateService.CurrentUser?.Role == "admin" || UserStateService.CurrentUser?.Role == "kok"))
 {
     <!-- Formular til oprettelse af nyt læringsmateriale -->
     <div class="bg-gray-100 p-4 rounded shadow mb-4">

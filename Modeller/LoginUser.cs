@@ -4,11 +4,11 @@
 
 namespace Modeller
 {
-    [BsonIgnoreExtraElements]
+  
 
     public class UserModel
     {
-        [BsonId]
+       
         public int Id { get; set; }
 
         public string Username { get; set; } = "";        // Brugernavn til login
@@ -27,30 +27,6 @@ namespace Modeller
         public int? ElevplanId { get; set; }
         public string? HotelNavn { get; set; }
         
-    }
-
-    public class LoginModel
-    {
-        public string Username { get; set; } = "";  
-        public string Password { get; set; } = "";
-    }
-
-    public class RegisterModel
-    {
-        public string Username { get; set; } = "";
-        public string Password { get; set; } = "";
-        public string Role { get; set; } = "";
-    }
-
-    public class LoginResponse
-    {
-        public int Id { get; set; }
-        public string Username { get; set; } = "";
-        public string Role { get; set; } = "";
-        public int? HotelId { get; set; }
-        public int? ElevplanId { get; set; }
-        public string Navn { get; set; } = "";    
-        public string Email { get; set; } = "";
     }
 
 
