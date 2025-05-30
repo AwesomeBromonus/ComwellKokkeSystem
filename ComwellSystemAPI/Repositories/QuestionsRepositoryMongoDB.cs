@@ -11,46 +11,53 @@ public class QuestionRepository : IQuestion
 {
     private readonly IMongoCollection<Question> _questions;
 
+    // Konstruktor initialiserer MongoDB-samlingen for spørgsmål
     public QuestionRepository(IMongoDatabase database)
     {
         _questions = database.GetCollection<Question>("Questions");
     }
 
+    // Henter alle spørgsmål som en liste
     public async Task<List<Question>> GetAllQuestionsAsync()
     {
         return await _questions.Find(_ => true).ToListAsync();
     }
 
-    // RETTET: id parameter er nu int
+    // Henter et enkelt spørgsmål baseret på id
     public async Task<Question> GetQuestionByIdAsync(int id)
     {
-        return await _questions.Find(q => q.Id == id).FirstOrDefaultAsync(); // Sammenligner int med int
+        // Finder det første spørgsmål der matcher det givne id
+        return await _questions.Find(q => q.Id == id).FirstOrDefaultAsync();
     }
 
+    // Opretter et nyt spørgsmål med automatisk genereret id
     public async Task CreateQuestionAsync(Question question)
     {
-        question.Id = await GetNextQuestionIdAsync(); // Generer ID her
+        // Genererer næste ledige id for spørgsmålet
+        question.Id = await GetNextQuestionIdAsync();
+        // Indsætter det nye spørgsmål i samlingen
         await _questions.InsertOneAsync(question);
     }
 
-    // RETTET: question.Id er int, filter er på int. Fjernede `_id` reference.
+    // Opdaterer et eksisterende spørgsmål baseret på id
     public async Task UpdateQuestionAsync(Question question)
     {
-        await _questions.ReplaceOneAsync(q => q.Id == question.Id, question); // Sammenligner int med int
+        // Erstatter det eksisterende spørgsmål med den nye data
+        await _questions.ReplaceOneAsync(q => q.Id == question.Id, question);
     }
 
-    // RETTET: id parameter er nu int
+    // Sletter et spørgsmål baseret på id
     public async Task DeleteQuestionAsync(int id)
     {
-        await _questions.DeleteOneAsync(q => q.Id == id); // Sammenligner int med int
+        // Finder og sletter spørgsmålet med det givne id
+        await _questions.DeleteOneAsync(q => q.Id == id);
     }
 
-    // NY METODE: GetNextQuestionIdAsync - Denne hører kun til QuestionRepository
+    // Hjælpefunktion der finder næste ledige id ved at finde højeste eksisterende id og lægge 1 til
     private async Task<int> GetNextQuestionIdAsync()
     {
         var sort = Builders<Question>.Sort.Descending(q => q.Id);
         var lastQuestion = await _questions.Find(_ => true).Sort(sort).Limit(1).FirstOrDefaultAsync();
         return lastQuestion == null ? 1 : lastQuestion.Id + 1;
     }
-    
 }

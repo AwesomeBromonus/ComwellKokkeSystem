@@ -2,27 +2,28 @@
 
 namespace ComwellSystemAPI.Interfaces
 {
+    // @* KLASSE: Interface til håndtering af praktikperioder i systemet *@
     public interface IPraktikperiode
     {
-        // Hent alle praktikperioder
+        // @* METODE: Hent alle praktikperioder *@
         Task<List<Praktikperiode>> GetAllAsync();
 
-        // Hent én praktikperiode
+        // @* METODE: Hent én praktikperiode baseret på id *@
         Task<Praktikperiode?> GetByIdAsync(int id);
 
-        // Opret ny praktikperiode
+        // @* METODE: Opret en ny praktikperiode *@
         Task AddAsync(Praktikperiode periode);
 
-        // Opdater eksisterende praktikperiode
+        // @* METODE: Opdater en eksisterende praktikperiode *@
         Task UpdateAsync(Praktikperiode periode);
 
-        // Slet en praktikperiode
+        // @* METODE: Slet en praktikperiode baseret på id *@
         Task DeleteAsync(int id);
 
-      
-        Task<List<Praktikperiode>> GetByElevIdAsync(int elevId); // <-- Add this line!
+        // @* METODE: Hent alle praktikperioder tilknyttet en specifik elev *@
+        Task<List<Praktikperiode>> GetByElevIdAsync(int elevId);
 
-        // Hent alle praktikperioder tilknyttet en specifik elevplan
+        // @* METODE: Hent alle praktikperioder tilknyttet en specifik elevplan *@
         Task<List<Praktikperiode>> GetByElevplanIdAsync(int elevplanId);
     }
 }

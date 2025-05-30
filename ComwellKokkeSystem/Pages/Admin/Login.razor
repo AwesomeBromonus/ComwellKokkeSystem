@@ -1,5 +1,6 @@
 ﻿@page "/login"
 @layout LoginLayout
+@* KOMPONENT: Blazor Razor Component for login-side *@
 
 @inject IAuthService AuthService                // Service der håndterer login- og brugerautentifikation
 @inject NavigationManager NavManager             // Navigationstjeneste til sideskift
@@ -50,6 +51,8 @@
 </EditForm>
 
 @code {
+    @* KLASSE: C# kode bag login-komponenten *@
+
     // Model der indeholder loginoplysninger fra formularen
     private UserModel login = new();
 

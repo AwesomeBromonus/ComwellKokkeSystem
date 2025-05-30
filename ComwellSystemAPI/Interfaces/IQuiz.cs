@@ -2,14 +2,24 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace ComwellSystemAPI.Interfaces;
-
-// Interface for quiz-specifikke databaseoperationer (Din "IQuizRepository")
-public interface IQuiz // OK, hvis du vil bruge dette navn som din repository interface
+namespace ComwellSystemAPI.Interfaces
 {
-    Task<List<Quizzes>> GetQuizzesAsync(); // Hent alle quizzes
-    Task<Quizzes> GetQuizByIdAsync(int id); // Hent en enkelt quiz ud fra ID (string!)
-    Task CreateQuizAsync(Quizzes quiz); // Opret en ny quiz
-    Task UpdateQuizAsync(Quizzes quiz); // Opdater en eksisterende quiz
-    Task DeleteQuizAsync(int id); // Slet en quiz ud fra ID
+    // @* KLASSE: Interface til håndtering af quizzes i systemet *@
+    public interface IQuiz
+    {
+        // @* METODE: Hent alle quizzes *@
+        Task<List<Quizzes>> GetQuizzesAsync();
+
+        // @* METODE: Hent en enkelt quiz baseret på id *@
+        Task<Quizzes> GetQuizByIdAsync(int id);
+
+        // @* METODE: Opret en ny quiz *@
+        Task CreateQuizAsync(Quizzes quiz);
+
+        // @* METODE: Opdater en eksisterende quiz *@
+        Task UpdateQuizAsync(Quizzes quiz);
+
+        // @* METODE: Slet en quiz baseret på id *@
+        Task DeleteQuizAsync(int id);
+    }
 }

@@ -1,4 +1,5 @@
 ﻿@page "/opret-elevplan"
+@* KOMPONENT: Blazor Razor Component til oprettelse af elevplaner *@
 
 @using ComwellKokkeSystem.Service
 @using Modeller
@@ -114,6 +115,8 @@
 </div>
 
 @code {
+    @* KLASSE: C# kode bag komponenten *@
+
     private Modeller.Elevplan elevplan = new();                     // Den elevplan der oprettes
     private List<Modeller.Praktikperiode> praktikPerioder = new();    // Liste over praktikperioder (ikke brugt i UI, men hentet)
     private List<Modeller.UserModel> brugere = new();                // Liste over brugere, som administrator kan vælge imellem
@@ -239,3 +242,4 @@
         Nav.NavigateTo("/administrator");
     }
 }
+    

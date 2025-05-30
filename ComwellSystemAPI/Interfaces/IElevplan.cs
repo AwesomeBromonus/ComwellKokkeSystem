@@ -2,25 +2,25 @@ using Modeller;
 
 namespace ComwellSystemAPI.Interfaces
 {
-    // Interface, der definerer CRUD-operationer for elevplaner i databasen
+    // @* KLASSE: Interface der definerer CRUD-operationer for elevplaner i databasen *@
     public interface IElevplan
     {
-        // Henter alle elevplaner i systemet som en liste
+        // @* METODE: Henter alle elevplaner som liste *@
         Task<List<Elevplan>> GetAllAsync();
 
-        // Henter en enkelt elevplan baseret på dens unikke id
+        // @* METODE: Henter en enkelt elevplan baseret på id *@
         Task<Elevplan?> GetByIdAsync(int id);
 
-        // Henter alle elevplaner tilknyttet en specifik elev baseret på elevens id
+        // @* METODE: Henter alle elevplaner for en specifik elev via elevId *@
         Task<List<Elevplan>> GetByElevIdAsync(int elevId);
 
-        // Tilføjer en ny elevplan til databasen
+        // @* METODE: Tilføjer en ny elevplan til databasen *@
         Task AddAsync(Elevplan elevplan);
 
-        // Opdaterer en eksisterende elevplan med nye data
+        // @* METODE: Opdaterer en eksisterende elevplan *@
         Task UpdateAsync(Elevplan elevplan);
 
-        // Sletter en elevplan baseret på id
+        // @* METODE: Sletter en elevplan baseret på id *@
         Task DeleteAsync(int id);
     }
 }

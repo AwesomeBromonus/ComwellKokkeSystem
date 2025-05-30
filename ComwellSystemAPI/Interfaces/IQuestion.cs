@@ -2,14 +2,24 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace ComwellSystemAPI.Interfaces;
-
-// Interface for spørgsmål-specifikke databaseoperationer (Din "IQuestionRepository")
-public interface IQuestion // OK, hvis du vil bruge dette navn som din repository interface
+namespace ComwellSystemAPI.Interfaces
 {
-    Task<List<Question>> GetAllQuestionsAsync(); // Hent alle spørgsmål
-    Task<Question> GetQuestionByIdAsync(int id); // Hent et enkelt spørgsmål ud fra ID (string!)
-    Task CreateQuestionAsync(Question question); // Opret et nyt spørgsmål
-    Task UpdateQuestionAsync(Question question); // Opdater et eksisterende spørgsmål
-    Task DeleteQuestionAsync(int id); // Slet et spørgsmål ud fra ID
+    // @* KLASSE: Interface til håndtering af spørgsmål i systemet *@
+    public interface IQuestion
+    {
+        // @* METODE: Hent alle spørgsmål *@
+        Task<List<Question>> GetAllQuestionsAsync();
+
+        // @* METODE: Hent et enkelt spørgsmål baseret på id *@
+        Task<Question> GetQuestionByIdAsync(int id);
+
+        // @* METODE: Opret et nyt spørgsmål *@
+        Task CreateQuestionAsync(Question question);
+
+        // @* METODE: Opdater et eksisterende spørgsmål *@
+        Task UpdateQuestionAsync(Question question);
+
+        // @* METODE: Slet et spørgsmål baseret på id *@
+        Task DeleteQuestionAsync(int id);
+    }
 }

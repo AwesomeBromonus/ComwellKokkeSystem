@@ -1,23 +1,23 @@
 ﻿using Modeller;
 
-// Interface der definerer repository-funktioner til håndtering af anmodninger i systemet
+// @* KLASSE: Interface til repository der håndterer anmodninger i systemet *@
 public interface IAnmodningRepository
 {
-    // Opretter en ny anmodning i databasen
+    // @* METODE: Opretter en ny anmodning i databasen *@
     Task OpretAsync(Anmodning anmodning);
 
-    // Henter en specifik anmodning baseret på dens unikke id
+    // @* METODE: Henter en specifik anmodning baseret på id *@
     Task<Anmodning?> GetByIdAsync(int id);
 
-    // Henter alle anmodninger, der er tilknyttet en bestemt modtager (typisk bruger)
+    // @* METODE: Henter alle anmodninger til en given modtager *@
     Task<List<Anmodning>> GetTilModtagerAsync(int modtagerId);
 
-    // Opdaterer en eksisterende anmodning med nye data
+    // @* METODE: Opdaterer en eksisterende anmodning *@
     Task UpdateAsync(Anmodning anmodning);
 
-    // Henter en komplet liste over alle anmodninger i systemet
+    // @* METODE: Henter alle anmodninger i systemet *@
     Task<List<Anmodning>> GetAlleAsync();
 
-    // Behandler en anmodning ved at sætte den som accepteret eller afvist baseret på bool-flag
+    // @* METODE: Behandler en anmodning som accepteret eller afvist *@
     Task BehandlAsync(int id, bool accepteret);
 }

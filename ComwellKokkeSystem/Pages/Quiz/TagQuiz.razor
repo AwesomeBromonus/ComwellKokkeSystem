@@ -1,4 +1,5 @@
 ﻿@page "/taketquiz/{QuizId:int}"
+@* KOMPONENT: Blazor Razor Component til afvikling af quiz for bruger *@
 
 @using ComwellKokkeSystem.Service.QuizService
 @using Modeller
@@ -99,6 +100,8 @@
 </div>
 
 @code {
+    @* KLASSE: C# kode bag komponenten *@
+
     [Parameter]
     public int QuizId { get; set; }
 

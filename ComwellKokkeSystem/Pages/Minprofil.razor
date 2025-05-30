@@ -1,4 +1,5 @@
 ﻿@page "/minprofil"
+@* KOMPONENT: Blazor Razor Component til visning og redigering af brugerens profil, herunder adgangskode og profilbillede *@
 
 @inject IUserService UserService                       // Service til brugerrelaterede operationer, fx skift af adgangskode og upload af profilbillede
 @inject IUserStateService UserStateService             // Service til håndtering af den aktuelle brugers loginstatus og data
@@ -82,6 +83,8 @@ else
 }
 
 @code {
+    @* KLASSE: C# kode bag komponenten *@
+
     private string nyKode = "";            // Holder den nye adgangskode brugeren indtaster
     private string bekræftKode = "";       // Holder bekræftelse af adgangskoden
     private string feedback = "";          // Feedbacktekst til brugeren efter handlinger

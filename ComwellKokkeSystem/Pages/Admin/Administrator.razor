@@ -1,4 +1,8 @@
 ﻿@page "/administrator"
+@* KOMPONENT: Blazor Razor Component - Administrator side *@
+
+@inject IUserService UserService
+@inject IElevplanService ElevplanService
 
 @inject IUserService UserService
 @inject IElevplanService ElevplanService
@@ -39,15 +43,15 @@
 
         @* Vi har en sektion med "hurtig adgang", som indeholder knapper til ofte brugte sider som oprettelse af brugere og elevplaner samt notifikationer. Når administrator klikker på en af disse kort, navigerer vi programmatisk til den ønskede side vha. NavigationManager. *@
         <div class="dashboard-cards">
-            <div class="dashboard-card" @onclick="@(() => NavManager.NavigateTo("/opretuser"))">
+            <div class="dashboard-card" @onclick="@(() => NavManager.NavigateTo('/opretuser'))">
                 <div class="icon">👤</div>
                 <h4>Opret bruger</h4>
             </div>
-            <div class="dashboard-card" @onclick="@(() => NavManager.NavigateTo("/opret-elevplan"))">
+            <div class="dashboard-card" @onclick="@(() => NavManager.NavigateTo('/opret-elevplan'))">
                 <div class="icon">📋</div>
                 <h4>Opret elevplan</h4>
             </div>
-            <div class="dashboard-card highlight" @onclick="@(() => NavManager.NavigateTo("/anmodninger"))">
+            <div class="dashboard-card highlight" @onclick="@(() => NavManager.NavigateTo('/anmodninger'))">
                 <div class="icon">📥</div>
                 <h4>Notifikationer</h4>
                 @* Vi viser også dynamisk, hvor mange anmodninger der venter på behandling. Det giver administrator overblik direkte på forsiden. *@
@@ -196,7 +200,7 @@
     }
 </div>
 
-@code {
+@code {  @* KLASSE: Her starter den C# kode bag komponenten *@
     // Liste der indeholder alle brugere, som vi viser på siden.
     private List<UserModel> brugere = new();
 

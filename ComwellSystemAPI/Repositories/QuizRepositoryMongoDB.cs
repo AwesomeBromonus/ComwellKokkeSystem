@@ -11,11 +11,14 @@ public class QuizRepositoryMongoDB : IQuiz
 {
     private readonly IMongoCollection<Quizzes> _quizzes;
 
+    // Konstruktor initialiserer MongoDB-samling for quizzer og logger forbindelse
     public QuizRepositoryMongoDB(IMongoDatabase database)
     {
         _quizzes = database.GetCollection<Quizzes>("Quizzes");
         Console.WriteLine("✅ Forbindelse til MongoDB gennem DI etableret.");
     }
+
+    // Henter alle quizzer i databasen som en liste
     public async Task<List<Quizzes>> GetQuizzesAsync()
     {
         try
@@ -31,6 +34,7 @@ public class QuizRepositoryMongoDB : IQuiz
         }
     }
 
+    // Henter en enkelt quiz baseret på id
     public async Task<Quizzes> GetQuizByIdAsync(int id)
     {
         try
@@ -46,6 +50,7 @@ public class QuizRepositoryMongoDB : IQuiz
         }
     }
 
+    // Opretter en ny quiz med genereret unikt id
     public async Task CreateQuizAsync(Quizzes quiz)
     {
         try
@@ -61,6 +66,7 @@ public class QuizRepositoryMongoDB : IQuiz
         }
     }
 
+    // Opdaterer en eksisterende quiz baseret på id
     public async Task UpdateQuizAsync(Quizzes quizDto)
     {
         try
@@ -75,6 +81,7 @@ public class QuizRepositoryMongoDB : IQuiz
         }
     }
 
+    // Hjælpefunktion til at finde næste ledige id for quiz
     private async Task<int> GetNextQuizIdAsync()
     {
         try
@@ -92,6 +99,7 @@ public class QuizRepositoryMongoDB : IQuiz
         }
     }
 
+    // Sletter en quiz baseret på id
     public async Task DeleteQuizAsync(int id)
     {
         try

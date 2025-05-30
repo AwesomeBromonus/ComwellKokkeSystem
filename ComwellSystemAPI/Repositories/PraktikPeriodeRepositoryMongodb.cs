@@ -24,13 +24,16 @@ public class PraktikperiodeRepository : IPraktikperiode
     // Tilføjer en ny praktikperiode med unikt genereret id
     public async Task AddAsync(Praktikperiode periode)
     {
+        // Genererer næste ledige id for praktikperiode
         periode.Id = await GetNextIdAsync();
+        // Indsætter ny praktikperiode i samlingen
         await _collection.InsertOneAsync(periode);
     }
 
     // Opdaterer en eksisterende praktikperiode
     public async Task UpdateAsync(Praktikperiode periode)
     {
+        // Finder dokument baseret på id og erstatter det med den nye data
         var filter = Builders<Praktikperiode>.Filter.Eq(p => p.Id, periode.Id);
         await _collection.ReplaceOneAsync(filter, periode);
     }
@@ -38,6 +41,7 @@ public class PraktikperiodeRepository : IPraktikperiode
     // Sletter en praktikperiode baseret på id
     public async Task DeleteAsync(int id)
     {
+        // Finder dokument baseret på id og sletter det
         var filter = Builders<Praktikperiode>.Filter.Eq(p => p.Id, id);
         await _collection.DeleteOneAsync(filter);
     }
@@ -45,20 +49,24 @@ public class PraktikperiodeRepository : IPraktikperiode
     // Hjælpefunktion der finder næste ledige id ved at finde højeste eksisterende id og lægge 1 til
     private async Task<int> GetNextIdAsync()
     {
+        // Sorterer praktikperioder efter id i faldende orden og henter den første
         var sort = Builders<Praktikperiode>.Sort.Descending(p => p.Id);
         var last = await _collection.Find(_ => true).Sort(sort).Limit(1).FirstOrDefaultAsync();
+        // Returnerer 1 hvis samlingen er tom, ellers sidste id + 1
         return last == null ? 1 : last.Id + 1;
     }
 
     // Henter alle praktikperioder tilknyttet en specifik elevplan
     public async Task<List<Praktikperiode>> GetByElevplanIdAsync(int elevplanId)
     {
+        // Finder alle praktikperioder hvor ElevplanId matcher
         return await _collection.Find(p => p.ElevplanId == elevplanId).ToListAsync();
     }
 
     // Henter alle praktikperioder tilknyttet en specifik elev
     public async Task<List<Praktikperiode>> GetByElevIdAsync(int elevId)
     {
+        // Finder alle praktikperioder hvor ElevId matcher
         var filter = Builders<Praktikperiode>.Filter.Eq(p => p.ElevId, elevId);
         return await _collection.Find(filter).ToListAsync();
     }

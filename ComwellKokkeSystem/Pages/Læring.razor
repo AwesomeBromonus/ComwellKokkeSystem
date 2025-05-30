@@ -1,4 +1,5 @@
 ﻿@page "/laering"
+@* KOMPONENT: Blazor Razor Component til visning og upload af læringsmaterialer *@
 
 @using Microsoft.AspNetCore.Components.Forms
 @using Modeller
@@ -71,6 +72,8 @@ else
 }
 
 @code {
+    @* KLASSE: C# kode bag komponenten *@
+
     // Liste der indeholder alle læringsmaterialer hentet fra backend
     private List<Modeller.Læring> Materialer = new();
 

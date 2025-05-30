@@ -2,9 +2,7 @@
 using Modeller;
 using Microsoft.AspNetCore.Components.Forms;
 
-/// <summary>
-/// Implementering af ILæringService, der bruger HttpClient til at kommunikere med API'et.
-/// </summary>
+// @* KLASSE: Serviceklasse der implementerer ILæringService og håndterer læringsmaterialer via HTTP-requests *@
 public class LæringService : ILæringService
 {
     // HttpClient bruges til at sende HTTP-forespørgsler til backend API'et.
@@ -13,43 +11,26 @@ public class LæringService : ILæringService
     // Gør HttpClient tilgængelig, f.eks. til tests eller videreudvidelser
     public HttpClient Http => _http;
 
-    /// <summary>
-    /// Konstruktør der modtager en HttpClient via dependency injection.
-    /// </summary>
-    /// <param name="http">En konfigureret HttpClient instans.</param>
+    // Konstruktor der modtager en HttpClient via dependency injection.
     public LæringService(HttpClient http)
     {
         _http = http;
     }
 
-    /// <summary>
-    /// Henter alle læringsmaterialer fra API'et.
-    /// </summary>
-    /// <returns>En liste med læringsmaterialer. Returnerer tom liste hvis intet findes.</returns>
+    // Henter alle læringsmaterialer fra API'et.
     public async Task<List<Læring>> HentAlleAsync() =>
         await _http.GetFromJsonAsync<List<Læring>>("api/laering") ?? new();
 
-    /// <summary>
-    /// Henter et specifikt læringsmateriale baseret på ID.
-    /// </summary>
-    /// <param name="id">ID på læringsmaterialet.</param>
-    /// <returns>Et Læring-objekt eller null hvis det ikke findes.</returns>
+    // Henter et specifikt læringsmateriale baseret på ID.
     public async Task<Læring?> HentVedIdAsync(int id) =>
         await _http.GetFromJsonAsync<Læring>($"api/laering/{id}");
 
-    /// <summary>
-    /// Tilføjer et læringsmateriale til databasen via API'et.
-    /// </summary>
-    /// <param name="læring">Det læringsmateriale der skal gemmes.</param>
+    // Tilføjer et læringsmateriale til databasen via API'et.
     public async Task TilføjAsync(Læring læring) =>
         await _http.PostAsJsonAsync("api/laering", læring);
 
-    /// <summary>
-    /// Uploader et læringsmateriale samt tilhørende fil via multipart/form-data.
-    /// </summary>
-    /// <param name="læring">Objekt med titel og beskrivelse.</param>
-    /// <param name="fil">Den fil der skal uploades (maks 20 MB).</param>
-    /// <returns>True hvis upload lykkes, ellers false.</returns>
+    // Uploader et læringsmateriale samt tilhørende fil via multipart/form-data.
+    // Maksimal filstørrelse 20MB.
     public async Task<bool> UploadAsync(Læring læring, IBrowserFile fil)
     {
         using var stream = fil.OpenReadStream(20 * 1024 * 1024); // maks 20MB

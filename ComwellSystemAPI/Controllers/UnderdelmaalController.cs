@@ -4,21 +4,20 @@ using ComwellSystemAPI.Interfaces;
 
 namespace ComwellSystemAPI.Controllers
 {
-    // API-controller til håndtering af underdelmål
+    // @* KLASSE: API-controller til håndtering af underdelmål *@
     [ApiController]
     [Route("api/underdelmaal")]
     public class UnderdelmaalController : ControllerBase
     {
         private readonly IUnderdelmaal _repository;
 
-        // Konstruktor hvor repository injiceres for databaseadgang
+        // @* KONSTRUKTØR: Injicerer repository for databaseadgang *@
         public UnderdelmaalController(IUnderdelmaal repository)
         {
             _repository = repository;
         }
 
-        // GET: api/underdelmaal/delmaal/{delmaalId}
-        // Henter alle underdelmål tilknyttet et specifikt delmål
+        // @* METODE: Hent alle underdelmål til et specifikt delmål *@
         [HttpGet("delmaal/{delmaalId}")]
         public async Task<IActionResult> GetByDelmaalId(int delmaalId)
         {
@@ -26,8 +25,7 @@ namespace ComwellSystemAPI.Controllers
             return Ok(result);
         }
 
-        // GET: api/underdelmaal/{id}
-        // Henter et enkelt underdelmål baseret på id
+        // @* METODE: Hent enkelt underdelmål efter id *@
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
@@ -38,8 +36,7 @@ namespace ComwellSystemAPI.Controllers
             return Ok(underdelmaal);
         }
 
-        // POST: api/underdelmaal
-        // Tilføjer et nyt underdelmål
+        // @* METODE: Tilføj nyt underdelmål *@
         [HttpPost]
         public async Task<IActionResult> Add([FromBody] Underdelmaal model)
         {
@@ -47,8 +44,7 @@ namespace ComwellSystemAPI.Controllers
             return Ok();
         }
 
-        // PUT: api/underdelmaal/{id}
-        // Opdaterer et eksisterende underdelmål; tjekker at id matcher
+        // @* METODE: Opdater eksisterende underdelmål; tjek id match *@
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] Underdelmaal model)
         {
@@ -59,8 +55,7 @@ namespace ComwellSystemAPI.Controllers
             return Ok();
         }
 
-        // PATCH: api/underdelmaal/status/{id}
-        // Opdaterer kun statusfeltet for et underdelmål
+        // @* METODE: Opdater kun statusfelt for underdelmål *@
         [HttpPatch("status/{id}")]
         public async Task<IActionResult> UpdateStatus(int id, [FromBody] string nyStatus)
         {
@@ -68,8 +63,7 @@ namespace ComwellSystemAPI.Controllers
             return Ok();
         }
 
-        // DELETE: api/underdelmaal/{id}
-        // Sletter et underdelmål baseret på id
+        // @* METODE: Slet underdelmål baseret på id *@
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {

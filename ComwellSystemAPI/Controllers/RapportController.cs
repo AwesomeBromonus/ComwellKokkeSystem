@@ -3,21 +3,20 @@ using ComwellSystemAPI.Interfaces;
 
 namespace ComwellSystemAPI.Controllers
 {
-    // API-controller til rapportfunktioner
+    // @* KLASSE: API-controller til rapportfunktioner *@
     [ApiController]
     [Route("api/rapport")]
     public class RapportController : ControllerBase
     {
         private readonly IRapportRepository _rapportRepo;
 
-        // Konstruktor hvor repository injiceres via dependency injection
+        // @* KONSTRUKTØR: Injicerer repository til rapportgenerering *@
         public RapportController(IRapportRepository rapportRepo)
         {
             _rapportRepo = rapportRepo;
         }
 
-        // GET: api/rapport/excel
-        // Endpoint der genererer og returnerer en Excel-rapport over elev delmål
+        // @* METODE: Endpoint til at hente Excel-rapport over elev delmål *@
         [HttpGet("excel")]
         public async Task<IActionResult> DownloadExcelRapport()
         {

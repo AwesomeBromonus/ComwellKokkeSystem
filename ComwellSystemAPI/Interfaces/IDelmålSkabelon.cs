@@ -2,25 +2,25 @@
 
 namespace ComwellSystemAPI.Interfaces
 {
-    // Interface der definerer metoder til håndtering af delmålsskabeloner i databasen
+    // @* KLASSE: Interface til håndtering af delmålsskabeloner i databasen *@
     public interface IDelmaalSkabelon
     {
-        // Henter alle delmålsskabeloner som en liste
+        // @* METODE: Henter alle delmålsskabeloner som liste *@
         Task<List<DelmaalSkabelon>> GetAllAsync();
 
-        // Henter delmålsskabeloner for en bestemt praktikperiode baseret på praktikperiodens nummer
+        // @* METODE: Henter delmålsskabeloner for en bestemt praktikperiode (nummer) *@
         Task<List<DelmaalSkabelon>> GetByPraktikperiodeNrAsync(int praktikperiodeNr);
 
-        // Henter en enkelt delmålsskabelon baseret på dens unikke id
+        // @* METODE: Henter en enkelt delmålsskabelon baseret på id *@
         Task<DelmaalSkabelon?> GetByIdAsync(int id);
 
-        // Tilføjer en ny delmålsskabelon til databasen
+        // @* METODE: Tilføjer en ny delmålsskabelon til databasen *@
         Task AddAsync(DelmaalSkabelon model);
 
-        // Opdaterer en eksisterende delmålsskabelon
+        // @* METODE: Opdaterer en eksisterende delmålsskabelon *@
         Task UpdateAsync(DelmaalSkabelon model);
 
-        // Sletter en delmålsskabelon baseret på id
+        // @* METODE: Sletter en delmålsskabelon baseret på id *@
         Task DeleteAsync(int id);
     }
 }

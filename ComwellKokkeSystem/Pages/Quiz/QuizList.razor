@@ -1,4 +1,5 @@
 ﻿@page "/quizlist"
+@* KOMPONENT: Blazor Razor Component til visning, oprettelse, redigering og sletning af quizzer *@
 
 @using ComwellKokkeSystem.Service.QuizService
 @inject NavigationManager NavigationManager       // Til navigation mellem sider
@@ -77,6 +78,8 @@
 </div>
 
 @code {
+    @* KLASSE: C# kode bag komponenten *@
+
     private List<Modeller.Quizzes>? quizzes;        // Listen over quizzer hentet fra backend
     private int? loggedInUserId;                     // Id på den loggede bruger, hvis nogen
     private bool isAuthorizedChecked = false;       // Flag for om loginstatus er tjekket

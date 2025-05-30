@@ -11,7 +11,7 @@ namespace ComwellSystemAPI.Interfaces
         // Opdaterer et eksisterende underdelmål
         Task UpdateAsync(Underdelmaal underdelmaal);
 
-        // Henter en liste af underdelmål, der hører til et bestemt delmål via delmål id
+        // Henter en liste af underdelmål tilknyttet et bestemt delmål via delmål id
         Task<List<Underdelmaal>> GetByDelmaalIdAsync(int delmaalId);
 
         // Henter et enkelt underdelmål baseret på dets unikke id

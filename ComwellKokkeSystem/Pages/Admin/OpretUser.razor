@@ -1,4 +1,5 @@
 ﻿@page "/opretuser"
+@* KOMPONENT: Blazor Razor Component for brugeroprettelse *@
 
 @inject IAuthService AuthService               // Service til brugeroprettelse og autentifikation
 @inject NavigationManager NavManager            // Navigationstjeneste til sideskift
@@ -110,6 +111,8 @@
 </div>
 
 @code {
+    @* KLASSE: C# kode bag komponenten *@
+
     // Initialiserer en ny bruger med default startdato som i dag og uden slutdato
     private UserModel newUser = new()
         {

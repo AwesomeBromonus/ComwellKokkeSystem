@@ -1,4 +1,5 @@
 ﻿@page "/quizdetails/{QuizId:int}"
+@* KOMPONENT: Blazor Razor Component til visning af detaljer for en quiz *@
 
 @using ComwellKokkeSystem.Service.QuizService
 @using Modeller
@@ -70,6 +71,8 @@
 </div>
 
 @code {
+    @* KLASSE: C# kode bag komponenten *@
+
     [Parameter]
     public int QuizId { get; set; }                   // Parameter modtaget fra URL med quiz ID
 

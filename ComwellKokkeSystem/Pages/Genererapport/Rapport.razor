@@ -1,4 +1,5 @@
 ﻿@page "/rapportside"
+@* KOMPONENT: Blazor Razor Component til visning og eksport af elevrapporter *@
 
 @using ComwellKokkeSystem.Service
 @inject IRapportService RapportService              // Service til rapportgenerering og eksport
@@ -93,6 +94,8 @@ else
 }
 
 @code {
+    @* KLASSE: C# kode bag komponenten *@
+
     // Liste over alle brugere med rollen "elev"
     private List<UserModel>? brugere;
 

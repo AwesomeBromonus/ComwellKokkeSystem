@@ -4,21 +4,20 @@ using ComwellSystemAPI.Interfaces;
 
 namespace ComwellSystemAPI.Controllers
 {
-    // API-controller til håndtering af underdelmålsskabeloner
+    // @* KLASSE: API-controller til håndtering af underdelmålsskabeloner *@
     [ApiController]
     [Route("api/underdelmaalskabelon")]
     public class UnderdelmaalSkabelonController : ControllerBase
     {
         private readonly IUnderdelmaalSkabelon _repository;
 
-        // Konstruktor hvor repository injiceres til at håndtere databaseoperationer
+        // @* KONSTRUKTØR: Injicerer repository til databaseoperationer *@
         public UnderdelmaalSkabelonController(IUnderdelmaalSkabelon repository)
         {
             _repository = repository;
         }
 
-        // GET: api/underdelmaalskabelon/delmaalskabelon/{delmaalSkabelonId}
-        // Henter alle underdelmålsskabeloner tilknyttet et bestemt delmålsskabelon-id
+        // @* METODE: Hent alle underdelmålsskabeloner tilknyttet et delmålsskabelon-id *@
         [HttpGet("delmaalskabelon/{delmaalSkabelonId}")]
         public async Task<IActionResult> GetByDelmaalSkabelonId(int delmaalSkabelonId)
         {
@@ -26,8 +25,7 @@ namespace ComwellSystemAPI.Controllers
             return Ok(result);
         }
 
-        // POST: api/underdelmaalskabelon
-        // Tilføjer en ny underdelmålsskabelon
+        // @* METODE: Tilføj ny underdelmålsskabelon *@
         [HttpPost]
         public async Task<IActionResult> Add([FromBody] UnderdelmaalSkabelon model)
         {
@@ -38,8 +36,7 @@ namespace ComwellSystemAPI.Controllers
             return Ok();
         }
 
-        // DELETE: api/underdelmaalskabelon/{id}
-        // Sletter en underdelmålsskabelon baseret på id
+        // @* METODE: Slet underdelmålsskabelon baseret på id *@
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
@@ -47,9 +44,7 @@ namespace ComwellSystemAPI.Controllers
             return Ok();
         }
 
-        // PUT: api/underdelmaalskabelon/{id}
-        // Opdaterer en eksisterende underdelmålsskabelon
-        // Sikrer at id i URL og i model stemmer overens
+        // @* METODE: Opdater eksisterende underdelmålsskabelon; sikrer id-match *@
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] UnderdelmaalSkabelon model)
         {

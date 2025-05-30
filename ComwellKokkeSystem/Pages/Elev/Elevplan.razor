@@ -1,4 +1,5 @@
 ﻿@page "/elevplaner"
+@* KOMPONENT: Blazor Razor Component for visning af elevplaner *@
 
 @using ComwellKokkeSystem.Service
 @using Modeller
@@ -34,6 +35,8 @@ else
 }
 
 @code {
+    @* KLASSE: C# kode bag komponenten *@
+
     private List<Modeller.Elevplan>? elevplaner;   // Liste over elevplaner til visning
     private string? rolle;                         // Den aktuelle brugers rolle
 

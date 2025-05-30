@@ -2,13 +2,13 @@
 
 namespace ComwellSystemAPI.Interfaces
 {
-    // Interface der definerer metoder til håndtering af kommentarer i systemet
+    // @* KLASSE: Interface der definerer metoder til håndtering af kommentarer i systemet *@
     public interface IKommentar
     {
-        // Tilføjer en ny kommentar til databasen
+        // @* METODE: Tilføjer en ny kommentar til databasen *@
         Task AddAsync(Kommentar kommentar);
 
-        // Henter alle kommentarer, som er knyttet til et bestemt delmål baseret på delmål id
+        // @* METODE: Henter alle kommentarer knyttet til et specifikt delmål via delmålId *@
         Task<List<Kommentar>> GetByDelmålIdAsync(int delmålId);
     }
 }

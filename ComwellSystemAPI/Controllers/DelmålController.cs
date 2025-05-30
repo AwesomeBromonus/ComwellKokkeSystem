@@ -2,21 +2,20 @@
 using Microsoft.AspNetCore.Mvc;
 using Modeller;
 
-// API-controller der håndterer HTTP-forespørgsler relateret til delmål
+// @* KLASSE: API-controller der håndterer HTTP-forespørgsler relateret til delmål *@
 [ApiController]
 [Route("api/[controller]")]
 public class DelmaalController : ControllerBase
 {
     private readonly IDelmål _repo;
 
-    // Konstruktor hvor repository injiceres til datatilgang
+    // @* KONSTRUKTØR: Injicerer repository til datatilgang *@
     public DelmaalController(IDelmål repo)
     {
         _repo = repo;
     }
 
-    // POST: api/delmaal
-    // Tilføjer et nyt delmål til databasen
+    // @* METODE: Tilføjer et nyt delmål via POST api/delmaal *@
     [HttpPost]
     public async Task<IActionResult> AddDelmaal([FromBody] Delmål delmaal)
     {
@@ -24,8 +23,7 @@ public class DelmaalController : ControllerBase
         return Ok();
     }
 
-    // PUT: api/delmaal/{id}
-    // Opdaterer et eksisterende delmål. Tjekker først at id i url og body stemmer overens
+    // @* METODE: Opdaterer et delmål via PUT api/delmaal/{id}, tjekker id-match *@
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateDelmaal(int id, [FromBody] Delmål delmaal)
     {
@@ -36,8 +34,7 @@ public class DelmaalController : ControllerBase
         return Ok();
     }
 
-    // DELETE: api/delmaal/{id}
-    // Sletter et delmål baseret på id, hvis det findes
+    // @* METODE: Sletter et delmål via DELETE api/delmaal/{id} hvis findes *@
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteDelmaal(int id)
     {
@@ -49,8 +46,7 @@ public class DelmaalController : ControllerBase
         return Ok();
     }
 
-    // GET: api/delmaal/{id}
-    // Henter et enkelt delmål baseret på id
+    // @* METODE: Henter delmål efter id via GET api/delmaal/{id} *@
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
@@ -61,8 +57,7 @@ public class DelmaalController : ControllerBase
         return Ok(delmaal);
     }
 
-    // GET: api/delmaal/praktikperiode/{praktikperiodeId}
-    // Henter alle delmål der tilhører en given praktikperiode
+    // @* METODE: Henter delmål for praktikperiode via GET api/delmaal/praktikperiode/{praktikperiodeId} *@
     [HttpGet("praktikperiode/{praktikperiodeId}")]
     public async Task<IActionResult> GetByPraktikperiodeId(int praktikperiodeId)
     {
@@ -70,8 +65,7 @@ public class DelmaalController : ControllerBase
         return Ok(result);
     }
 
-    // GET: api/delmaal/elevplan/{elevplanId}/praktikperiode/{praktikperiodeId}
-    // Henter delmål for en specifik elevplan og praktikperiode
+    // @* METODE: Henter delmål for elevplan og praktikperiode via GET api/delmaal/elevplan/{elevplanId}/praktikperiode/{praktikperiodeId} *@
     [HttpGet("elevplan/{elevplanId}/praktikperiode/{praktikperiodeId}")]
     public async Task<IActionResult> GetByElevplanAndPraktikperiode(int elevplanId, int praktikperiodeId)
     {
@@ -79,8 +73,7 @@ public class DelmaalController : ControllerBase
         return Ok(result);
     }
 
-    // GET: api/delmaal/elev/{elevId}
-    // Henter alle delmål tilknyttet en specifik elev
+    // @* METODE: Henter delmål for elev via GET api/delmaal/elev/{elevId} *@
     [HttpGet("elev/{elevId}")]
     public async Task<IActionResult> GetByElevId(int elevId)
     {
@@ -88,8 +81,7 @@ public class DelmaalController : ControllerBase
         return Ok(result);
     }
 
-    // GET: api/delmaal/all
-    // Henter alle delmål i systemet
+    // @* METODE: Henter alle delmål via GET api/delmaal/all *@
     [HttpGet("all")]
     public async Task<IActionResult> GetAll()
     {
@@ -97,8 +89,7 @@ public class DelmaalController : ControllerBase
         return Ok(result);
     }
 
-    // GET: api/delmaal/deadlines-14dage
-    // Henter delmål med deadline inden for de næste 14 dage
+    // @* METODE: Henter delmål med deadline inden for 14 dage via GET api/delmaal/deadlines-14dage *@
     [HttpGet("deadlines-14dage")]
     public async Task<IActionResult> GetDelmaalMedDeadlineIndenFor14Dage()
     {

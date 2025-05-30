@@ -1,11 +1,12 @@
 ﻿@page "/delmaalskabeloner"
+@* KOMPONENT: Blazor Razor Component for delmålsskabeloner *@
+
 @inject IDelmaalSkabelonService DelmaalSkabelonService
 @inject IUnderdelmaalSkabelonService UnderdelmaalSkabelonService
 @using Modeller
 @using System.Linq
 
 <link href="css/Delmaal.css" rel="stylesheet" />
-
 
 <h3>🧾 Elevplanskabelon</h3>
 
@@ -60,8 +61,7 @@ else
                                                     <li class="list-group-item d-flex justify-content-between align-items-center">
                                                         <div>
                                                             <strong>@u.Beskrivelse</strong><br />
-                                                            <small c
-                                                                lass="text-muted">🗓 Deadline-dage: @u.Deadline</small>
+                                                            <small class="text-muted">🗓 Deadline-dage: @u.Deadline</small>
                                                         </div>
                                                         <div>
                                                             <button class="btn btn-sm btn-warning me-1" @onclick="() => RedigerUnderdelmaal(u)">✏️</button>
@@ -77,7 +77,6 @@ else
                         }
                     </tbody>
                 </table>
-
             </div>
         }
     }
@@ -100,7 +99,6 @@ else
                     <ValidationSummary />
                     <InputNumber class="form-control mb-2" @bind-Value="nySkabelon.PraktikperiodeNummer" />
                     <InputText class="form-control mb-2" @bind-Value="nySkabelon.Beskrivelse" />
-                   
                     <InputText class="form-control mb-2" @bind-Value="nySkabelon.Ansvarlig" />
                     <InputText class="form-control mb-2" @bind-Value="nySkabelon.Igangsætter" />
                     <div class="modal-footer">
@@ -128,7 +126,6 @@ else
                     <InputText class="form-control mb-2" @bind-Value="nyUnderdelmaal.Beskrivelse" />
                     <label for="deadlineInput">Deadline</label>
                     <InputDate id="deadlineInput" class="form-control mb-2" @bind-Value="nyUnderdelmaal.Deadline" />
-
                     <div class="modal-footer">
                         <button type="submit" class="btn btn-success">@((redigererUnderdelmaal) ? "Opdater" : "Tilføj")</button>
                         <button type="button" class="btn btn-secondary" @onclick="LukUnderdelmaalModal">Annuller</button>
@@ -140,6 +137,8 @@ else
 </div>
 
 @code {
+    @* KLASSE: C# kode bag komponenten *@
+
     private List<DelmaalSkabelon>? skabeloner;
     private DelmaalSkabelon nySkabelon = new();
     private bool redigerMode = false;
@@ -176,14 +175,12 @@ else
                 Id = s.Id,
                 PraktikperiodeNummer = s.PraktikperiodeNummer,
                 Beskrivelse = s.Beskrivelse,
-               
                 Ansvarlig = s.Ansvarlig,
                 Igangsætter = s.Igangsætter
             };
         redigerMode = true;
         visModal = true;
     }
-
 
     private async Task SletSkabelon(int id)
     {
@@ -216,7 +213,6 @@ else
         visUnderdelmaalModal = true;
     }
 
-
     private void LukUnderdelmaalModal() => (visUnderdelmaalModal, nyUnderdelmaal) = (false, new());
 
     private async Task GemUnderdelmaalSkabelon()
@@ -231,7 +227,6 @@ else
         underdelmaalListe.RemoveAll(u => u.DelmaalSkabelonId == valgtDelmaalSkabelonId);
         await ToggleUnderdelmaalVisning(valgtDelmaalSkabelonId);
     }
-
 
     private async Task ToggleUnderdelmaalVisning(int delmaalSkabelonId)
     {
@@ -251,12 +246,10 @@ else
         }
     }
 
-
     private async Task SletUnderdelmaal(int id, int delmaalSkabelonId)
     {
         await UnderdelmaalSkabelonService.DeleteAsync(id);
         underdelmaalListe.RemoveAll(u => u.Id == id);
         await ToggleUnderdelmaalVisning(delmaalSkabelonId);
     }
-
 }

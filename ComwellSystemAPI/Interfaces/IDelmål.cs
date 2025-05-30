@@ -2,40 +2,40 @@
 
 namespace ComwellSystemAPI.Interfaces
 {
-    // Interface der definerer de metoder, som en repository til delmål skal implementere
+    // @* KLASSE: Interface for repository til håndtering af delmål *@
     public interface IDelmål
     {
-        // Henter en liste af delmål tilknyttet en specifik praktikperiode via id
+        // @* METODE: Henter delmål tilknyttet en specifik praktikperiode via id *@
         Task<List<Delmål>> GetByPraktikperiodeIdAsync(int praktikperiodeId);
 
-        // Henter delmål for en given elevplan og praktikperiode kombination
+        // @* METODE: Henter delmål for given elevplan og praktikperiode *@
         Task<List<Delmål>> GetByElevplanIdAndPraktikperiodeIdAsync(int elevplanId, int praktikperiodeId);
 
-        // Henter alle delmål tilknyttet en specifik elev; bruges fx på elevens overbliksside
+        // @* METODE: Henter alle delmål tilknyttet en specifik elev *@
         Task<List<Delmål>> GetByElevIdAsync(int elevId);
 
-        // Henter et enkelt delmål baseret på id
+        // @* METODE: Henter et enkelt delmål baseret på id *@
         Task<Delmål?> GetByIdAsync(int id);
 
-        // Opretter et nyt delmål i databasen
+        // @* METODE: Opretter et nyt delmål i databasen *@
         Task AddAsync(Delmål delmaal);
 
-        // Opdaterer hele delmålet med nye data
+        // @* METODE: Opdaterer hele delmålet med nye data *@
         Task UpdateDelmaalAsync(Delmål delmaal);
 
-        // Opdaterer kun statusfeltet for et delmål, fx "fuldført" eller "under arbejde"
+        // @* METODE: Opdaterer kun statusfeltet for et delmål *@
         Task UpdateStatusAsync(int delmaalId, string nyStatus);
 
-        // Sletter et delmål baseret på id
+        // @* METODE: Sletter et delmål baseret på id *@
         Task DeleteDelmaalAsync(int id);
 
-        // Henter alle delmål for et bestemt år, fx for rapportering eller statistik
+        // @* METODE: Henter alle delmål for et bestemt år (fx til rapportering) *@
         Task<List<Delmål>> GetAllForYearAsync(int year);
 
-        // Henter alle delmål i systemet
+        // @* METODE: Henter alle delmål i systemet *@
         Task<List<Delmål>> GetAllAsync();
 
-        // Henter delmål med deadline inden for et givent antal dage; nyttigt til påmindelser og overblik
+        // @* METODE: Henter delmål med deadline inden for et antal dage *@
         Task<List<Delmål>> GetWithDeadlineWithinDaysAsync(int antalDage);
     }
 }

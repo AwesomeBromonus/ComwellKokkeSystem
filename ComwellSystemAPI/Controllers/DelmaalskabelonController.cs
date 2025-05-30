@@ -4,27 +4,25 @@ using Modeller;
 
 namespace ComwellSystemAPI.Controllers
 {
-    // API-controller med route "api/delmaalskabelon", matcher kald fra Blazor Razor-siden
+    // @* KLASSE: API-controller til delmålsskabeloner, matcher kald fra Blazor Razor-siden *@
     [ApiController]
     [Route("api/delmaalskabelon")]
     public class DelmaalskabelonController : ControllerBase
     {
         private readonly IDelmaalSkabelon _repo;
 
-        // Constructor hvor repository til skabeloner injiceres for datatilgang
+        // @* KONSTRUKTØR: Injicerer repository til datatilgang *@
         public DelmaalskabelonController(IDelmaalSkabelon repo)
         {
             _repo = repo;
         }
 
-        // GET: api/delmaalskabelon
-        // Henter alle delmålsskabeloner
+        // @* METODE: Henter alle delmålsskabeloner via GET api/delmaalskabelon *@
         [HttpGet]
         public async Task<IActionResult> GetAll() =>
             Ok(await _repo.GetAllAsync());
 
-        // GET: api/delmaalskabelon/periode/{nr}
-        // Henter delmålsskabeloner for en specifik praktikperiode
+        // @* METODE: Henter delmålsskabeloner for en specifik praktikperiode via GET api/delmaalskabelon/periode/{nr} *@
         [HttpGet("periode/{nr}")]
         public async Task<IActionResult> GetByPeriode(int nr)
         {
@@ -32,8 +30,7 @@ namespace ComwellSystemAPI.Controllers
             return result.Any() ? Ok(result) : NotFound();
         }
 
-        // GET: api/delmaalskabelon/{id}
-        // Henter en enkelt delmålsskabelon baseret på id
+        // @* METODE: Henter en enkelt delmålsskabelon efter id via GET api/delmaalskabelon/{id} *@
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
@@ -41,8 +38,7 @@ namespace ComwellSystemAPI.Controllers
             return item != null ? Ok(item) : NotFound();
         }
 
-        // POST: api/delmaalskabelon
-        // Tilføjer en ny delmålsskabelon
+        // @* METODE: Tilføjer en ny delmålsskabelon via POST api/delmaalskabelon *@
         [HttpPost]
         public async Task<IActionResult> Add([FromBody] DelmaalSkabelon model)
         {
@@ -50,9 +46,7 @@ namespace ComwellSystemAPI.Controllers
             return Ok();
         }
 
-        // PUT: api/delmaalskabelon/{id}
-        // Opdaterer en eksisterende delmålsskabelon
-        // Sikrer at id i url og model stemmer overens
+        // @* METODE: Opdaterer en delmålsskabelon via PUT api/delmaalskabelon/{id}, tjekker id-match *@
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] DelmaalSkabelon model)
         {
@@ -61,8 +55,7 @@ namespace ComwellSystemAPI.Controllers
             return Ok();
         }
 
-        // DELETE: api/delmaalskabelon/{id}
-        // Sletter en delmålsskabelon baseret på id
+        // @* METODE: Sletter en delmålsskabelon efter id via DELETE api/delmaalskabelon/{id} *@
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {

@@ -1,4 +1,5 @@
 ﻿@page "/anmodninger"
+@* KOMPONENT: Blazor Razor Component - Side for delmålsanmodninger *@
 
 @using Modeller
 @using ComwellKokkeSystem.Service
@@ -97,6 +98,8 @@ else
 }
 
 @code {
+    @* KLASSE: C# kode bag komponenten *@
+
     private List<Anmodning>? anmodninger;                                // Liste af indkomne anmodninger til modtageren
     private Dictionary<int, Delmål> delmaalMap = new();                  // Map over Delmål for hurtig opslag på id
     private Dictionary<int, Underdelmaal> underdelmaalMap = new();       // Map over Underdelmål for hurtig opslag

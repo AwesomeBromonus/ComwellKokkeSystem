@@ -2,12 +2,10 @@
 
 namespace ComwellSystemAPI.Interfaces
 {
+    // @* KLASSE: Interface til rapportgenerering *@
     public interface IRapportRepository
     {
-        /// <summary>
-        /// Genererer en Excel-rapport over alle elever og deres delmål.
-        /// </summary>
-        /// <returns>Excel-filen som byte-array (xlsx-format)</returns>
+        // @* METODE: Generer Excel-rapport med elevers delmål, returnerer som byte-array *@
         Task<byte[]> GenererElevDelmaalExcelAsync();
     }
 }

@@ -1,4 +1,5 @@
 ﻿@page "/mitoverblik"
+@* KOMPONENT: Blazor Razor Component for elevens overbliksside *@
 
 @inject NavigationManager NavManager                      // Til navigation mellem sider
 @inject IUserStateService UserStateService                // Til at holde styr på loginstatus og brugerdata
@@ -94,6 +95,8 @@ else
 }
 
 @code {
+    @* KLASSE: C# kode bag komponenten *@
+
     // Elevplan til den aktuelle bruger, kan være null hvis ikke fundet
     private Modeller.Elevplan? aktivElevplan;
 

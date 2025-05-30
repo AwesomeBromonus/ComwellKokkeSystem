@@ -1,4 +1,6 @@
-﻿using MongoDB.Driver;
+﻿// KLASSE: Repository-klasse der håndterer CRUD-operationer på "Anmodning" i MongoDB
+
+using MongoDB.Driver;
 using Modeller;
 using ComwellSystemAPI.Interfaces;
 using ComwellSystemAPI.Repositories;
