@@ -6,7 +6,7 @@
 @inject IUserStateService UserState              // Service til at holde styr på brugerloginstatus og data
 @inject Blazored.LocalStorage.ILocalStorageService localStorage  // Browserens localStorage til gemte data
 
-@using Modeller                                  // Indeholder UserModel og andre datamodeller
+@using Modeller                                 
 
 <EditForm Model="@login" OnValidSubmit="@HandleLogin" autocomplete="off">
     <DataAnnotationsValidator />
