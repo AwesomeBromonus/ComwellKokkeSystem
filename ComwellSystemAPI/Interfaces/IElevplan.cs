@@ -6,7 +6,7 @@ namespace ComwellSystemAPI.Interfaces
     {
         Task<List<Elevplan>> GetAllAsync();
         Task<Elevplan?> GetByIdAsync(int id);
-        Task<List<Elevplan>> GetByElevIdAsync(int elevId);
+        Task<Elevplan> GetByElevIdAsync(int elevId);
         Task AddAsync(Elevplan elevplan);
         Task UpdateAsync(Elevplan elevplan);
         Task DeleteAsync(int id);

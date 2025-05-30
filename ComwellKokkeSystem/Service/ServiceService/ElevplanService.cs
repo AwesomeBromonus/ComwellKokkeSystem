@@ -7,6 +7,7 @@ public class ElevplanService : IElevplanService
 {
     private readonly HttpClient _http;
 
+    //Konstruktor
     public ElevplanService(HttpClient http)
     {
         _http = http;

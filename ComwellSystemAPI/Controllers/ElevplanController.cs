@@ -17,7 +17,7 @@ public class ElevplanController : ControllerBase
 
     // Henter alle elevplaner fra databasen
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Modeller.Elevplan>>> GetAll() =>
+    public async Task<ActionResult<ActionResult<Modeller.Elevplan>>> GetAll() =>
         Ok(await _repo.GetAllAsync());
 
     // Henter en enkelt elevplan ud fra ID
@@ -29,14 +29,18 @@ public class ElevplanController : ControllerBase
     }
 
 
-    //  Hent elevplaner for en specifik elev
+  
+    // Hent elevplan for en specifik elev
     [HttpGet("elev/{elevId}")]
-    public async Task<ActionResult<List<Modeller.Elevplan>>> GetByElevId(int elevId)
+    public async Task<ActionResult<Elevplan>> GetByElevId(int elevId)
     {
-        var planer = await _repo.GetByElevIdAsync(elevId);
-        if (planer == null || !planer.Any()) return NotFound("Ingen elevplaner fundet for denne elev.");
-        return Ok(planer);
+        var plan = await _repo.GetByElevIdAsync(elevId);
+        if (plan == null)
+            return NotFound("Der findes ingen elevplan for denne elev.");
+
+        return Ok(plan);
     }
+
 
     // Opretter en ny elevplan i databasen
     [HttpPost]
@@ -61,17 +65,6 @@ public class ElevplanController : ControllerBase
         await _repo.DeleteAsync(id);
         return NoContent(); // Returnerer status 204 (No Content)
     }
-
-    [HttpGet("byuser/{userId}")]
-    public async Task<IActionResult> GetLatestElevplanByUserId(int userId)
-    {
-        var planer = await _repo.GetByElevIdAsync(userId);
-        var nyeste = planer?.OrderByDescending(p => p.OprettetDato).FirstOrDefault();
-
-        return nyeste == null ? NotFound("Ingen elevplan fundet for brugeren.") : Ok(nyeste);
-    }
-
-
 
 }
 
