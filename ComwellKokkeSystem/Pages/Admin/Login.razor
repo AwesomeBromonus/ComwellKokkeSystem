@@ -1,16 +1,18 @@
 ﻿@page "/login"
 @layout LoginLayout
-@inject IAuthService AuthService
-@inject NavigationManager NavManager
-@inject IUserStateService UserState
-@inject Blazored.LocalStorage.ILocalStorageService localStorage
-@using Modeller
+
+@inject IAuthService AuthService                // Service der håndterer login- og brugerautentifikation
+@inject NavigationManager NavManager             // Navigationstjeneste til sideskift
+@inject IUserStateService UserState              // Service til at holde styr på brugerloginstatus og data
+@inject Blazored.LocalStorage.ILocalStorageService localStorage  // Browserens localStorage til gemte data
+
+@using Modeller                                  // Indeholder UserModel og andre datamodeller
 
 <EditForm Model="@login" OnValidSubmit="@HandleLogin" autocomplete="off">
     <DataAnnotationsValidator />
     <ValidationSummary />
 
-    <!-- Brugernavn -->
+    @* Inputfelt til brugernavn med validering *@
     <div class="form-group">
         <div class="input-with-icon">
             <InputText class="form-control" placeholder="Brugernavn" @bind-Value="login.Username" />
@@ -18,7 +20,7 @@
         <ValidationMessage For="@(() => login.Username)" />
     </div>
 
-    <!-- Adgangskode -->
+    @* Inputfelt til adgangskode med mulighed for at vise/skjule adgangskoden *@
     <div class="form-group">
         <div class="input-with-icon">
             <InputText class="form-control" type="@passwordType" placeholder="Adgangskode" @bind-Value="login.Password" />
@@ -29,18 +31,18 @@
         <ValidationMessage For="@(() => login.Password)" />
     </div>
 
-    <!-- Husk mig -->
+    @* Checkbox til "Husk mig" funktion, som lagrer brugernavnet i browseren *@
     <div class="form-check">
         <InputCheckbox class="form-check-input" @bind-Value="rememberMe" />
         <label class="form-check-label">Husk mig</label>
     </div>
 
-    <!-- Login knap -->
+    @* Login-knap, som er disabled mens login processen kører *@
     <button type="submit" class="btn btn-login" disabled="@isLoading">
         @(isLoading ? "Logger ind..." : "Log ind")
     </button>
 
-    <!-- Fejlbesked -->
+    @* Viser fejlbesked ved loginfejl *@
     @if (!string.IsNullOrEmpty(message))
     {
         <div class="login-error">@message</div>
@@ -48,16 +50,28 @@
 </EditForm>
 
 @code {
+    // Model der indeholder loginoplysninger fra formularen
     private UserModel login = new();
+
+    // Variabel til at vise statusbeskeder eller fejlbeskeder til brugeren
     private string message = "";
+
+    // Flag der indikerer om login er i gang (for at disable knap og vise loading tekst)
     private bool isLoading = false;
+
+    // Boolean til om brugeren ønsker "Husk mig" (gem brugernavn i localStorage)
     private bool rememberMe = false;
+
+    // Bestemmer om adgangskoden skal vises eller skjules i inputfeltet
     private string passwordType = "password";
 
+    // Når siden initialiseres
     protected override async Task OnInitializedAsync()
     {
+        // Initialiserer brugerens loginstatus i systemet
         await UserState.InitializeAsync();
 
+        // Hvis brugeren allerede er logget ind, naviger automatisk til den side der passer til deres rolle
         if (UserState.IsLoggedIn)
         {
             NavManager.NavigateTo(UserState.CurrentUser?.Role?.ToLower() switch
@@ -68,6 +82,7 @@
             }, forceLoad: true);
         }
 
+        // Hvis brugernavn er gemt fra tidligere (ved "Husk mig"), indsæt det i inputfeltet og sæt checkbox til true
         var storedUser = await localStorage.GetItemAsync<string>("rememberedUsername");
         if (!string.IsNullOrEmpty(storedUser))
         {
@@ -76,31 +91,38 @@
         }
     }
 
+    // Metode til at skifte mellem skjult og synlig adgangskode i inputfeltet
     private void TogglePassword()
     {
         passwordType = passwordType == "password" ? "text" : "password";
     }
 
+    // Håndterer login når brugeren trykker på login-knappen
     private async Task HandleLogin()
     {
-        isLoading = true;
-        message = "";
+        isLoading = true;    // Sætter loading-flag for UI-feedback
+        message = "";        // Rydder tidligere beskeder
 
         try
         {
+            // Kalder AuthService for at validere loginoplysninger mod backend
             var success = await AuthService.Login(login);
             if (success)
             {
+                // Hvis "Husk mig" er valgt, gem brugernavn i browserens localStorage
                 if (rememberMe)
                     await localStorage.SetItemAsync("rememberedUsername", login.Username);
                 else
                     await localStorage.RemoveItemAsync("rememberedUsername");
 
+                // Henter brugerdata ud fra brugernavnet for at få fulde oplysninger (fx rolle)
                 var user = await AuthService.GetUserByUsername(login.Username);
                 if (user != null)
                 {
+                    // Sætter den aktuelle bruger i UserState for at holde styr på loginstatus og rettigheder
                     await UserState.SetUserAsync(user);
 
+                    // Navigerer til den side, der passer til brugerens rolle
                     NavManager.NavigateTo(user.Role?.ToLower() switch
                     {
                         "admin" => "/administrator",
@@ -110,19 +132,22 @@
                 }
                 else
                 {
+                    // Hvis vi ikke kunne hente brugerdata efter login, vises fejlbesked
                     message = "Kunne ikke hente brugerdata.";
                 }
             }
             else
             {
+                // Hvis login-fejl fra server (forkert brugernavn/kode), vis fejltekst
                 message = "Forkert brugernavn eller adgangskode.";
             }
         }
         catch (Exception ex)
         {
+            // Ved uventede fejl under login vises fejlnavn i UI for fejlsøgning
             message = $"Login-fejl: {ex.Message}";
         }
 
-        isLoading = false;
+        isLoading = false;  // Fjern loading-flag når loginforsøg er færdigt
     }
 }

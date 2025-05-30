@@ -1,23 +1,24 @@
 ﻿@page "/laering"
+
 @using Microsoft.AspNetCore.Components.Forms
 @using Modeller
-@inject ILæringService LæringService  // Tjeneste til at hente og uploade læringsmaterialer
-@inject IUserStateService UserStateService
-      
+@inject ILæringService LæringService                // Service til håndtering af læringsmaterialer
+@inject IUserStateService UserStateService           // Service til at hente den aktuelle brugers rolle
 
-<h3 class="text-2xl font-semibold mb-4">📚 Læringsmaterialer</h3>
+<h3 class="text-2xl font-semibold mb-4">Læringsmaterialer</h3>
 
+@* Kun brugere med rolle admin eller kok kan tilføje nyt materiale *@
 @if (UserStateService.CurrentUser?.Role == "admin" || UserStateService.CurrentUser?.Role == "kok")
 {
     <button @onclick="ToggleForm"
             class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition mb-4">
-        @(VisForm ? "Annuller" : "➕ Tilføj materiale")
+        @(VisForm ? "Annuller" : "Tilføj materiale")
     </button>
 }
 
+@* Formular til oprettelse af nyt læringsmateriale, vises kun når VisForm er true og bruger har adgang *@
 @if (VisForm && (UserStateService.CurrentUser?.Role == "admin" || UserStateService.CurrentUser?.Role == "kok"))
 {
-    <!-- Formular til oprettelse af nyt læringsmateriale -->
     <div class="bg-gray-100 p-4 rounded shadow mb-4">
         <form onsubmit="return false;">
             <div class="mb-2">
@@ -43,9 +44,9 @@
     </div>
 }
 
+@* Viser listen over eksisterende læringsmaterialer eller info hvis ingen findes *@
 @if (Materialer.Count > 0)
 {
-    <!-- Viser eksisterende materialer -->
     <div class="grid gap-4">
         @foreach (var item in Materialer)
         {
@@ -70,64 +71,54 @@ else
 }
 
 @code {
-    // Liste over alle læringsmaterialer hentet fra tjenesten
+    // Liste der indeholder alle læringsmaterialer hentet fra backend
     private List<Modeller.Læring> Materialer = new();
 
-    // Det læringsobjekt som brugeren er ved at oprette
+    // Objekt der holder data for det nye læringsmateriale, som brugeren kan oprette
     private Modeller.Læring nyLæring = new();
 
-    // Den valgte fil fra InputFile
+    // Den valgte fil til upload, set via InputFile-komponenten
     private IBrowserFile? valgtFil;
 
-    // Bruges til at vise/skjule oprettelsesformular
+    // Boolean der styrer om oprettelsesformular vises eller skjules
     private bool VisForm = false;
 
-    /// <summary>
-    /// Henter læringsmaterialer ved komponentinitialisering
-    /// </summary>
+    // Når komponenten indlæses, henter vi alle eksisterende læringsmaterialer fra tjenesten
     protected override async Task OnInitializedAsync()
     {
         Materialer = await LæringService.HentAlleAsync();
     }
 
-    /// <summary>
-    /// Skifter mellem at vise og skjule formular til oprettelse
-    /// </summary>
+    // Skifter VisForm true/false, så formular kan vises eller skjules ved klik på knap
     private void ToggleForm() => VisForm = !VisForm;
 
-    /// <summary>
-    /// Håndterer filvalg fra InputFile-komponenten
-    /// </summary>
-    /// <param name="e">Event data med valgt fil</param>
+    // Håndterer filvalg fra InputFile-komponenten og gemmer det valgte filobjekt i valgtFil
     private void HandleFileChange(InputFileChangeEventArgs e)
     {
         valgtFil = e.File;
     }
 
-    /// <summary>
-    /// Uploader det nye læringsmateriale samt tilhørende fil.
-    /// Hvis upload lykkes, nulstilles formularen og materialer hentes på ny.
-    /// </summary>
+    // Metode til at uploade nyt læringsmateriale inklusive fil til backend
     private async Task HandleUpload()
     {
-        if (valgtFil == null) return;
+        if (valgtFil == null) return; // Hvis ingen fil valgt, gør ingenting
 
+        // Kalder tjenesten UploadAsync som håndterer filupload og oprettelse af læringsobjekt
         var success = await LæringService.UploadAsync(nyLæring, valgtFil);
 
         if (success)
         {
-            nyLæring = new Modeller.Læring();               // Nulstil formular
+            // Ved succes nulstilles formularen og formularen skjules
+            nyLæring = new Modeller.Læring();
             valgtFil = null;
             VisForm = false;
-            Materialer = await LæringService.HentAlleAsync();  // Genindlæs materialer
+
+            // Opdaterer listen af læringsmaterialer for at vise det nye materiale
+            Materialer = await LæringService.HentAlleAsync();
         }
     }
 
-    /// <summary>
-    /// Returnerer emoji-ikon afhængig af filtype
-    /// </summary>
-    /// <param name="type">Filtype som f.eks. pdf, jpg, mp4</param>
-    /// <returns>En emoji repræsentation af filtypen</returns>
+    // Returnerer et emoji-ikon der passer til filtypen for visuel information i UI
     private string GetIkon(string type) => type.ToLower() switch
     {
         "pdf" => "📄",

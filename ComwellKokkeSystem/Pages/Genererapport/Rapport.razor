@@ -1,23 +1,27 @@
 ﻿@page "/rapportside"
+
 @using ComwellKokkeSystem.Service
-@inject IRapportService RapportService
-@inject IUserService UserService
-@inject IDelmaalService DelmaalService
-@inject IUnderdelmaalService UnderdelmaalService
-@inject IPraktikperiodeService praktikperiodeService
-@inject IJSRuntime JS
+@inject IRapportService RapportService              // Service til rapportgenerering og eksport
+@inject IUserService UserService                      // Service til brugerdata
+@inject IDelmaalService DelmaalService                // Service til delmål
+@inject IUnderdelmaalService UnderdelmaalService      // Service til underdelmål
+@inject IPraktikperiodeService praktikperiodeService  // Service til praktikperioder
+@inject IJSRuntime JS                                  // Til JS-invokation, fx download af filer
 @using Modeller
 
-<h3 class="mb-4">📊 Elevrapport</h3>
+<h3 class="mb-4">Elevrapport 📊</h3>
 
+@* Hvis data endnu ikke er hentet, vis loading tekst *@
 @if (brugere == null || delmaalListe == null)
 {
-    <p>⏳ Indlæser data...</p>
+    <p>Indlæser data...</p>
 }
 else
 {
-    <button class="btn btn-success mb-3" @onclick="EksporterExcel">📥 Eksportér til Excel</button>
+    @* Knap til at eksportere hele rapporten til Excel *@
+    <button class="btn btn-success mb-3" @onclick="EksporterExcel">Eksportér til Excel 📥</button>
 
+    @* Tabellen viser detaljeret oversigt over brugeres delmål og underdelmål samt praktikperioder *@
     <table class="table table-striped table-bordered">
         <thead>
             <tr>
@@ -36,6 +40,7 @@ else
         </thead>
 
         <tbody>
+            @* For hver elev listes delmål og underdelmål med status og deadlines *@
             @foreach (var bruger in brugere)
             {
                 var elevensDelmaal = delmaalListe.Where(d => d.ElevId == bruger.Id);
@@ -44,6 +49,7 @@ else
                     var underdelmaal = underdelmaalMap.ContainsKey(d.Id) ? underdelmaalMap[d.Id] : new List<Underdelmaal>();
                     var periode = praktikperioder.FirstOrDefault(p => p.Id == d.PraktikperiodeId);
 
+                    @* Hvis der findes underdelmål, vises de alle *@
                     if (underdelmaal.Any())
                     {
                         foreach (var u in underdelmaal)
@@ -65,6 +71,7 @@ else
                     }
                     else
                     {
+                        @* Hvis ingen underdelmål, vis "-" i felterne for underdelmål *@
                         <tr>
                             <td>@bruger.Navn</td>
                             <td>@bruger.Email</td>
@@ -86,18 +93,31 @@ else
 }
 
 @code {
+    // Liste over alle brugere med rollen "elev"
     private List<UserModel>? brugere;
+
+    // Liste over alle delmål i systemet
     private List<Delmål>? delmaalListe;
+
+    // Liste over alle praktikperioder i systemet
     private List<Praktikperiode> praktikperioder = new();
+
+    // Dictionary der kortlægger hvert delmåls id til dets underdelmål
     private Dictionary<int, List<Underdelmaal>> underdelmaalMap = new();
 
+    // Når komponent initialiseres, hentes alle nødvendige data fra backend
     protected override async Task OnInitializedAsync()
     {
+        // Hent alle elever
         brugere = (await UserService.GetAllAsync()).Where(u => u.Role.ToLower() == "elev").ToList();
+
+        // Hent alle delmål
         delmaalListe = await DelmaalService.GetAllAsync();
+
+        // Hent alle praktikperioder
         praktikperioder = await praktikperiodeService.GetAllAsync();
 
-        // Hent alle underdelmål og læg dem i dictionary
+        // For hvert delmål hentes underdelmål og gemmes i dictionary
         foreach (var d in delmaalListe)
         {
             var under = await UnderdelmaalService.GetByDelmaalIdAsync(d.Id);
@@ -105,6 +125,7 @@ else
         }
     }
 
+    // Eksporter data som Excel-fil ved at hente bytes fra RapportService og initiere download i browseren
     private async Task EksporterExcel()
     {
         var data = await RapportService.HentExcelRapportAsync();

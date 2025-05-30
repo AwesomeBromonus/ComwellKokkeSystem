@@ -1,19 +1,21 @@
 ﻿@page "/quizcreator"
+
 @using ComwellKokkeSystem.Service
 @inject NavigationManager NavigationManager
 @inject IAuthService AuthService
 @inject IQuizService QuizService
 @inject IUserStateService UserStateService
 
+<div class="min-h-screen bg-gray-100 flex items-center justify-center p-6 font-sans">
+    <div class="max-w-4xl w-full bg-white rounded-lg shadow-2xl p-8 border border-gray-200">
+        <h3 class="text-4xl font-extrabold text-center mb-8 text-purple-700">Opret Ny Quiz ✨</h3>
 
-<div class="min-h-screen bg-gray-100 flex items-center justify-center p-6 font-sans"> @* Subtil grå baggrund, centrerer indholdet *@
-<div class="max-w-4xl w-full bg-white rounded-lg shadow-2xl p-8 border border-gray-200"> @* Større og mere fremtrædende hvid boks *@
-<h3 class="text-4xl font-extrabold text-center mb-8 text-purple-700">Opret Ny Quiz ✨</h3> @* Mere Kahoot-agtig farve og emoji *@
-
+        @* Tjekker om brugeren er logget ind; vis loader hvis ikke afklaret *@
         @if (!UserStateService.IsLoggedIn)
         {
             <p class="text-center text-lg text-gray-600">⏳ Indlæser brugerstatus...</p>
         }
+        @* Hvis ikke logget ind, vis adgang nægtet *@
         else if (!UserStateService.IsLoggedIn)
         {
             <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
@@ -21,6 +23,7 @@
                 <span class="block sm:inline"> Du skal være logget ind for at oprette en quiz.</span>
             </div>
         }
+        @* Hvis ikke admin eller kok, vis advarsel om manglende adgang *@
         else if (UserStateService.CurrentUser?.Role.ToLower() != "admin" && UserStateService.CurrentUser?.Role.ToLower() != "kok")
         {
             <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded relative mb-4" role="alert">
@@ -30,102 +33,145 @@
         }
         else
         {
+            @* Formular til oprettelse af quiz *@
             <EditForm Model="@newQuiz" OnValidSubmit="@HandleSubmit">
                 <DataAnnotationsValidator />
                 <ValidationSummary class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" />
 
-<div class="mb-6"> @* Mere plads under quiztitel *@
-<label for="quizTitle" class="block text-gray-700 text-base font-semibold mb-2">Quiz Titel:</label> @* Større label font *@
-<InputText id="quizTitle" class="shadow-sm appearance-none border border-gray-300 rounded w-full py-3 px-4 text-gray-800 leading-tight focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent" @bind-Value="newQuiz.Title" /> @* Finere border og focus ring *@
-<ValidationMessage For="@(() => newQuiz.Title)" class="text-red-500 text-sm italic mt-1" /> @* Lidt større fejltekst *@
-</div>
+                @* Quiz titel input med styling og validering *@
+                <div class="mb-6">
+                    <label for="quizTitle" class="block text-gray-700 text-base font-semibold mb-2">Quiz Titel:</label>
+                    <InputText id="quizTitle" class="shadow-sm border border-gray-300 rounded w-full py-3 px-4 text-gray-800 leading-tight focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                               @bind-Value="newQuiz.Title" />
+                    <ValidationMessage For="@(() => newQuiz.Title)" class="text-red-500 text-sm italic mt-1" />
+                </div>
 
-<h4 class="text-2xl font-bold mb-5 text-purple-700">Spørgsmål 🤔</h4> @* Større og med emoji *@
-@foreach (var question in questions)
-{
-var currentQuestion = question;
-<div class="bg-white p-6 rounded-xl shadow-lg mb-6 border border-gray-200"> @* Fremtrædende kort for spørgsmål *@
-<div class="mb-5"> @* Mere plads under spørgsmålstekst *@
-<label for="@($"questionText_{currentQuestion.TempId}")" class="block text-gray-700 text-base font-semibold mb-2">Spørgsmålstekst:</label>
-<InputText id="@($"questionText_{currentQuestion.TempId}")" class="shadow-sm appearance-none border border-gray-300 rounded w-full py-3 px-4 text-gray-800 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" @bind-Value="currentQuestion.Text" />
-<ValidationMessage For="@(() => currentQuestion.Text)" class="text-red-500 text-sm italic mt-1" />
-</div>
+                <h4 class="text-2xl font-bold mb-5 text-purple-700">Spørgsmål 🤔</h4>
 
-<h5 class="text-xl font-semibold mb-4 text-gray-700">Valgmuligheder</h5>
-@for (int i = 0; i < currentQuestion.Options.Count; i++)
-{
-var optionIndex = i;
-<div class="flex items-center mb-3"> @* Mere plads mellem valgmuligheder *@
-<InputText class="shadow-sm appearance-none border border-gray-300 rounded w-full py-2.5 px-3 text-gray-800 leading-tight focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent mr-2" @bind-Value="currentQuestion.Options[optionIndex]" placeholder="@($"Valgmulighed {i + 1}")" />
-<button type="button" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300 transform hover:scale-105" @onclick="() => RemoveOption(currentQuestion, optionIndex)">-</button> @* Lidt mere interaktiv knap *@
-</div>
-}
-<button type="button" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300 transform hover:scale-105 mb-5" @onclick="() => AddOption(currentQuestion)">➕ Tilføj Valgmulighed</button> @* Ny ikon og lidt mindre knap *@
+                @* Liste over spørgsmål med input til tekst, valgmuligheder og korrekt svar indeks *@
+                @foreach (var question in questions)
+                {
+                    var currentQuestion = question;
+                    <div class="bg-white p-6 rounded-xl shadow-lg mb-6 border border-gray-200">
+                        <div class="mb-5">
+                            <label for="@($"questionText_{currentQuestion.TempId}")" class="block text-gray-700 text-base font-semibold mb-2">Spørgsmålstekst:</label>
+                            <InputText id="@($"questionText_{currentQuestion.TempId}")"
+                                       class="shadow-sm border border-gray-300 rounded w-full py-3 px-4 text-gray-800 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                       @bind-Value="currentQuestion.Text" />
+                            <ValidationMessage For="@(() => currentQuestion.Text)" class="text-red-500 text-sm italic mt-1" />
+                        </div>
 
-<div class="mb-6"> @* Mere plads under korrekt svar *@
-<label for="@($"correctAnswer_{currentQuestion.TempId}")" class="block text-gray-700 text-base font-semibold mb-2">Korrekt Svar (Valgmulighedsindeks - 0-baseret):</label>
-<InputNumber id="@($"correctAnswer_{currentQuestion.TempId}")" class="shadow-sm appearance-none border border-gray-300 rounded w-full py-3 px-4 text-gray-800 leading-tight focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent" @bind-Value="currentQuestion.CorrectAnswerIndex" />
-<ValidationMessage For="@(() => currentQuestion.CorrectAnswerIndex)" class="text-red-500 text-sm italic mt-1" />
-</div>
-<button type="button" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 px-5 rounded-lg shadow-md transition duration-300 transform hover:scale-105" @onclick="() => RemoveQuestion(currentQuestion)">🗑️ Fjern Spørgsmål</button> @* Ny ikon og lidt mindre knap *@
-</div>
-}
-<div class="flex justify-between items-center mt-8"> @* Placer knapper side om side og juster *@
-<button type="button" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 transform hover:scale-105" @onclick="AddQuestion">➕ Tilføj Spørgsmål</button> @* Lidt mindre knap *@
-<button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-8 rounded-lg shadow-xl transition duration-300 transform hover:scale-105">🚀 Opret Quiz</button> @* Lidt mindre knap, Kahoot-farve *@
-</div>
-</EditForm>
-}
-</div>
+                        <h5 class="text-xl font-semibold mb-4 text-gray-700">Valgmuligheder</h5>
+
+                        @for (int i = 0; i < currentQuestion.Options.Count; i++)
+                        {
+                            var optionIndex = i;
+                            <div class="flex items-center mb-3">
+                                <InputText class="shadow-sm border border-gray-300 rounded w-full py-2.5 px-3 text-gray-800 leading-tight focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent mr-2"
+                                           @bind-Value="currentQuestion.Options[optionIndex]"
+                                           placeholder="@($"Valgmulighed {i + 1}")" />
+                                <button type="button"
+                                        class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300 transform hover:scale-105"
+                                        @onclick="() => RemoveOption(currentQuestion, optionIndex)">
+                                    -
+                                </button>
+                            </div>
+                        }
+                        <button type="button"
+                                class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300 transform hover:scale-105 mb-5"
+                                @onclick="() => AddOption(currentQuestion)">
+                            ➕ Tilføj Valgmulighed
+                        </button>
+
+                        <div class="mb-6">
+                            <label for="@($"correctAnswer_{currentQuestion.TempId}")" class="block text-gray-700 text-base font-semibold mb-2">Korrekt Svar (0-baseret indeks):</label>
+                            <InputNumber id="@($"correctAnswer_{currentQuestion.TempId}")"
+                                         class="shadow-sm border border-gray-300 rounded w-full py-3 px-4 text-gray-800 leading-tight focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                                         @bind-Value="currentQuestion.CorrectAnswerIndex" />
+                            <ValidationMessage For="@(() => currentQuestion.CorrectAnswerIndex)" class="text-red-500 text-sm italic mt-1" />
+                        </div>
+                        <button type="button"
+                                class="bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 px-5 rounded-lg shadow-md transition duration-300 transform hover:scale-105"
+                                @onclick="() => RemoveQuestion(currentQuestion)">
+                            🗑️ Fjern Spørgsmål
+                        </button>
+                    </div>
+                }
+
+                <div class="flex justify-between items-center mt-8">
+                    <button type="button"
+                            class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 transform hover:scale-105"
+                            @onclick="AddQuestion">
+                        ➕ Tilføj Spørgsmål
+                    </button>
+                    <button type="submit"
+                            class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-8 rounded-lg shadow-xl transition duration-300 transform hover:scale-105">
+                        🚀 Opret Quiz
+                    </button>
+                </div>
+            </EditForm>
+        }
+    </div>
 </div>
 
 @code {
-private Modeller.Quizzes newQuiz = new Modeller.Quizzes();
-private List<QuestionViewModel> questions = new List<QuestionViewModel>();
+    private Modeller.Quizzes newQuiz = new Modeller.Quizzes();     // Nyt quiz-objekt til oprettelse
+    private List<QuestionViewModel> questions = new List<QuestionViewModel>();  // Liste med spørgsmål som kan redigeres
 
-private class QuestionViewModel : Modeller.Question
-{
-public Guid TempId { get; set; } = Guid.NewGuid();
-}
+    // Wrapper klasse for spørgsmål med midlertidigt ID til UI-binding
+    private class QuestionViewModel : Modeller.Question
+    {
+        public Guid TempId { get; set; } = Guid.NewGuid();
+    }
 
-protected override void OnInitialized()
-{
-AddQuestion();
-}
+    // Når komponent initialiseres, tilføjes automatisk ét spørgsmål
+    protected override void OnInitialized()
+    {
+        AddQuestion();
+    }
 
-private void AddQuestion()
-{
-questions.Add(new QuestionViewModel { Options = new List<string> { "", "" } });
-}
+    // Tilføj et nyt spørgsmål med to tomme valgmuligheder som start
+    private void AddQuestion()
+    {
+        questions.Add(new QuestionViewModel { Options = new List<string> { "", "" } });
+    }
 
-private void RemoveQuestion(QuestionViewModel questionToRemove)
-{
-questions.Remove(questionToRemove);
-}
+    // Fjern et spørgsmål fra listen
+    private void RemoveQuestion(QuestionViewModel questionToRemove)
+    {
+        questions.Remove(questionToRemove);
+    }
 
-private void AddOption(QuestionViewModel question)
-{
-question.Options.Add("");
-}
+    // Tilføj en tom valgmulighed til et spørgsmål
+    private void AddOption(QuestionViewModel question)
+    {
+        question.Options.Add("");
+    }
 
-private void RemoveOption(QuestionViewModel question, int index)
-{
-if (question.Options.Count > 1)
+    // Fjern valgmulighed fra et spørgsmål, men altid mindst én valgmulighed tilbage
+    private void RemoveOption(QuestionViewModel question, int index)
+    {
+        if (question.Options.Count > 1)
         {
             question.Options.RemoveAt(index);
         }
     }
 
+    // Håndterer formularens submit – opretter quiz og spørgsmål via tjeneste
     private async Task HandleSubmit()
     {
-        if (!UserStateService.IsLoggedIn || (UserStateService.CurrentUser?.Role.ToLower() != "admin" && UserStateService.CurrentUser?.Role.ToLower() != "kok"))
+        // Tjek at bruger er logget ind og har rolle admin eller kok
+        if (!UserStateService.IsLoggedIn ||
+            (UserStateService.CurrentUser?.Role.ToLower() != "admin" && UserStateService.CurrentUser?.Role.ToLower() != "kok"))
         {
             Console.WriteLine("Fejl: Brugeren er ikke autoriseret til at oprette quizzer.");
             return;
         }
 
+        // Sæt skaberens brugernavn på quiz-objektet
         newQuiz.CreatorName = UserStateService.CurrentUser?.Username;
 
+        // Konstruer oprettelsesrequest med quiz og tilhørende spørgsmål
         var request = new Modeller.CreateQuizRequest
             {
                 Quiz = newQuiz,
@@ -136,11 +182,14 @@ if (question.Options.Count > 1)
                     CorrectAnswerIndex = q.CorrectAnswerIndex
                 }).ToList()
             };
+
         try
         {
+            // Send request til tjenesten
             bool success = await QuizService.CreateQuizAsync(request);
             if (success)
             {
+                // Ved succes navigeres til quizlisten
                 NavigationManager.NavigateTo("/quizlist");
             }
             else
@@ -152,7 +201,5 @@ if (question.Options.Count > 1)
         {
             Console.WriteLine($"Exception during quiz creation: {ex.Message}");
         }
-
     }
-
 }

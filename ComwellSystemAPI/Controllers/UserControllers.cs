@@ -4,6 +4,7 @@ using ComwellSystemAPI.Interfaces;
 
 namespace ComwellSystemAPI.Controllers
 {
+    // API-controller med base route "api/users"
     [ApiController]
     [Route("api/users")]
     public class UsersController : ControllerBase
@@ -11,12 +12,15 @@ namespace ComwellSystemAPI.Controllers
         private readonly IUserRepository _userRepo;
         private readonly IWebHostEnvironment _env;
 
+        // Konstruktor hvor repository og webhost environment injiceres
         public UsersController(IUserRepository userRepo, IWebHostEnvironment env)
         {
             _userRepo = userRepo;
             _env = env;
         }
 
+        // POST: api/users
+        // Tilføjer en ny bruger til databasen
         [HttpPost]
         public async Task<IActionResult> AddUser([FromBody] UserModel user)
         {
@@ -24,7 +28,8 @@ namespace ComwellSystemAPI.Controllers
             return Ok();
         }
 
-
+        // POST: api/users/register
+        // Registrerer en bruger med validering af brugernavn og adgangskode
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] UserModel model)
         {
@@ -44,6 +49,8 @@ namespace ComwellSystemAPI.Controllers
             return Ok(new { message = "Bruger oprettet." });
         }
 
+        // POST: api/users/login
+        // Validerer login ved at tjekke brugernavn og adgangskode
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] UserModel model)
         {
@@ -54,6 +61,7 @@ namespace ComwellSystemAPI.Controllers
             if (user == null || user.Password != model.Password)
                 return Unauthorized("Forkert brugernavn eller adgangskode.");
 
+            // Returnerer brugerinfo uden adgangskode
             var response = new UserModel
             {
                 Id = user.Id,
@@ -68,6 +76,8 @@ namespace ComwellSystemAPI.Controllers
             return Ok(response);
         }
 
+        // GET: api/users/all
+        // Henter alle brugere
         [HttpGet("all")]
         public async Task<IActionResult> GetAllUsers()
         {
@@ -75,6 +85,8 @@ namespace ComwellSystemAPI.Controllers
             return Ok(allUsers);
         }
 
+        // GET: api/users/admins-og-kokke
+        // Henter brugere med rollerne admin eller kok
         [HttpGet("admins-og-kokke")]
         public async Task<IActionResult> GetAdminsOgKokke()
         {
@@ -82,6 +94,8 @@ namespace ComwellSystemAPI.Controllers
             return Ok(brugere);
         }
 
+        // GET: api/users/byid/{id}
+        // Henter bruger baseret på id
         [HttpGet("byid/{id}")]
         public async Task<IActionResult> GetById(int id)
         {
@@ -91,6 +105,8 @@ namespace ComwellSystemAPI.Controllers
             return Ok(user);
         }
 
+        // GET: api/users/{username}
+        // Henter bruger baseret på brugernavn
         [HttpGet("{username}")]
         public async Task<IActionResult> GetByUsername(string username)
         {
@@ -100,6 +116,8 @@ namespace ComwellSystemAPI.Controllers
             return Ok(user);
         }
 
+        // GET: api/users/elever/{year}
+        // Henter elever, der startede i et givet år
         [HttpGet("elever/{year}")]
         public async Task<ActionResult<List<UserModel>>> GetEleverByYear(int year)
         {
@@ -110,6 +128,8 @@ namespace ComwellSystemAPI.Controllers
             return Ok(elever);
         }
 
+        // PUT: api/users/{id}
+        // Opdaterer en bruger baseret på id
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] UserModel bruger)
         {
@@ -123,6 +143,8 @@ namespace ComwellSystemAPI.Controllers
             return Ok("Bruger opdateret.");
         }
 
+        // DELETE: api/users/{id}
+        // Sletter en bruger baseret på id
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
@@ -134,6 +156,8 @@ namespace ComwellSystemAPI.Controllers
             return Ok("Bruger slettet.");
         }
 
+        // PUT: api/users/{id}/assign-elevplan
+        // Tildeler en elevplan til en bruger
         [HttpPut("{id}/assign-elevplan")]
         public async Task<IActionResult> AssignElevplan(int id, [FromBody] int elevplanId)
         {
@@ -147,8 +171,8 @@ namespace ComwellSystemAPI.Controllers
             return Ok("Elevplan tildelt.");
         }
 
-
-
+        // PUT: api/users/{id}/skiftkode
+        // Ændrer adgangskode for en bruger
         [HttpPut("{id}/skiftkode")]
         public async Task<IActionResult> SkiftAdgangskode(int id, [FromBody] string nyAdgangskode)
         {
@@ -165,6 +189,8 @@ namespace ComwellSystemAPI.Controllers
             return Ok("Adgangskode opdateret.");
         }
 
+        // POST: api/users/{id}/upload-billede
+        // Upload af profilbillede for en bruger
         [HttpPost("{id}/upload-billede")]
         public async Task<IActionResult> UploadProfilbillede(int id)
         {
@@ -193,6 +219,8 @@ namespace ComwellSystemAPI.Controllers
             }
         }
 
+        // GET: api/users/{id}/eksisterer-billede
+        // Tjekker om en bruger har et profilbillede uploadet
         [HttpGet("{id}/eksisterer-billede")]
         public IActionResult HarProfilbillede(int id)
         {
@@ -201,5 +229,4 @@ namespace ComwellSystemAPI.Controllers
             return Ok(new { exists });
         }
     }
-
 }

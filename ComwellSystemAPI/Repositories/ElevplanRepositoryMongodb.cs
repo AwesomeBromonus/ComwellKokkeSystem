@@ -6,59 +6,56 @@ public class ElevplanRepository : IElevplan
 {
     private readonly IMongoCollection<Elevplan> _elevplanCollection;
 
+    // Konstruktor initialiserer MongoDB-samling for elevplaner
     public ElevplanRepository(IMongoDatabase database)
     {
         _elevplanCollection = database.GetCollection<Elevplan>("Elevplaner");
     }
-    // Hent alle elevplaner
+
+    // Henter alle elevplaner som en liste
     public async Task<List<Elevplan>> GetAllAsync()
     {
         return await _elevplanCollection.Find(_ => true).ToListAsync();
     }
 
-
-    // Henn plan ud fra int-ID
+    // Henter en enkelt elevplan baseret på dens unikke id
     public async Task<Elevplan?> GetByIdAsync(int id)
     {
         return await _elevplanCollection.Find(p => p.Id == id).FirstOrDefaultAsync();
-
     }
 
-    // Hent En elevplan for en specifik elev
+    // Henter alle elevplaner tilknyttet en specifik elev
     public async Task<List<Elevplan>> GetByElevIdAsync(int elevId)
     {
         return await _elevplanCollection.Find(p => p.ElevId == elevId).ToListAsync();
     }
 
-
-    // Opret ny plan med manuelt tildelt ID (n�ste ledige heltal)
+    // Tilføjer en ny elevplan med manuelt genereret unikt id
     public async Task AddAsync(Elevplan plan)
     {
         plan.Id = await GetNextIdAsync();
         await _elevplanCollection.InsertOneAsync(plan);
     }
 
-    // Opdater eksisterende plan
+    // Opdaterer en eksisterende elevplan fuldstændigt
     public async Task UpdateAsync(Elevplan plan)
     {
         var filter = Builders<Elevplan>.Filter.Eq(p => p.Id, plan.Id);
         await _elevplanCollection.ReplaceOneAsync(filter, plan);
     }
 
-    // Slet plan ud fra ID
+    // Sletter en elevplan baseret på id
     public async Task DeleteAsync(int id)
     {
         var filter = Builders<Elevplan>.Filter.Eq(p => p.Id, id);
         await _elevplanCollection.DeleteOneAsync(filter);
     }
 
-    // Hent næste ledige ID ved at finde max eksisterende ID og lægge 1 til
+    // Hjælpefunktion der finder næste ledige id ved at finde den højeste eksisterende id og lægge 1 til
     private async Task<int> GetNextIdAsync()
     {
         var sort = Builders<Elevplan>.Sort.Descending(p => p.Id);
         var lastPlan = await _elevplanCollection.Find(_ => true).Sort(sort).Limit(1).FirstOrDefaultAsync();
         return lastPlan == null ? 1 : lastPlan.Id + 1;
     }
-
-   
 }

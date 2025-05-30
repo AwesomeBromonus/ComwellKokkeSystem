@@ -1,7 +1,9 @@
 ﻿@page "/minprofil"
-@inject IUserService UserService
-@inject IUserStateService UserStateService
-@inject NavigationManager NavManager
+
+@inject IUserService UserService                       // Service til brugerrelaterede operationer, fx skift af adgangskode og upload af profilbillede
+@inject IUserStateService UserStateService             // Service til håndtering af den aktuelle brugers loginstatus og data
+@inject NavigationManager NavManager                   // Til navigation til andre sider
+
 @using Microsoft.AspNetCore.Components.Forms
 @using ComwellKokkeSystem.Service
 
@@ -9,20 +11,21 @@
 
 <h2 class="text-center fw-bold mb-5"><i class="fa fa-id-badge me-2"></i> Min profil</h2>
 
+@* Tjek om bruger er logget ind, ellers vis loading eller advarsel *@
 @if (!UserStateService.IsLoggedIn)
 {
-    <p>⏳ Indlæser brugerstatus...</p>
+    <p>Indlæser brugerstatus...</p>
 }
 else if (!UserStateService.IsLoggedIn)
 {
-    <div class="alert alert-warning">🔒 Du skal være logget ind for at se denne side.</div>
+    <div class="alert alert-warning">Du skal være logget ind for at se denne side.</div>
 }
 else
 {
+    @* Profilbilledet vises med cache-busting querystring for altid at hente seneste billede *@
     <div class="profil-wrapper container py-5">
         <div class="profil-billede-container mb-4">
             @if (UserStateService.CurrentUser != null)
-
             {
                 <img src="@($"https://localhost:7013/uploads/{UserStateService.CurrentUser?.Id}.jpg?cache={DateTime.Now.Ticks}")"
                      alt="Profilbillede"
@@ -33,26 +36,25 @@ else
                 <p class="text-muted">Ingen billede tilgængelig</p>
             }
 
+            @* Knap til upload af nyt profilbillede skjult inputfelt *@
             <label class="btn btn-light mt-3">
-                📤 Skift billede
+                Skift billede
                 <InputFile OnChange="OnInputFileChange" accept="image/*" class="d-none" />
             </label>
         </div>
 
-
+        @* Profiloplysninger vises i en boks *@
         <div class="mx-auto" style="max-width: 600px;">
-            <!-- Profiloplysninger -->
             <div class="info-box mb-5">
-                <h5 class="mb-3 text-center fw-semibold">🧾 Profiloplysninger</h5>
+                <h5 class="mb-3 text-center fw-semibold">Profiloplysninger</h5>
                 <p><strong>Navn:</strong> @(string.IsNullOrWhiteSpace(UserStateService.CurrentUser?.Navn) ? "-" : UserStateService.CurrentUser?.Navn)</p>
                 <p><strong>Rolle:</strong> @UserStateService.CurrentUser?.Role</p>
                 <p><strong>Email:</strong> @(string.IsNullOrWhiteSpace(UserStateService.CurrentUser?.Email) ? "Ikke gemt i systemet" : UserStateService.CurrentUser?.Email)</p>
-               
             </div>
 
-            <!-- Skift adgangskode -->
+            @* Formular til skift af adgangskode med validering *@
             <div class="info-box">
-                <h5 class="mb-3 text-center fw-semibold">🔐 Skift adgangskode</h5>
+                <h5 class="mb-3 text-center fw-semibold">Skift adgangskode</h5>
 
                 <EditForm Model="this" OnValidSubmit="SkiftAdgangskode">
                     <DataAnnotationsValidator />
@@ -67,6 +69,7 @@ else
                     <button type="submit" class="btn btn-primary w-100">Gem ændringer</button>
                 </EditForm>
 
+                @* Feedback vises efter loginforsøg, farvekodes efter succes eller fejl *@
                 @if (!string.IsNullOrEmpty(feedback))
                 {
                     <div class="alert mt-3 @(feedback.StartsWith("✅") ? "alert-success" : "alert-danger")">
@@ -78,48 +81,56 @@ else
     </div>
 }
 
-
 @code {
-    private string nyKode = "";
-    private string bekræftKode = "";
-    private string feedback = "";
+    private string nyKode = "";            // Holder den nye adgangskode brugeren indtaster
+    private string bekræftKode = "";       // Holder bekræftelse af adgangskoden
+    private string feedback = "";          // Feedbacktekst til brugeren efter handlinger
 
+    // Metode til at skifte adgangskode
     private async Task SkiftAdgangskode()
     {
         feedback = "";
 
+        // Tjek om adgangskoderne matcher
         if (nyKode != bekræftKode)
         {
-            feedback = "❌ Adgangskoderne matcher ikke.";
+            feedback = "Adgangskoderne matcher ikke.";
             return;
         }
 
+        // Minimumslængde på adgangskode
         if (string.IsNullOrWhiteSpace(nyKode) || nyKode.Length < 4)
         {
-            feedback = "❌ Adgangskoden skal være mindst 4 tegn.";
+            feedback = "Adgangskoden skal være mindst 4 tegn.";
             return;
         }
 
         try
         {
+            // Hent brugerens id for at vide hvem der skal opdateres
             var brugerId = UserStateService.CurrentUser?.Id;
             if (brugerId == null)
             {
-                feedback = "❌ Bruger-ID mangler.";
+                feedback = "Bruger-ID mangler.";
                 return;
             }
 
+            // Kalder UserService for at opdatere adgangskoden i backend
             await UserService.SkiftAdgangskodeAsync(brugerId.Value, nyKode);
-            feedback = "✅ Adgangskode opdateret!";
+            feedback = "Adgangskode opdateret!";
+
+            // Nulstil inputfelter
             nyKode = "";
             bekræftKode = "";
         }
         catch (Exception ex)
         {
-            feedback = $"❌ Fejl: {ex.Message}";
+            // Vis fejl hvis opdatering fejler
+            feedback = $"Fejl: {ex.Message}";
         }
     }
 
+    // Metode til at håndtere upload af nyt profilbillede
     private async Task OnInputFileChange(InputFileChangeEventArgs e)
     {
         try
@@ -127,29 +138,31 @@ else
             var brugerId = UserStateService.CurrentUser?.Id;
             if (brugerId == null)
             {
-                feedback = "❌ Bruger-ID mangler.";
+                feedback = "Bruger-ID mangler.";
                 return;
             }
 
             var file = e.File;
+
+            // Åbner filstream med maks 5MB tilladt størrelse
             var stream = file.OpenReadStream(maxAllowedSize: 5_000_000);
 
+            // Kalder UserService for at uploade billede til backend
             var success = await UserService.UploadProfilbilledeAsync(brugerId.Value, stream);
 
             if (success)
             {
-                feedback = "✅ Billede uploadet!";
-                StateHasChanged(); // force UI refresh
+                feedback = "Billede uploadet!";
+                StateHasChanged(); // Tvinger UI til at opdatere og hente nyt billede
             }
             else
             {
-                feedback = "❌ Fejl under upload.";
+                feedback = "Fejl under upload.";
             }
         }
         catch (Exception ex)
         {
-            feedback = $"❌ Fejl: {ex.Message}";
+            feedback = $"Fejl: {ex.Message}";
         }
     }
-
 }

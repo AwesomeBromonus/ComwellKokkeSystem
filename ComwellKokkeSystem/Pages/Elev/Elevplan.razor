@@ -1,18 +1,21 @@
 ﻿@page "/elevplaner"
+
 @using ComwellKokkeSystem.Service
 @using Modeller
-@inject IElevplanService ElevplanService
-@inject IAuthService AuthService
-@inject NavigationManager Nav
+@inject IElevplanService ElevplanService       // Service til at hente elevplaner
+@inject IAuthService AuthService                // Service til brugerens rolle og id
+@inject NavigationManager Nav                    // Navigationstjeneste
 
 <h3 class="text-xl font-bold mb-4">Elevplaner</h3>
 
+@* Hvis elevplaner ikke er hentet endnu, vis loading tekst *@
 @if (elevplaner == null)
 {
     <p>Indlæser elevplaner...</p>
 }
 else
 {
+    @* For hver elevplan vises en boks med detaljer og knap til at se delmål *@
     @foreach (var plan in elevplaner)
     {
         <div class="bg-white border shadow-md rounded-xl p-5 mb-6">
@@ -21,21 +24,21 @@ else
             <p><strong>Kommentar:</strong> @plan.Kommentar</p>
             <p><strong>Periode:</strong> @plan.StartDato.ToShortDateString() - @plan.SlutDato.ToShortDateString()</p>
 
+            @* Knap der navigerer til delmålssiden for den valgte elevplan *@
             <button class="btn btn-primary mt-3"
                     @onclick="() => GåTilDelmål(plan.Id)">
                 Se delmål
             </button>
-
-
-
         </div>
     }
 }
 
 @code {
-    private List<Modeller.Elevplan>? elevplaner;
-    private string? rolle;
+    private List<Modeller.Elevplan>? elevplaner;   // Liste over elevplaner til visning
+    private string? rolle;                         // Den aktuelle brugers rolle
 
+    // Når komponenten initialiseres, henter vi brugerens rolle og id,
+    // herefter henter vi enten alle elevplaner (admin) eller brugerens egne planer
     protected override async Task OnInitializedAsync()
     {
         rolle = await AuthService.GetCurrentUserRoleAsync();
@@ -43,16 +46,17 @@ else
 
         if (rolle == "admin")
         {
-            elevplaner = await ElevplanService.GetElevplanerAsync();
+            elevplaner = await ElevplanService.GetElevplanerAsync(); // Hent alle elevplaner
         }
         else if (brugerId.HasValue)
         {
-            elevplaner = await ElevplanService.GetElevplanerForElevAsync(brugerId.Value);
+            elevplaner = await ElevplanService.GetElevplanerForElevAsync(brugerId.Value); // Hent egne planer
         }
     }
+
+    // Naviger til delmålssiden for den valgte elevplan
     private void GåTilDelmål(int elevplanId)
     {
         Nav.NavigateTo($"/delmaal/{elevplanId}");
     }
-
 }
