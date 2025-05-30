@@ -1,88 +1,125 @@
 ﻿@page "/mitoverblik"
 @inject NavigationManager NavManager
 @inject IUserStateService UserStateService
-@inject IElevplanService ElevplanService
 @using ComwellKokkeSystem.Service
-@using Modeller
+@inject IElevplanService ElevplanService
 
-<link href="css/Panel.css" rel="stylesheet" />
+<h3 class="mb-4">🎓 Mit Elev Overblik</h3>
 
-<div class="admin-container">
-    <!-- Header -->
-    <div class="admin-header">
-        <h2>Velkommen, @UserStateService.CurrentUser?.Navn!</h2>
-        <p>Din elevportal hos Comwell</p>
+@if (!UserStateService.IsLoggedInChecked)
+{
+    <p>⏳ Indlæser brugerstatus...</p>
+}
+else if (!UserStateService.IsLoggedIn)
+{
+    <div class="alert alert-warning">🔒 Du skal være logget ind for at se denne side.</div>
+}
+else if (UserStateService.CurrentUser?.Role?.ToLower() != "elev" && UserStateService.CurrentUser?.Role?.ToLower() != "kok")
+{
+    <div class="alert alert-danger">🚫 Adgang nægtet – kun elever og kokke har adgang til denne side.</div>
+}
+else
+{
+    <div class="card shadow-sm border-0 mb-4 bg-light p-4 rounded-4">
+        <h5 class="fw-bold">Velkommen til Comwells elevsystem, @UserStateService.CurrentUser?.Navn!</h5>
     </div>
 
-    <!-- XP Progress -->
-    <div class="xp-section">
-        <div class="xp-progress-container">
-            <div class="xp-progress-bar">
-                <div class="xp-progress-fill" style="width: 48%"></div>
-            </div>
-            <div class="xp-text">
-                <span class="xp-current">483</span>
-                <span class="xp-total">/1000 XP</span>
+    @if (elevplanLoading)
+    {
+        <p>⏳ Indlæser elevplan...</p>
+    }
+    else if (!string.IsNullOrWhiteSpace(fejlbesked))
+    {
+        <div class="alert alert-warning">@fejlbesked</div>
+    }
+    else if (aktivElevplan != null)
+    {
+        <div class="card bg-light shadow-sm rounded mb-4">
+            <div class="card-body">
+                <h5 class="card-title">📋 Din elevplan</h5>
+                <p><strong>Startdato:</strong> @aktivElevplan.StartDato.ToShortDateString()</p>
+                <p><strong>Slutdato:</strong> @aktivElevplan.SlutDato.ToShortDateString()</p>
+                <p><strong>Kommentar:</strong> @aktivElevplan.Kommentar</p>
+
+                <button class="btn btn-outline-primary mt-3" @onclick="() => GåTilDelmål(aktivElevplan.Id)">
+                    Se delmål og progression
+                </button>
             </div>
         </div>
-        <div class="level-badge">
-            <span class="level-name">Tomat</span>
-            <span class="level-label">Nuværende niveau</span>
+    }
+    else
+    {
+        <div class="alert alert-info">Ingen elevplan fundet endnu.</div>
+    }
+
+    <br />
+    <h4 class="fw-semibold mb-3 border-bottom pb-2">📊 Dit elevdashboard</h4>
+
+    <div class="row g-4 mb-4">
+        <!-- Point & Niveau -->
+        <div class="col-md-6">
+            <div class="card border-0 shadow rounded-4 overflow-hidden">
+                <div class="card-header bg-success text-white">
+                    🔥 Point & Niveau
+                </div>
+                <div class="card-body">
+                    <p>Du har <strong>450 XP</strong></p>
+                    <p>Nuværende niveau: <strong>Tomat 🍳</strong></p>
+                </div>
+            </div>
+        </div>
+
+
+
+
+        <!-- GIF Section -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-6">
+                <div class="gif-item">
+                    <img src="/sample-data/CookingGif.gif" class="gif-img" alt="Cooking GIF" />
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="gif-item">
+                    <img src="/sample-data/SanjicookingGif.gif" class="gif-img" alt="Sanji Cooking GIF" />
+                </div>
+            </div>
         </div>
     </div>
-
-    <!-- Dashboard Cards -->
-    <div class="dashboard-cards">
-        <!-- Elevplan Card -->
-        <div class="dashboard-card" @onclick="@(() => GoToSubGoals(currentElevplan?.Id ?? 0))">
-            <div class="card-icon">📋</div>
-            <div class="card-content">
-                <h4>Din Elevplan</h4>
-                @if (currentElevplan != null)
-                {
-                    <p class="card-dates">
-                        @currentElevplan.StartDato.ToShortDateString() - @currentElevplan.SlutDato.ToShortDateString()
-                    </p>
-                }
-                <span class="card-action">Se detaljer →</span>
-            </div>
-        </div>
-
-        <!-- Læring Card -->
-        <div class="dashboard-card" @onclick="GoToLearning">
-            <div class="card-icon">📚</div>
-            <div class="card-content">
-                <h4>Læring</h4>
-                <p>Udforsk materialer og forbedr dine færdigheder</p>
-                <span class="card-action">Gå til læring →</span>
-            </div>
-        </div>
-
-        <!-- Quiz Card -->
-        <div class="dashboard-card" @onclick="GoToQuiz">
-            <div class="card-icon">❓</div>
-            <div class="card-content">
-                <h4>Quizzer</h4>
-                <p>Test din viden med sjove udfordringer</p>
-                <span class="card-action">Tag en quiz →</span>
-            </div>
-        </div>
-    </div>
-</div>
+}
 
 @code {
-    private Modeller.Elevplan? currentElevplan;
+    private Modeller.Elevplan? aktivElevplan;
+    private string? fejlbesked;
+    private bool elevplanLoading = true;
 
     protected override async Task OnInitializedAsync()
     {
         if (UserStateService.IsLoggedIn && UserStateService.CurrentUser?.Id != null)
         {
-            var plans = await ElevplanService.GetElevplanerForElevAsync(UserStateService.CurrentUser.Id);
-            currentElevplan = plans?.FirstOrDefault();
+            try
+            {
+                var planer = await ElevplanService.GetElevplanerForElevAsync(UserStateService.CurrentUser.Id);
+
+                if (planer != null && planer.Any())
+                    aktivElevplan = planer.FirstOrDefault(); // vælg første plan hvis der er flere
+                else
+                    fejlbesked = "Ingen elevplaner fundet.";
+            }
+            catch (Exception ex)
+            {
+                fejlbesked = "Fejl under hentning af elevplan: " + ex.Message;
+            }
         }
+
+        elevplanLoading = false;
     }
 
-    private void GoToSubGoals(int elevplanId) => NavManager.NavigateTo($"/delmaal/{elevplanId}");
-    private void GoToLearning() => NavManager.NavigateTo("/laering");
-    private void GoToQuiz() => NavManager.NavigateTo("/quizlist");
+
+    private void GåTilDelmål(int elevplanId)
+    {
+        NavManager.NavigateTo($"/delmaal/{elevplanId}");
+    }
+
+
 }
