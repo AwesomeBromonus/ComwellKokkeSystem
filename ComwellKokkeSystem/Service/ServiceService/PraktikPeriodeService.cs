@@ -1,4 +1,5 @@
 ﻿using Modeller;
+using System.Net.Http;
 using System.Net.Http.Json;
 
 public class PraktikperiodeService : IPraktikperiodeService
@@ -28,5 +29,10 @@ public class PraktikperiodeService : IPraktikperiodeService
     {
         await _http.PutAsJsonAsync($"api/praktikperiode/{periode.Id}", periode);
     }
+    public async Task AddAsync(Praktikperiode periode)
+    {
+        await _http.PostAsJsonAsync("api/praktikperiode", periode);
+    }
+
 
 }

@@ -1,8 +1,9 @@
 ﻿@page "/minprofil"
-@inject HttpClient Http
+@inject IUserService UserService
 @inject IUserStateService UserStateService
 @inject NavigationManager NavManager
 @using Microsoft.AspNetCore.Components.Forms
+@using ComwellKokkeSystem.Service
 
 <link href="css/profil.css" rel="stylesheet" />
 
@@ -102,25 +103,16 @@ else
         try
         {
             var brugerId = UserStateService.CurrentUser?.Id;
-
             if (brugerId == null)
             {
                 feedback = "❌ Bruger-ID mangler.";
                 return;
             }
 
-            var response = await Http.PutAsJsonAsync($"api/users/{brugerId}/skiftkode", nyKode);
-
-            if (response.IsSuccessStatusCode)
-            {
-                feedback = "✅ Adgangskode opdateret!";
-                nyKode = "";
-                bekræftKode = "";
-            }
-            else
-            {
-                feedback = "❌ Fejl under opdatering.";
-            }
+            await UserService.SkiftAdgangskodeAsync(brugerId.Value, nyKode);
+            feedback = "✅ Adgangskode opdateret!";
+            nyKode = "";
+            bekræftKode = "";
         }
         catch (Exception ex)
         {
@@ -133,7 +125,6 @@ else
         try
         {
             var brugerId = UserStateService.CurrentUser?.Id;
-
             if (brugerId == null)
             {
                 feedback = "❌ Bruger-ID mangler.";
@@ -141,18 +132,14 @@ else
             }
 
             var file = e.File;
-            var stream = file.OpenReadStream(maxAllowedSize: 5_000_000); // max 5 MB
-            var content = new MultipartFormDataContent
-            {
-                { new StreamContent(stream), "file", $"{brugerId}.jpg" }
-            };
+            var stream = file.OpenReadStream(maxAllowedSize: 5_000_000);
 
-            var response = await Http.PostAsync($"api/users/{brugerId}/upload-billede", content);
+            var success = await UserService.UploadProfilbilledeAsync(brugerId.Value, stream);
 
-            if (response.IsSuccessStatusCode)
+            if (success)
             {
                 feedback = "✅ Billede uploadet!";
-                StateHasChanged();
+                StateHasChanged(); // force UI refresh
             }
             else
             {
@@ -164,4 +151,5 @@ else
             feedback = $"❌ Fejl: {ex.Message}";
         }
     }
+
 }

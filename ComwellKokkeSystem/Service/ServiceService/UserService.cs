@@ -6,7 +6,8 @@ namespace ComwellKokkeSystem.Service
     public class UserService : IUserService
     {
         private readonly HttpClient _http;
-
+        
+        //Konstruktor
         public UserService(HttpClient http)
         {
             _http = http;
@@ -47,9 +48,9 @@ namespace ComwellKokkeSystem.Service
 
         public async Task AssignElevplanToUserAsync(int userId, int elevplanId)
         {
-            var payload = new { userId, elevplanId };
-            await _http.PutAsJsonAsync("api/users/assign-elevplan", payload);
+            await _http.PutAsJsonAsync($"api/users/{userId}/assign-elevplan", elevplanId);
         }
+
 
         public async Task<List<UserModel>> GetAdminsOgKokkeAsync()
         {
@@ -58,6 +59,23 @@ namespace ComwellKokkeSystem.Service
         public async Task UpdateUserAsync(UserModel bruger)
         {
             await _http.PutAsJsonAsync($"api/users/{bruger.Id}", bruger);
+        }
+
+        public async Task SkiftAdgangskodeAsync(int id, string nyKode)
+        {
+            var response = await _http.PutAsJsonAsync($"api/users/{id}/skiftkode", nyKode);
+            response.EnsureSuccessStatusCode();
+        }
+
+        public async Task<bool> UploadProfilbilledeAsync(int id, Stream stream)
+        {
+            var content = new MultipartFormDataContent
+    {
+        { new StreamContent(stream), "file", $"{id}.jpg" }
+    };
+
+            var response = await _http.PostAsync($"api/users/{id}/upload-billede", content);
+            return response.IsSuccessStatusCode;
         }
 
 

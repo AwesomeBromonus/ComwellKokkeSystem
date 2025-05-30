@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Json;
+﻿using System.Net.Http;
+using System.Net.Http.Json;
 using Modeller;
 
 public class DelmaalSkabelonService : IDelmaalSkabelonService
@@ -34,4 +35,9 @@ public class DelmaalSkabelonService : IDelmaalSkabelonService
     {
         await _http.DeleteAsync($"api/delmaalskabelon/{id}");
     }
+    public async Task<List<DelmaalSkabelon>> GetByPeriodeAsync(int nummer)
+    {
+        return await _http.GetFromJsonAsync<List<DelmaalSkabelon>>($"api/delmaalskabelon/periode/{nummer}");
+    }
+
 }
