@@ -7,6 +7,9 @@
 @inject NavigationManager Nav
 @inject IUnderdelmaalService UnderdelmaalService
 @inject IUserService UserService
+@inject IPraktikperiodeService PraktikService
+@inject IElevplanService ElevplanService
+
 
 <link href="css/Anmodninger.css" rel="stylesheet" />
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;700&display=swap" rel="stylesheet" />
@@ -75,7 +78,10 @@ else
     <ul class="list-group">
         @foreach (var d in delmaalMedDeadline14Dage)
         {
-            var elevNavn = eleverMedDeadline.FirstOrDefault(e => e.Id == d.ElevId)?.Navn ?? "Ukendt";
+            var elevNavn = delmaalTilElevMap.ContainsKey(d.Id)
+            ? eleverMedDeadline.FirstOrDefault(e => e.Id == delmaalTilElevMap[d.Id])?.Navn ?? "Ukendt"
+            : "Ukendt";
+
 
             <li class="list-group-item">
                 <strong>Elev:</strong> @elevNavn <br />
@@ -92,6 +98,8 @@ else
     private Dictionary<int, Delmål> delmaalMap = new();
     private Dictionary<int, Underdelmaal> underdelmaalMap = new();
     private Dictionary<int, UserModel> brugerMap = new();
+    private Dictionary<int, int> delmaalTilElevMap = new(); // DelmålId → ElevId
+
 
     private List<Delmål> delmaalMedDeadline14Dage = new();
     private List<UserModel> eleverMedDeadline = new();
@@ -129,20 +137,30 @@ else
             }
         }
 
+        // 🔁 Først hent listen
         delmaalMedDeadline14Dage = await DelmaalService.GetDelmaalMedDeadlineIndenFor14DageAsync();
 
-        var elevIds = delmaalMedDeadline14Dage
-            .Select(d => d.ElevId)
-            .Distinct()
-            .ToList();
-
-        foreach (var elevId in elevIds)
+        // 🔁 Find elev tilknyttet via praktikperiode → elevplan
+        foreach (var d in delmaalMedDeadline14Dage)
         {
-            var bruger = await UserService.GetByIdAsync(elevId);
-            if (bruger != null)
-                eleverMedDeadline.Add(bruger);
+            var praktik = await PraktikService.GetByIdAsync(d.PraktikperiodeId);
+            if (praktik != null)
+            {
+                var elevplan = await ElevplanService.GetElevplanByIdAsync(praktik.ElevplanId);
+                if (elevplan != null)
+                {
+                    delmaalTilElevMap[d.Id] = elevplan.ElevId;
+
+                    var bruger = await UserService.GetByIdAsync(elevplan.ElevId);
+                    if (bruger != null && !eleverMedDeadline.Any(e => e.Id == bruger.Id))
+                    {
+                        eleverMedDeadline.Add(bruger);
+                    }
+                }
+            }
         }
     }
+
 
     private async Task BehandlAnmodning(int anmodningId, bool accepteret)
     {

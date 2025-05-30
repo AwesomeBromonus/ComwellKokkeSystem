@@ -9,6 +9,7 @@ public class RapportRepository : IRapportRepository
     private readonly IMongoCollection<Delmål> _delmaalCollection;
     private readonly IMongoCollection<Underdelmaal> _underdelmaalCollection;
     private readonly IMongoCollection<Praktikperiode> _praktikperiodeCollection;
+    private readonly IMongoCollection<Elevplan> _elevplanCollection;
 
     public RapportRepository(IMongoDatabase database)
     {
@@ -48,7 +49,10 @@ public class RapportRepository : IRapportRepository
 
         foreach (var elev in elever)
         {
-            var elevensDelmaal = delmaalListe.Where(d => d.ElevId == elev.Id).ToList();
+            var elevensElevplaner = await _elevplanCollection.Find(p => p.ElevId == elev.Id).ToListAsync();
+            var praktikperiodeIds = elevensElevplaner.SelectMany(p => p.PraktikperiodeIds).ToList();
+            var elevensDelmaal = delmaalListe.Where(d => praktikperiodeIds.Contains(d.PraktikperiodeId)).ToList();
+
 
             foreach (var d in elevensDelmaal)
             {

@@ -58,31 +58,18 @@ public class DelmaalController : ControllerBase
         return Ok(result);
     }
 
-    [HttpGet("elevplan/{elevplanId}/praktikperiode/{praktikperiodeId}")]
-    public async Task<IActionResult> GetByElevplanAndPraktikperiode(int elevplanId, int praktikperiodeId)
-    {
-        var result = await _repo.GetByElevplanIdAndPraktikperiodeIdAsync(elevplanId, praktikperiodeId);
-        return Ok(result);
-    }
 
-    [HttpGet("elev/{elevId}")]
-    public async Task<IActionResult> GetByElevId(int elevId)
-    {
-        var result = await _repo.GetByElevIdAsync(elevId);
-        return Ok(result);
-    }
     [HttpGet("all")]
     public async Task<IActionResult> GetAll()
     {
         var result = await _repo.GetAllAsync();
         return Ok(result);
     }
+
     [HttpGet("deadlines-14dage")]
     public async Task<IActionResult> GetDelmaalMedDeadlineIndenFor14Dage()
     {
         var result = await _repo.GetWithDeadlineWithinDaysAsync(14);
         return Ok(result);
     }
-
-
 }

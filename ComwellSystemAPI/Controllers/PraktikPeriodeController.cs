@@ -53,14 +53,7 @@ public class PraktikperiodeController : ControllerBase
         return NoContent();
     }
 
-    // GET: api/praktikperiode/elev/{elevId}
-    [HttpGet("elev/{elevId}")]
-    public async Task<ActionResult<List<Praktikperiode>>> GetPraktikperioderForElev(int elevId)
-    {
-        var praktikperioder = await _repo.GetByElevIdAsync(elevId);
-        return Ok(praktikperioder);
-    }
-
+   
     // ✅ GET: api/praktikperiode/elevplan/{elevplanId}
     [HttpGet("elevplan/{elevplanId}")]
     public async Task<ActionResult<List<Praktikperiode>>> GetByElevplanId(int elevplanId)

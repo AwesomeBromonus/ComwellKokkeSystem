@@ -29,8 +29,7 @@ public class ElevplanController : ControllerBase
     }
 
 
-  
-    // Hent elevplan for en specifik elev
+
     [HttpGet("elev/{elevId}")]
     public async Task<ActionResult<Elevplan>> GetByElevId(int elevId)
     {
@@ -40,6 +39,7 @@ public class ElevplanController : ControllerBase
 
         return Ok(plan);
     }
+
 
 
     // Opretter en ny elevplan i databasen
@@ -65,6 +65,8 @@ public class ElevplanController : ControllerBase
         await _repo.DeleteAsync(id);
         return NoContent(); // Returnerer status 204 (No Content)
     }
+
+
 
 }
 

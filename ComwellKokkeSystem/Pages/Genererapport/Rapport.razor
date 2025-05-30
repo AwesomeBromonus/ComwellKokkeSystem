@@ -38,7 +38,14 @@ else
         <tbody>
             @foreach (var bruger in brugere)
             {
-                var elevensDelmaal = delmaalListe.Where(d => d.ElevId == bruger.Id);
+                var elevensPerioder = praktikperioder
+                .Where(p => p.ElevplanId == bruger.ElevplanId)
+                .Select(p => p.Id);
+
+                var elevensDelmaal = delmaalListe
+                .Where(d => elevensPerioder.Contains(d.PraktikperiodeId));
+
+
                 foreach (var d in elevensDelmaal)
                 {
                     var underdelmaal = underdelmaalMap.ContainsKey(d.Id) ? underdelmaalMap[d.Id] : new List<Underdelmaal>();

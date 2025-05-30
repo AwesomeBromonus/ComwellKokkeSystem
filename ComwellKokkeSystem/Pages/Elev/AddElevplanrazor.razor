@@ -145,9 +145,7 @@
 
         await ElevplanService.AddElevplanAsync(elevplan);
 
-        var elevplaner = await ElevplanService.GetElevplanerForElevAsync(valgtElevId);
-        var oprettetPlan = elevplaner?.OrderByDescending(e => e.OprettetDato).FirstOrDefault();
-
+        var oprettetPlan = await ElevplanService.GetElevplanForElevAsync(valgtElevId);
         if (oprettetPlan == null)
         {
             fejlbesked = "Fejl ved indlæsning af oprettet elevplan.";
@@ -159,14 +157,14 @@
             var praktik = new Praktikperiode
                 {
                     Navn = $"Praktikperiode {i}",
-                    ElevId = valgtElevId,
                     ElevplanId = oprettetPlan.Id
                 };
 
             await PraktikService.AddAsync(praktik);
 
             var praktikperioder = await PraktikService.GetAllAsync();
-            var oprettetPraktik = praktikperioder.LastOrDefault(p => p.ElevplanId == oprettetPlan.Id && p.Navn == praktik.Navn);
+            var oprettetPraktik = praktikperioder
+                .LastOrDefault(p => p.ElevplanId == oprettetPlan.Id && p.Navn == praktik.Navn);
 
             if (oprettetPraktik != null)
             {
@@ -185,8 +183,6 @@
                                 Igangsætter = skabelon.Igangsætter,
                                 Kommentar = "",
                                 Elevtur = "",
-                                ElevId = valgtElevId,
-                                ElevplanId = oprettetPlan.Id,
                                 PraktikperiodeId = oprettetPraktik.Id,
                                 DelmaalSkabelonId = skabelon.Id
                             };
@@ -200,7 +196,7 @@
         await ElevplanService.UpdateElevplanAsync(oprettetPlan);
         await UserService.AssignElevplanToUserAsync(valgtElevId, oprettetPlan.Id);
 
-        // ✅ Fjern eleven fra listen så UI opdateres korrekt
+        // Fjern eleven fra listen så UI opdateres korrekt
         var elev = brugere.FirstOrDefault(b => b.Id == valgtElevId);
         if (elev != null)
         {
@@ -213,6 +209,7 @@
         await Task.Delay(2000);
         Nav.NavigateTo("/administrator");
     }
+
 
 }
 

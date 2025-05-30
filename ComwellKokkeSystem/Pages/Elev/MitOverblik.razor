@@ -106,25 +106,29 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        if (UserStateService.IsLoggedIn && UserStateService.CurrentUser?.Id != null)
+        if (UserStateService.IsLoggedIn && UserStateService.CurrentUser?.ElevplanId != null)
         {
             try
             {
-                var planer = await ElevplanService.GetElevplanerForElevAsync(UserStateService.CurrentUser.Id);
+                aktivElevplan = await ElevplanService.GetElevplanByIdAsync(UserStateService.CurrentUser.ElevplanId.Value);
 
-                if (planer != null && planer.Any())
-                    aktivElevplan = planer.FirstOrDefault(); // vælg første plan hvis der er flere
-                else
-                    fejlbesked = "Ingen elevplaner fundet.";
+                if (aktivElevplan == null)
+                    fejlbesked = "Ingen elevplan fundet.";
             }
             catch (Exception ex)
             {
                 fejlbesked = "Fejl under hentning af elevplan: " + ex.Message;
             }
         }
+        else
+        {
+            fejlbesked = "Ingen aktiv elevplan tilknyttet din bruger.";
+        }
 
         elevplanLoading = false;
     }
+
+
 
 
     private void GåTilDelmål(int elevplanId)
