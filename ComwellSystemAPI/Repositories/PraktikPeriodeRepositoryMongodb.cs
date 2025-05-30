@@ -56,10 +56,12 @@ public class PraktikperiodeRepository : IPraktikperiode
         return await _collection.Find(p => p.ElevplanId == elevplanId).ToListAsync();
     }
 
-    // Henter alle praktikperioder tilknyttet en specifik elev
-    public async Task<List<Praktikperiode>> GetByElevIdAsync(int elevId)
-    {
-        var filter = Builders<Praktikperiode>.Filter.Eq(p => p.ElevId, elevId);
-        return await _collection.Find(filter).ToListAsync();
-    }
+   
+    
+    
+
+
+
+
+
 }

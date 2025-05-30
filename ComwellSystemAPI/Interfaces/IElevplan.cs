@@ -10,11 +10,7 @@ namespace ComwellSystemAPI.Interfaces
 
         // Henter en enkelt elevplan baseret på dens unikke id
         Task<Elevplan?> GetByIdAsync(int id);
-
-        // Henter alle elevplaner tilknyttet en specifik elev baseret på elevens id
-        Task<List<Elevplan>> GetByElevIdAsync(int elevId);
-
-        // Tilføjer en ny elevplan til databasen
+        Task<Elevplan> GetByElevIdAsync(int elevId);
         Task AddAsync(Elevplan elevplan);
 
         // Opdaterer en eksisterende elevplan med nye data

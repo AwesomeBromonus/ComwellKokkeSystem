@@ -83,19 +83,9 @@ public class DelmålRepository : IDelmål
         return await _collection.Find(d => d.PraktikperiodeId == praktikperiodeId).ToListAsync();
     }
 
-    // Henter delmål baseret på både elevplan-id og praktikperiode-id
-    public async Task<List<Delmål>> GetByElevplanIdAndPraktikperiodeIdAsync(int elevplanId, int praktikperiodeId)
-    {
-        return await _collection.Find(d => d.ElevplanId == elevplanId && d.PraktikperiodeId == praktikperiodeId).ToListAsync();
-    }
+   
 
-    // Henter alle delmål tilknyttet en specifik elev
-    public async Task<List<Delmål>> GetByElevIdAsync(int elevId)
-    {
-        return await _collection.Find(d => d.ElevId == elevId).ToListAsync();
-    }
-
-    // Henter alle delmål for et givent år (filtreres i hukommelsen)
+   
     public async Task<List<Delmål>> GetAllForYearAsync(int year)
     {
         var allDelmaal = await _collection.Find(_ => true).ToListAsync();

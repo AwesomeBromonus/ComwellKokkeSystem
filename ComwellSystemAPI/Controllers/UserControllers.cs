@@ -94,16 +94,7 @@ namespace ComwellSystemAPI.Controllers
             return Ok(brugere);
         }
 
-        // GET: api/users/byid/{id}
-        // Henter bruger baseret på id
-        [HttpGet("byid/{id}")]
-        public async Task<IActionResult> GetById(int id)
-        {
-            var user = await _userRepo.GetByIdAsync(id);
-            if (user == null)
-                return NotFound("Bruger ikke fundet.");
-            return Ok(user);
-        }
+      
 
         // GET: api/users/{username}
         // Henter bruger baseret på brugernavn
@@ -228,5 +219,14 @@ namespace ComwellSystemAPI.Controllers
             bool exists = System.IO.File.Exists(filePath);
             return Ok(new { exists });
         }
+
+        [HttpGet("byid/{id}")]
+        public async Task<IActionResult> GetByIdAsync(int id)
+        {
+            var bruger = await _userRepo.GetByIdAsync(id);
+            if (bruger == null) return NotFound();
+            return Ok(bruger);
+        }
+
     }
 }

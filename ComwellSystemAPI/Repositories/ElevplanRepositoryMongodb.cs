@@ -24,10 +24,13 @@ public class ElevplanRepository : IElevplan
         return await _elevplanCollection.Find(p => p.Id == id).FirstOrDefaultAsync();
     }
 
-    // Henter alle elevplaner tilknyttet en specifik elev
-    public async Task<List<Elevplan>> GetByElevIdAsync(int elevId)
+    // Hent En elevplan for en specifik elev
+    public async Task<Elevplan?> GetByElevIdAsync(int elevId)
     {
-        return await _elevplanCollection.Find(p => p.ElevId == elevId).ToListAsync();
+        return await _elevplanCollection.Find(p => p.ElevId == elevId)
+                                .SortByDescending(p => p.OprettetDato)
+                                .Limit(1)
+                                .FirstOrDefaultAsync();
     }
 
     // Tilføjer en ny elevplan med manuelt genereret unikt id

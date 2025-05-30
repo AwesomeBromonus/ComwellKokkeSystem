@@ -160,10 +160,7 @@
         // Opret elevplan i databasen
         await ElevplanService.AddElevplanAsync(elevplan);
 
-        // Hent alle elevplaner for den valgte elev for at finde den nyligt oprettede
-        var elevplaner = await ElevplanService.GetElevplanerForElevAsync(valgtElevId);
-        var oprettetPlan = elevplaner?.OrderByDescending(e => e.OprettetDato).FirstOrDefault();
-
+        var oprettetPlan = await ElevplanService.GetElevplanForElevAsync(valgtElevId);
         if (oprettetPlan == null)
         {
             fejlbesked = "Fejl ved indlæsning af oprettet elevplan.";
@@ -176,7 +173,6 @@
             var praktik = new Praktikperiode
                 {
                     Navn = $"Praktikperiode {i}",
-                    ElevId = valgtElevId,
                     ElevplanId = oprettetPlan.Id
                 };
 
@@ -184,7 +180,8 @@
 
             // Hent den netop oprettede praktikperiode for at få id
             var praktikperioder = await PraktikService.GetAllAsync();
-            var oprettetPraktik = praktikperioder.LastOrDefault(p => p.ElevplanId == oprettetPlan.Id && p.Navn == praktik.Navn);
+            var oprettetPraktik = praktikperioder
+                .LastOrDefault(p => p.ElevplanId == oprettetPlan.Id && p.Navn == praktik.Navn);
 
             if (oprettetPraktik != null)
             {
@@ -206,8 +203,6 @@
                                 Igangsætter = skabelon.Igangsætter,
                                 Kommentar = "",
                                 Elevtur = "",
-                                ElevId = valgtElevId,
-                                ElevplanId = oprettetPlan.Id,
                                 PraktikperiodeId = oprettetPraktik.Id,
                                 DelmaalSkabelonId = skabelon.Id
                             };
@@ -224,7 +219,7 @@
         // Tildel elevplan-id til brugeren
         await UserService.AssignElevplanToUserAsync(valgtElevId, oprettetPlan.Id);
 
-        // Fjern den valgte elev fra brugerlisten for at opdatere UI korrekt
+        // Fjern eleven fra listen så UI opdateres korrekt
         var elev = brugere.FirstOrDefault(b => b.Id == valgtElevId);
         if (elev != null)
         {
@@ -238,4 +233,6 @@
         await Task.Delay(2000);
         Nav.NavigateTo("/administrator");
     }
+
+
 }

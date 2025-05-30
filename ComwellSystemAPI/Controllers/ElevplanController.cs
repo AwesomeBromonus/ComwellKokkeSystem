@@ -18,7 +18,7 @@ public class ElevplanController : ControllerBase
     // GET: api/elevplan
     // Henter alle elevplaner i systemet asynkront
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Modeller.Elevplan>>> GetAll() =>
+    public async Task<ActionResult<ActionResult<Modeller.Elevplan>>> GetAll() =>
         Ok(await _repo.GetAllAsync());
 
     // GET: api/elevplan/{id}
@@ -30,19 +30,21 @@ public class ElevplanController : ControllerBase
         return plan == null ? NotFound() : Ok(plan);
     }
 
-    // GET: api/elevplan/elev/{elevId}
-    // Henter alle elevplaner for en specifik elev baseret på elevens id
+
+
     [HttpGet("elev/{elevId}")]
-    public async Task<ActionResult<List<Modeller.Elevplan>>> GetByElevId(int elevId)
+    public async Task<ActionResult<Elevplan>> GetByElevId(int elevId)
     {
-        var planer = await _repo.GetByElevIdAsync(elevId);
-        if (planer == null || !planer.Any())
-            return NotFound("Ingen elevplaner fundet for denne elev.");
-        return Ok(planer);
+        var plan = await _repo.GetByElevIdAsync(elevId);
+        if (plan == null)
+            return NotFound("Der findes ingen elevplan for denne elev.");
+
+        return Ok(plan);
     }
 
-    // POST: api/elevplan
-    // Opretter en ny elevplan i databasen ud fra den modtagne data
+
+
+    // Opretter en ny elevplan i databasen
     [HttpPost]
     public async Task<IActionResult> CreateElevplan([FromBody] Elevplan elevplan)
     {
@@ -71,14 +73,6 @@ public class ElevplanController : ControllerBase
         return NoContent(); // Returnerer HTTP status 204 (No Content) ved succesfuld sletning
     }
 
-    // GET: api/elevplan/byuser/{userId}
-    // Henter den nyeste elevplan for en given bruger baseret på oprettelsesdato
-    [HttpGet("byuser/{userId}")]
-    public async Task<IActionResult> GetLatestElevplanByUserId(int userId)
-    {
-        var planer = await _repo.GetByElevIdAsync(userId);
-        var nyeste = planer?.OrderByDescending(p => p.OprettetDato).FirstOrDefault();
 
-        return nyeste == null ? NotFound("Ingen elevplan fundet for brugeren.") : Ok(nyeste);
-    }
+
 }

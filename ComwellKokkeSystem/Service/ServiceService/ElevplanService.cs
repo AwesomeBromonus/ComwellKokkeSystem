@@ -7,6 +7,7 @@ public class ElevplanService : IElevplanService
 {
     private readonly HttpClient _http;
 
+    //Konstruktor
     public ElevplanService(HttpClient http)
     {
         _http = http;
@@ -18,8 +19,7 @@ public class ElevplanService : IElevplanService
     public async Task<Elevplan?> GetElevplanByIdAsync(int id) =>
         await _http.GetFromJsonAsync<Elevplan>($"api/elevplan/{id}");
 
-    public async Task<List<Elevplan>?> GetElevplanerForElevAsync(int elevId) =>
-        await _http.GetFromJsonAsync<List<Elevplan>>($"api/elevplan/elev/{elevId}");
+   
 
     public async Task AddElevplanAsync(Elevplan plan) =>
         await _http.PostAsJsonAsync("api/elevplan", plan);
@@ -29,6 +29,15 @@ public class ElevplanService : IElevplanService
 
     public async Task DeleteElevplanAsync(int id) =>
         await _http.DeleteAsync($"api/elevplan/{id}");
+
+    public async Task<Elevplan?> GetElevplanForElevAsync(int elevId)
+    {
+        return await _http.GetFromJsonAsync<Elevplan>($"api/elevplan/elev/{elevId}");
+    }
+
+
+
+
 }
 
 

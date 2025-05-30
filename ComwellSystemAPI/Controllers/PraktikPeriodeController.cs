@@ -59,17 +59,8 @@ public class PraktikperiodeController : ControllerBase
         return NoContent(); // Status 204 ved succesfuld sletning
     }
 
-    // GET: api/praktikperiode/elev/{elevId}
-    // Henter alle praktikperioder tilknyttet en specifik elev via elevens id
-    [HttpGet("elev/{elevId}")]
-    public async Task<ActionResult<List<Praktikperiode>>> GetPraktikperioderForElev(int elevId)
-    {
-        var praktikperioder = await _repo.GetByElevIdAsync(elevId);
-        return Ok(praktikperioder);
-    }
-
-    // GET: api/praktikperiode/elevplan/{elevplanId}
-    // Henter alle praktikperioder tilknyttet en specifik elevplan
+   
+    // ✅ GET: api/praktikperiode/elevplan/{elevplanId}
     [HttpGet("elevplan/{elevplanId}")]
     public async Task<ActionResult<List<Praktikperiode>>> GetByElevplanId(int elevplanId)
     {

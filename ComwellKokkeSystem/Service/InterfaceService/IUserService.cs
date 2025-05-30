@@ -31,11 +31,12 @@ namespace ComwellKokkeSystem.Service
 
         // Opdaterer oplysningerne for en bruger (fx navn, email, rolle mv.).
         Task UpdateUserAsync(UserModel bruger);
-
-        // Ændrer adgangskoden for en bruger baseret på brugerens id.
         Task SkiftAdgangskodeAsync(int id, string nyKode);
 
         // Upload af profilbillede til en bruger; modtager en stream med billeddata.
         Task<bool> UploadProfilbilledeAsync(int id, Stream stream);
+        
+
+
     }
 }
