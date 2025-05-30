@@ -11,12 +11,15 @@ public class RapportRepository : IRapportRepository
     private readonly IMongoCollection<Praktikperiode> _praktikperiodeCollection;
     private readonly IMongoCollection<Elevplan> _elevplanCollection;
 
+
     public RapportRepository(IMongoDatabase database)
     {
         _userCollection = database.GetCollection<UserModel>("Brugere");
         _delmaalCollection = database.GetCollection<Delmål>("Delmål");
         _underdelmaalCollection = database.GetCollection<Underdelmaal>("Underdelmaal");
         _praktikperiodeCollection = database.GetCollection<Praktikperiode>("Praktikperioder");
+        _elevplanCollection = database.GetCollection<Elevplan>("Elevplan");
+
     }
 
     public async Task<byte[]> GenererElevDelmaalExcelAsync()

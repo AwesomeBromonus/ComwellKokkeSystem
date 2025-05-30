@@ -15,6 +15,7 @@ namespace ComwellKokkeSystem.Service
         Task UpdateUserAsync(UserModel bruger);
         Task SkiftAdgangskodeAsync(int id, string nyKode);
         Task<bool> UploadProfilbilledeAsync(int id, Stream stream);
+        
 
 
     }
