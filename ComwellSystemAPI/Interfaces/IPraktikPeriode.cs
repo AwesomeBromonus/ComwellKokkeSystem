@@ -20,10 +20,8 @@ namespace ComwellSystemAPI.Interfaces
         // @* METODE: Slet en praktikperiode baseret på id *@
         Task DeleteAsync(int id);
 
-        // @* METODE: Hent alle praktikperioder tilknyttet en specifik elev *@
-        Task<List<Praktikperiode>> GetByElevIdAsync(int elevId);
 
-        // @* METODE: Hent alle praktikperioder tilknyttet en specifik elevplan *@
+        // Hent alle praktikperioder tilknyttet en specifik elevplan
         Task<List<Praktikperiode>> GetByElevplanIdAsync(int elevplanId);
     }
 }

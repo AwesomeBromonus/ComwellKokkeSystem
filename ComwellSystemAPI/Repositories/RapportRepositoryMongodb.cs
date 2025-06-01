@@ -13,6 +13,8 @@ public class RapportRepository : IRapportRepository
     private readonly IMongoCollection<Delmål> _delmaalCollection;
     private readonly IMongoCollection<Underdelmaal> _underdelmaalCollection;
     private readonly IMongoCollection<Praktikperiode> _praktikperiodeCollection;
+    private readonly IMongoCollection<Elevplan> _elevplanCollection;
+
 
     // Konstruktor hvor MongoDB-samlinger injiceres til at hente data
     public RapportRepository(IMongoDatabase database)
@@ -21,6 +23,8 @@ public class RapportRepository : IRapportRepository
         _delmaalCollection = database.GetCollection<Delmål>("Delmål");
         _underdelmaalCollection = database.GetCollection<Underdelmaal>("Underdelmaal");
         _praktikperiodeCollection = database.GetCollection<Praktikperiode>("Praktikperioder");
+        _elevplanCollection = database.GetCollection<Elevplan>("Elevplan");
+
     }
 
     // Metode til at generere Excel-rapport med elevers delmål og underdelmål
@@ -58,7 +62,10 @@ public class RapportRepository : IRapportRepository
         // Loop igennem hver elev og deres delmål
         foreach (var elev in elever)
         {
-            var elevensDelmaal = delmaalListe.Where(d => d.ElevId == elev.Id).ToList();
+            var elevensElevplaner = await _elevplanCollection.Find(p => p.ElevId == elev.Id).ToListAsync();
+            var praktikperiodeIds = elevensElevplaner.SelectMany(p => p.PraktikperiodeIds).ToList();
+            var elevensDelmaal = delmaalListe.Where(d => praktikperiodeIds.Contains(d.PraktikperiodeId)).ToList();
+
 
             foreach (var d in elevensDelmaal)
             {

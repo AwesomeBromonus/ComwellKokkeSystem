@@ -11,7 +11,7 @@ namespace ComwellKokkeSystem.Service;
         Task<Elevplan?> GetElevplanByIdAsync(int id);
 
         // Hent elevplaner for en bestemt elev
-        Task<List<Elevplan>?> GetElevplanerForElevAsync(int elevId);
+        Task<Elevplan> GetElevplanForElevAsync(int elevId);
 
         // Tilføj ny elevplan
         Task AddElevplanAsync(Elevplan plan);
@@ -21,4 +21,6 @@ namespace ComwellKokkeSystem.Service;
 
         // Slet elevplan ud fra ID
         Task DeleteElevplanAsync(int id);
-    }
+
+
+}

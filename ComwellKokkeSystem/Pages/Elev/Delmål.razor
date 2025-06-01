@@ -517,11 +517,10 @@ else
 
    
 
-
     private async Task VisDelmaal(int praktikperiodeId)
     {
         valgtPraktikId = praktikperiodeId;
-        delmaalListe = await DelmaalService.GetByElevplanIdAndPraktikperiodeIdAsync(elevplanId, praktikperiodeId);
+        delmaalListe = await DelmaalService.GetByPraktikperiodeIdAsync(praktikperiodeId);
 
         foreach (var d in delmaalListe)
         {
@@ -530,6 +529,7 @@ else
             kommentarer[d.Id] = eksisterendeKommentarer ?? new();
         }
     }
+
     private async Task OpdaterStatus(Modeller.Delmål d, string? nyStatus)
     {
         if (!string.IsNullOrEmpty(nyStatus) && d.Status != nyStatus)
@@ -612,7 +612,7 @@ else
     {
         nytDelmaal = new Modeller.Delmål
             {
-                ElevplanId = elevplanId,
+                
                 PraktikperiodeId = valgtPraktikId,
                 Deadline = DateTime.Today,
                 Status = "Ikke fuldført"
@@ -630,7 +630,7 @@ else
                 Deadline = d.Deadline,
                 Status = d.Status,
                 PraktikperiodeId = d.PraktikperiodeId,
-                ElevplanId = d.ElevplanId
+                
             };
         redigerMode = true;
         visModal = true;
@@ -747,10 +747,9 @@ else
         StateHasChanged(); // Sørger for at UI opdateres
     }
 
-
     private async Task TjekOgOpdaterPraktikperiodeStatus(int praktikperiodeId)
     {
-        var delmaal = await DelmaalService.GetByElevplanIdAndPraktikperiodeIdAsync(elevplanId, praktikperiodeId);
+        var delmaal = await DelmaalService.GetByPraktikperiodeIdAsync(praktikperiodeId);
         var praktikperiode = praktikperioder.FirstOrDefault(p => p.Id == praktikperiodeId);
 
         if (praktikperiode == null) return;
@@ -767,16 +766,16 @@ else
         {
             if (praktikperiode.Status == "Fuldført")
             {
-                praktikperiode.Status = "Ikke fuldført"; // eller "I gang", hvis du foretrækker det
+                praktikperiode.Status = "Ikke fuldført";
                 await PraktikperiodeService.UpdateAsync(praktikperiode);
             }
         }
     }
 
-   
+
     private async Task MarkérPraktikperiodeSomFuldført(Praktikperiode periode)
     {
-        var delmaal = await DelmaalService.GetByElevplanIdAndPraktikperiodeIdAsync(elevplanId, periode.Id);
+        var delmaal = await DelmaalService.GetByPraktikperiodeIdAsync(periode.Id);
 
         if (delmaal.All(d => d.Status == "Fuldført"))
         {
@@ -792,10 +791,10 @@ else
         }
         else
         {
-            // Valgfrit: Vis en alert eller log at ikke alle delmål er fuldførte
             Console.WriteLine("🚫 Ikke alle delmål er fuldførte.");
         }
     }
+
 
     private async Task OpdaterPraktikperiodeStatus(Praktikperiode periode, string? nyStatus)
     {

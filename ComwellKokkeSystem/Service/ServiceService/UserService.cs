@@ -89,5 +89,8 @@ namespace ComwellKokkeSystem.Service
             var response = await _http.PostAsync($"api/users/{id}/upload-billede", content);
             return response.IsSuccessStatusCode;
         }
+      
+
+
     }
 }

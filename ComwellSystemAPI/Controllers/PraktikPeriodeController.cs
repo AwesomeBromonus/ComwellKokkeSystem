@@ -54,15 +54,8 @@ public class PraktikperiodeController : ControllerBase
         return NoContent();
     }
 
-    // @* METODE: Henter praktikperioder for en elev via GET api/praktikperiode/elev/{elevId} *@
-    [HttpGet("elev/{elevId}")]
-    public async Task<ActionResult<List<Praktikperiode>>> GetPraktikperioderForElev(int elevId)
-    {
-        var praktikperioder = await _repo.GetByElevIdAsync(elevId);
-        return Ok(praktikperioder);
-    }
-
-    // @* METODE: Henter praktikperioder for en elevplan via GET api/praktikperiode/elevplan/{elevplanId} *@
+   
+    // ✅ GET: api/praktikperiode/elevplan/{elevplanId}
     [HttpGet("elevplan/{elevplanId}")]
     public async Task<ActionResult<List<Praktikperiode>>> GetByElevplanId(int elevplanId)
     {

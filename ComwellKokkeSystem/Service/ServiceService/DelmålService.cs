@@ -17,13 +17,6 @@ public class DelmaalService : IDelmaalService
         return await _http.GetFromJsonAsync<List<Delmål>>($"api/delmaal/praktikperiode/{praktikperiodeId}");
     }
 
-    // @* Henter delmål for en given elevplan og praktikperiode via GET *@
-    public async Task<List<Delmål>> GetByElevplanIdAndPraktikperiodeIdAsync(int elevplanId, int praktikperiodeId)
-    {
-        return await _http.GetFromJsonAsync<List<Delmål>>($"api/delmaal/elevplan/{elevplanId}/praktikperiode/{praktikperiodeId}");
-    }
-
-    // @* Henter et delmål efter id via GET *@
     public async Task<Delmål?> GetByIdAsync(int id)
     {
         return await _http.GetFromJsonAsync<Delmål?>($"api/delmaal/{id}");
@@ -41,33 +34,16 @@ public class DelmaalService : IDelmaalService
         await _http.PutAsJsonAsync($"api/delmaal/{delmaal.Id}", delmaal);
     }
 
-    // @* Henter delmål baseret på elevplan-id via GET *@
-    public async Task<List<Delmål>> GetByElevplanIdAsync(int elevId)
-    {
-        // Implementer logik til at hente delmål baseret på elevplan-id (hvis relevant)
-        return await _http.GetFromJsonAsync<List<Delmål>>($"api/delmaal/elevplan/{elevId}") ?? new List<Delmål>();
-    }
-
-    // @* Henter delmål for en specifik elev via GET *@
-    public async Task<List<Delmål>> GetDelmålForElevAsync(int elevId)
-    {
-        // Implementer logik til at hente delmål for en specifik elev
-        return await _http.GetFromJsonAsync<List<Delmål>>($"api/delmaal/elev/{elevId}") ?? new List<Delmål>();
-    }
-
-    // @* Sletter et delmål efter id via DELETE *@
     public async Task DeleteDelmaalAsync(int id)
     {
         await _http.DeleteAsync($"api/delmaal/{id}");
     }
 
-    // @* Henter alle delmål via GET *@
     public async Task<List<Delmål>> GetAllAsync()
     {
-        return await _http.GetFromJsonAsync<List<Delmål>>("api/delmaal/all");
+        return await _http.GetFromJsonAsync<List<Delmål>>("api/delmaal/all") ?? new List<Delmål>();
     }
 
-    // @* Henter delmål med deadline inden for 14 dage via GET *@
     public async Task<List<Delmål>> GetDelmaalMedDeadlineIndenFor14DageAsync()
     {
         return await _http.GetFromJsonAsync<List<Delmål>>("api/delmaal/deadlines-14dage") ?? new List<Delmål>();

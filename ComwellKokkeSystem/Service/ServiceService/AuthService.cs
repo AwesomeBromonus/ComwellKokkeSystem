@@ -42,16 +42,10 @@ public class AuthService : IAuthService
     // @* Registrerer en ny bruger ved at sende brugerdata til backend
     // Returnerer true hvis registreringen lykkes, ellers false *@
     public async Task<bool> Register(UserModel user)
-    {
-        try
+    { 
         {
             var response = await _http.PostAsJsonAsync("api/users/register", user);
             return response.IsSuccessStatusCode;
-        }
-        catch
-        {
-            Console.WriteLine($"Fejl ved registrering: {user.Username}");
-            return false;
         }
     }
 

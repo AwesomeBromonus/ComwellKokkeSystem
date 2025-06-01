@@ -4,6 +4,8 @@
 @inject NavigationManager NavManager                      // Til navigation mellem sider
 @inject IUserStateService UserStateService                // Til at holde styr på loginstatus og brugerdata
 @inject IElevplanService ElevplanService                  // Service til at hente elevplaner
+@using ComwellKokkeSystem.Service
+
 
 <h3 class="mb-4">Mit Elev Overblik</h3>
 
@@ -109,19 +111,14 @@ else
     // Når komponenten initialiseres, prøver vi at hente elevplaner for den nuværende bruger
     protected override async Task OnInitializedAsync()
     {
-        // Tjek om bruger er logget ind og har et id
-        if (UserStateService.IsLoggedIn && UserStateService.CurrentUser?.Id != null)
+        if (UserStateService.IsLoggedIn && UserStateService.CurrentUser?.ElevplanId != null)
         {
             try
             {
-                // Hent elevplaner for den aktuelle bruger fra backend via ElevplanService
-                var planer = await ElevplanService.GetElevplanerForElevAsync(UserStateService.CurrentUser.Id);
+                aktivElevplan = await ElevplanService.GetElevplanByIdAsync(UserStateService.CurrentUser.ElevplanId.Value);
 
-                // Hvis der er elevplaner, vælg den første (kan udvides til flere senere)
-                if (planer != null && planer.Any())
-                    aktivElevplan = planer.FirstOrDefault();
-                else
-                    fejlbesked = "Ingen elevplaner fundet.";
+                if (aktivElevplan == null)
+                    fejlbesked = "Ingen elevplan fundet.";
             }
             catch (Exception ex)
             {
@@ -129,12 +126,18 @@ else
                 fejlbesked = "Fejl under hentning af elevplan: " + ex.Message;
             }
         }
+        else
+        {
+            fejlbesked = "Ingen aktiv elevplan tilknyttet din bruger.";
+        }
 
         // Uanset resultat er hentning færdig, så fjern loading-flag
         elevplanLoading = false;
     }
 
-    // Naviger til siden hvor elevplanens delmål kan ses og opdateres
+
+
+
     private void GåTilDelmål(int elevplanId)
     {
         NavManager.NavigateTo($"/delmaal/{elevplanId}");

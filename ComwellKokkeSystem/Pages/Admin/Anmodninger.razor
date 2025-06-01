@@ -9,6 +9,9 @@
 @inject NavigationManager Nav
 @inject IUnderdelmaalService UnderdelmaalService
 @inject IUserService UserService
+@inject IPraktikperiodeService PraktikService
+@inject IElevplanService ElevplanService
+
 
 <link href="css/Anmodninger.css" rel="stylesheet" />
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;700&display=swap" rel="stylesheet" />
@@ -85,7 +88,10 @@ else
     <ul class="list-group">
         @foreach (var d in delmaalMedDeadline14Dage)
         {
-            var elevNavn = eleverMedDeadline.FirstOrDefault(e => e.Id == d.ElevId)?.Navn ?? "Ukendt";
+            var elevNavn = delmaalTilElevMap.ContainsKey(d.Id)
+            ? eleverMedDeadline.FirstOrDefault(e => e.Id == delmaalTilElevMap[d.Id])?.Navn ?? "Ukendt"
+            : "Ukendt";
+
 
             <li class="list-group-item">
                 <strong>Elev:</strong> @elevNavn <br />
@@ -98,15 +104,17 @@ else
 }
 
 @code {
-    @* KLASSE: C# kode bag komponenten *@
 
-    private List<Anmodning>? anmodninger;                                // Liste af indkomne anmodninger til modtageren
-    private Dictionary<int, Delmål> delmaalMap = new();                  // Map over Delmål for hurtig opslag på id
-    private Dictionary<int, Underdelmaal> underdelmaalMap = new();       // Map over Underdelmål for hurtig opslag
-    private Dictionary<int, UserModel> brugerMap = new();                // Map over brugere (elever) for at vise navne
+@* KLASSE: C# kode bag komponenten *@
+    private List<Anmodning>? anmodninger;
+    private Dictionary<int, Delmål> delmaalMap = new();
+    private Dictionary<int, Underdelmaal> underdelmaalMap = new();
+    private Dictionary<int, UserModel> brugerMap = new();
+    private Dictionary<int, int> delmaalTilElevMap = new(); // DelmålId → ElevId
 
-    private List<Delmål> delmaalMedDeadline14Dage = new();               // Delmål med deadline inden for 14 dage
-    private List<UserModel> eleverMedDeadline = new();                   // Elever der har delmål med snarlig deadline
+
+    private List<Delmål> delmaalMedDeadline14Dage = new();
+    private List<UserModel> eleverMedDeadline = new();
 
     // Når siden initialiseres, hentes alle nødvendige data asynkront
     protected override async Task OnInitializedAsync()
@@ -146,25 +154,31 @@ else
             }
         }
 
-        // Hent delmål med deadline inden for 14 dage
+        // 🔁 Først hent listen
         delmaalMedDeadline14Dage = await DelmaalService.GetDelmaalMedDeadlineIndenFor14DageAsync();
 
-        // Find de elever, der har disse delmål med snarlig deadline
-        var elevIds = delmaalMedDeadline14Dage
-            .Select(d => d.ElevId)
-            .Distinct()
-            .ToList();
-
-        // Hent brugerdata for disse elever
-        foreach (var elevId in elevIds)
+        // 🔁 Find elev tilknyttet via praktikperiode → elevplan
+        foreach (var d in delmaalMedDeadline14Dage)
         {
-            var bruger = await UserService.GetByIdAsync(elevId);
-            if (bruger != null)
-                eleverMedDeadline.Add(bruger);
+            var praktik = await PraktikService.GetByIdAsync(d.PraktikperiodeId);
+            if (praktik != null)
+            {
+                var elevplan = await ElevplanService.GetElevplanByIdAsync(praktik.ElevplanId);
+                if (elevplan != null)
+                {
+                    delmaalTilElevMap[d.Id] = elevplan.ElevId;
+
+                    var bruger = await UserService.GetByIdAsync(elevplan.ElevId);
+                    if (bruger != null && !eleverMedDeadline.Any(e => e.Id == bruger.Id))
+                    {
+                        eleverMedDeadline.Add(bruger);
+                    }
+                }
+            }
         }
     }
 
-    // Behandler en anmodning: accepter eller afvis den baseret på bool-flag
+
     private async Task BehandlAnmodning(int anmodningId, bool accepteret)
     {
         await AnmodningService.BehandlAsync(anmodningId, accepteret);

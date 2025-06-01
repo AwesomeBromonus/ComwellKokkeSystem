@@ -17,7 +17,7 @@ public class ElevplanController : ControllerBase
 
     // @* METODE: Henter alle elevplaner via GET api/elevplan *@
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Modeller.Elevplan>>> GetAll() =>
+    public async Task<ActionResult<ActionResult<Modeller.Elevplan>>> GetAll() =>
         Ok(await _repo.GetAllAsync());
 
     // @* METODE: Henter enkelt elevplan efter id via GET api/elevplan/{id} *@
@@ -28,17 +28,22 @@ public class ElevplanController : ControllerBase
         return plan == null ? NotFound() : Ok(plan);
     }
 
+
+
     // @* METODE: Henter alle elevplaner for en specifik elev via GET api/elevplan/elev/{elevId} *@
     [HttpGet("elev/{elevId}")]
-    public async Task<ActionResult<List<Modeller.Elevplan>>> GetByElevId(int elevId)
+    public async Task<ActionResult<Elevplan>> GetByElevId(int elevId)
     {
-        var planer = await _repo.GetByElevIdAsync(elevId);
-        if (planer == null || !planer.Any())
-            return NotFound("Ingen elevplaner fundet for denne elev.");
-        return Ok(planer);
+        var plan = await _repo.GetByElevIdAsync(elevId);
+        if (plan == null)
+            return NotFound("Der findes ingen elevplan for denne elev.");
+
+        return Ok(plan);
     }
 
-    // @* METODE: Opretter ny elevplan via POST api/elevplan *@
+
+
+    // Opretter en ny elevplan i databasen
     [HttpPost]
     public async Task<IActionResult> CreateElevplan([FromBody] Elevplan elevplan)
     {
@@ -65,13 +70,6 @@ public class ElevplanController : ControllerBase
         return NoContent(); // HTTP 204 ved succes
     }
 
-    // @* METODE: Henter nyeste elevplan for bruger via GET api/elevplan/byuser/{userId} *@
-    [HttpGet("byuser/{userId}")]
-    public async Task<IActionResult> GetLatestElevplanByUserId(int userId)
-    {
-        var planer = await _repo.GetByElevIdAsync(userId);
-        var nyeste = planer?.OrderByDescending(p => p.OprettetDato).FirstOrDefault();
 
-        return nyeste == null ? NotFound("Ingen elevplan fundet for brugeren.") : Ok(nyeste);
-    }
+
 }

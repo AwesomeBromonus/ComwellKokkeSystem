@@ -65,23 +65,7 @@ public class DelmaalController : ControllerBase
         return Ok(result);
     }
 
-    // @* METODE: Henter delmål for elevplan og praktikperiode via GET api/delmaal/elevplan/{elevplanId}/praktikperiode/{praktikperiodeId} *@
-    [HttpGet("elevplan/{elevplanId}/praktikperiode/{praktikperiodeId}")]
-    public async Task<IActionResult> GetByElevplanAndPraktikperiode(int elevplanId, int praktikperiodeId)
-    {
-        var result = await _repo.GetByElevplanIdAndPraktikperiodeIdAsync(elevplanId, praktikperiodeId);
-        return Ok(result);
-    }
 
-    // @* METODE: Henter delmål for elev via GET api/delmaal/elev/{elevId} *@
-    [HttpGet("elev/{elevId}")]
-    public async Task<IActionResult> GetByElevId(int elevId)
-    {
-        var result = await _repo.GetByElevIdAsync(elevId);
-        return Ok(result);
-    }
-
-    // @* METODE: Henter alle delmål via GET api/delmaal/all *@
     [HttpGet("all")]
     public async Task<IActionResult> GetAll()
     {
@@ -89,7 +73,6 @@ public class DelmaalController : ControllerBase
         return Ok(result);
     }
 
-    // @* METODE: Henter delmål med deadline inden for 14 dage via GET api/delmaal/deadlines-14dage *@
     [HttpGet("deadlines-14dage")]
     public async Task<IActionResult> GetDelmaalMedDeadlineIndenFor14Dage()
     {
