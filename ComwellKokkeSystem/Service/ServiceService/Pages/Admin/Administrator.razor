@@ -1,0 +1,344 @@
+﻿@page "/administrator"
+@* KOMPONENT: Blazor Razor Component - Administrator side *@
+
+@inject IUserService UserService
+@inject IElevplanService ElevplanService
+
+@inject IUserService UserService
+@inject IElevplanService ElevplanService
+@inject IAnmodningService AnmodningService
+@inject NavigationManager NavManager
+@inject IUserStateService UserState
+
+@using Modeller
+@using ComwellKokkeSystem.Service
+
+<link href="css/Panel.css" rel="stylesheet" />
+
+<div class="admin-container">
+
+    @* Først tjekker vi om systemet har bekræftet, at brugerens loginstatus er undersøgt. Indtil det sker, vises en simpel besked, som fortæller brugeren, at systemet er ved at indlæse status. Dette er vigtigt, da vi ikke ønsker at vise forkert adgang, mens systemet stadig arbejder på at finde ud af, om brugeren er logget ind. *@
+    @if (!UserState.IsLoggedInChecked)
+    {
+        <p>Indlæser brugerstatus...</p>
+    }
+    @* Hvis det viser sig, at brugeren ikke er logget ind, så viser vi en advarsel om, at man skal være logget ind for at få adgang til siden. Det sikrer, at uautoriserede brugere ikke kan se eller manipulere administrationen. *@
+    else if (!UserState.IsLoggedIn)
+    {
+        <div class="alert alert-warning">Du skal være logget ind for at se denne side.</div>
+    }
+    @* Hvis brugeren er logget ind, men ikke har rollen "admin", vil vi afvise adgang og vise en fejlmeddelelse, der tydeligt fortæller, at kun administratorer må benytte denne side. Dette er med til at sikre rollestyring i systemet. *@
+    else if (UserState.Role?.ToLower() != "admin")
+    {
+        <div class="alert alert-danger">Adgang nægtet – kun administratorer har adgang.</div>
+    }
+    @* Endelig, hvis brugeren er logget ind og har admin-rollen, så viser vi admin-panelet med alle funktioner og informationer. Dette er hoveddelen af siden. *@
+    else
+    {
+        @* Her præsenteres en overskrift og en velkomstbesked, hvor vi henter brugerens navn fra loginstatus og viser det i UI. Det skaber en personlig oplevelse for administratoren. *@
+        <div class="admin-header">
+            <h2>Administratorpanel</h2>
+            <p>Velkommen, <span class="username">@UserState.CurrentUser?.Navn</span></p>
+        </div>
+
+        @* Vi har en sektion med "hurtig adgang", som indeholder knapper til ofte brugte sider som oprettelse af brugere og elevplaner samt notifikationer. Når administrator klikker på en af disse kort, navigerer vi programmatisk til den ønskede side vha. NavigationManager. *@
+        <div class="dashboard-cards">
+            <div class="dashboard-card" @onclick="@(() => NavManager.NavigateTo('/opretuser'))">
+                <div class="icon">👤</div>
+                <h4>Opret bruger</h4>
+            </div>
+            <div class="dashboard-card" @onclick="@(() => NavManager.NavigateTo('/opret-elevplan'))">
+                <div class="icon">📋</div>
+                <h4>Opret elevplan</h4>
+            </div>
+            <div class="dashboard-card highlight" @onclick="@(() => NavManager.NavigateTo('/anmodninger'))">
+                <div class="icon">📥</div>
+                <h4>Notifikationer</h4>
+                @* Vi viser også dynamisk, hvor mange anmodninger der venter på behandling. Det giver administrator overblik direkte på forsiden. *@
+                <p><strong>@anmodningerAntal</strong> afventer</p>
+            </div>
+        </div>
+
+        @* Under de hurtige links er der en søgesektion, hvor administrator kan søge brugere på deres brugernavn. Derudover er der to dropdowns, som giver mulighed for at filtrere brugere efter deres rolle og tilknyttede hotel. Dette gør det nemmere at finde bestemte brugere i store lister. *@
+        <div class="search-section">
+            <input class="search-input" placeholder="Søg brugernavn..." @bind="søgeord" />
+            <select class="role-filter" @bind="valgtRolle">
+                <option value="">Alle roller</option>
+                <option value="elev">Elev</option>
+                <option value="admin">Administrator</option>
+                <option value="kok">Kok</option>
+            </select>
+            <select class="role-filter" @bind="valgtHotel">
+                <option value="">Alle hoteller</option>
+                @foreach (var hotel in alleHoteller)
+                {
+                    <option value="@hotel">@hotel</option>
+                }
+            </select>
+        </div>
+
+        @* Nedenfor vises en liste med brugere, som er filtreret ud fra søgeord, rolle og hotel. For hver bruger vises navn, rolle, tilknyttet hotel samt et profilbillede, hvis der findes et. Brugeren kan klikke på en bruger for at åbne detaljer i et modalvindue. *@
+        <div class="user-grid">
+            @foreach (var bruger in brugere.Where(b =>
+           (string.IsNullOrWhiteSpace(søgeord) || b.Username.Contains(søgeord, StringComparison.OrdinalIgnoreCase)) &&
+           (string.IsNullOrWhiteSpace(valgtRolle) || b.Role?.ToLower() == valgtRolle) &&
+           (string.IsNullOrWhiteSpace(valgtHotel) || b.HotelNavn == valgtHotel)))
+            {
+                <div class="user-card d-flex justify-content-between align-items-center p-3 shadow-sm border rounded"
+                     @onclick="@(() => VisDetaljer(bruger))"
+                     style="background-color: #fff;">
+                    <div class="user-text">
+                        <h5 class="mb-1">@bruger.Navn</h5>
+                        @* Rolletaggen har en CSS-klasse der giver visuel farvekode baseret på rolle *@
+                        <span class="role-tag @GetRoleClass(bruger.Role)">@bruger.Role</span><br />
+                        <small class="text-muted">@bruger.HotelNavn</small>
+                    </div>
+                    @* Profilbilledet hentes via URL, og hvis billedet ikke findes, skjules billedelementet *@
+                    <img src="@GetImageUrl(bruger.Id)" onerror="this.style.display='none';"
+                         class="user-image rounded-circle ms-3" style="width: 64px; height: 64px; object-fit: cover;"
+                         alt="Brugerbillede" />
+                </div>
+            }
+        </div>
+
+        @* Modalvindue vises kun, hvis en bruger er valgt. Her kan administrator se og redigere brugerens detaljer. Modalvindue indeholder formularfelter, der enten er readonly eller redigerbare afhængigt af om vi er i redigeringsmode. *@
+        @if (valgtBruger is not null)
+        {
+            <div class="modal-backdrop">
+                <div class="modal-window wide">
+                    <div class="modal-header">
+                        <h5>Brugerinfo: @valgtBruger.Navn</h5>
+                        @* Luk modal når krydset trykkes *@
+                        <button class="btn-close" @onclick="LukDetaljer">×</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-grid">
+
+                            @* Hvis vi er i redigeringsmode, viser vi inputfelter til at rette brugerens data *@
+                            @if (isEditing)
+                            {
+                                <label>Navn</label>
+                                <InputText class="form-control" @bind-Value="valgtBruger.Navn" />
+
+                                <label>Email</label>
+                                <InputText class="form-control" @bind-Value="valgtBruger.Email" />
+
+                                <label>Telefon</label>
+                                <InputText class="form-control" @bind-Value="valgtBruger.Tlf" />
+
+                                <label>Adresse</label>
+                                <InputText class="form-control" @bind-Value="valgtBruger.Adresse" />
+
+                                <label>Hotel</label>
+                                <select class="form-control" @bind="valgtBruger.HotelNavn">
+                                    <option disabled value="">Vælg hotel</option>
+                                    @foreach (var h in alleHoteller)
+                                    {
+                                        <option value="@h">@h</option>
+                                    }
+                                </select>
+
+                                <label>Startdato</label>
+                                <InputDate class="form-control" @bind-Value="valgtBruger.StartDato" />
+
+                                <label>Slutdato</label>
+                                <InputDate class="form-control" @bind-Value="valgtBruger.SlutDato" />
+
+                                <label>Rolle</label>
+                                <InputSelect class="form-control" @bind-Value="valgtBruger.Role">
+                                    <option disabled value="">Vælg rolle</option>
+                                    <option value="elev">Elev</option>
+                                    <option value="admin">Administrator</option>
+                                    <option value="kok">Kok</option>
+                                </InputSelect>
+                            }
+                            else
+                            {
+                                @* Hvis ikke i redigeringsmode vises brugerdata som tekst til læsning *@
+                                <p><strong>Navn:</strong> @valgtBruger.Navn</p>
+                                <p><strong>Email:</strong> @valgtBruger.Email</p>
+                                <p><strong>Telefon:</strong> @valgtBruger.Tlf</p>
+                                <p><strong>Adresse:</strong> @valgtBruger.Adresse</p>
+                                <p><strong>Hotel:</strong> @valgtBruger.HotelNavn</p>
+                                <p><strong>Startdato:</strong> @valgtBruger.StartDato.ToShortDateString()</p>
+                                <p><strong>Slutdato:</strong> @(valgtBruger.SlutDato?.ToShortDateString() ?? "Ikke angivet")</p>
+                                <p><strong>Skoleperiode:</strong> @HentSkoleperiode(valgtBruger)</p>
+                                <p><strong>Skoleforløb:</strong> @HentSkoleforloeb(valgtBruger)</p>
+                                <p><strong>Rolle:</strong> <span class="role-tag @GetRoleClass(valgtBruger.Role)">@valgtBruger.Role</span></p>
+                            }
+                        </div>
+                    </div>
+                    <div class="modal-footer d-flex justify-content-between">
+                        <div>
+                            @* Knappen sletter brugeren og lukker modal vinduet bagefter *@
+                            <button class="btn btn-danger me-2" @onclick="SletBrugerAsync">Slet</button>
+
+                            @* Vis rediger-knap hvis vi ikke redigerer, ellers vis knapper til at gemme eller annullere *@
+                            @if (!isEditing)
+                            {
+                                <button class="btn btn-warning" @onclick="() => isEditing = true">Rediger</button>
+                            }
+                            else
+                            {
+                                <button class="btn btn-success me-2" @onclick="GemRedigering">Gem</button>
+                                <button class="btn btn-outline-secondary" @onclick="() => isEditing = false">Annuller</button>
+                            }
+                        </div>
+                        <div>
+                            @* Hvis brugeren er elev og har en elevplan, vis knap til at se elevplan *@
+                            @if (valgtBruger.Role?.ToLower() == "elev" && valgtBruger.ElevplanId > 0)
+                            {
+                                <button class="btn btn-info" @onclick="@(() => SeElevplan(valgtBruger.ElevplanId.Value))">Se elevplan</button>
+                            }
+                            @* Luk modal knap *@
+                            <button class="btn btn-secondary ms-2" @onclick="LukDetaljer">Luk</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+@code {  @* KLASSE: Her starter den C# kode bag komponenten *@
+    // Liste der indeholder alle brugere, som vi viser på siden.
+    private List<UserModel> brugere = new();
+
+    // Den bruger, der er valgt i listen, og som vi viser i modalvindue til detaljer.
+    private UserModel? valgtBruger;
+
+    // Flag til at angive om vi er i redigeringsmode i modal.
+    private bool isEditing = false;
+
+    // Søgeord til tekstsøgning efter brugernavn.
+    private string søgeord = "";
+
+    // Valgt rolle i dropdown til filtrering (tom betyder alle).
+    private string valgtRolle = "";
+
+    // Valgt hotel i dropdown til filtrering (tom betyder alle).
+    private string valgtHotel = "";
+
+    // Antal anmodninger der har status "afventer" - bruges til notifikationer.
+    private int anmodningerAntal = 0;
+
+    // Liste over elevplaner hentet fra databasen til elever.
+    private List<Elevplan> elevplaner = new();
+
+    // Liste over alle hoteller til dropdown.
+    private List<string> alleHoteller = new()
+    {
+        "Aarhus", "Borupgaard", "Bygholm Park", "Centralværkstedet",
+        "Copenhagen Portside", "H.C. Andersen Odense", "Holte",
+        "Hvide Hus Aalborg", "Kellers Park", "Klarskovgaard",
+        "Kolding", "Kongebrogaarden", "Køge Strand",
+        "Middelfart", "Rebild Bakker", "Roskilde", "Sorø"
+    };
+
+    // Metode som kaldes automatisk når siden initialiseres.
+    // Her henter vi brugere og anmodninger fra serveren, og derudover henter vi elevplaner for de brugere, der har det.
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadUsers();
+        await HentAntalAnmodninger();
+
+        // For hver bruger med rolle elev og gyldigt elevplanId henter vi elevplanen og gemmer den lokalt.
+        foreach (var elev in brugere.Where(b => b.Role?.ToLower() == "elev" && b.ElevplanId.HasValue))
+        {
+            try
+            {
+                var plan = await ElevplanService.GetElevplanByIdAsync(elev.ElevplanId.Value);
+                if (plan != null)
+                    elevplaner.Add(plan);
+            }
+            catch
+            {
+                // Hvis vi ikke kan hente elevplanen, logger vi fejlen i konsollen, men fortsætter.
+                Console.WriteLine($"Kunne ikke hente elevplan for {elev.Username}");
+            }
+        }
+    }
+
+    // Henter alle brugere fra databasen via UserService.
+    private async Task LoadUsers()
+    {
+        var users = await UserService.GetAllAsync();
+        if (users != null)
+            brugere = users;
+    }
+
+    // Henter alle anmodninger og tæller hvor mange der har status "afventer".
+    private async Task HentAntalAnmodninger()
+    {
+        var liste = await AnmodningService.GetAlleAsync();
+        anmodningerAntal = liste?.Count(a => a.Status?.ToLower() == "afventer") ?? 0;
+    }
+
+    // Viser modal med detaljer for valgt bruger. Sætter redigeringsflag til false (læs-tilstand).
+    private void VisDetaljer(UserModel bruger)
+    {
+        valgtBruger = bruger;
+        isEditing = false;
+    }
+
+    // Lukker modal ved at nulstille valgt bruger og redigeringsflag.
+    private void LukDetaljer()
+    {
+        valgtBruger = null;
+        isEditing = false;
+    }
+
+    // Gemmer ændringer til brugeren ved at opdatere via UserService. Sætter redigeringsflag til false bagefter.
+    private async Task GemRedigering()
+    {
+        if (valgtBruger is not null)
+        {
+            await UserService.UpdateUserAsync(valgtBruger);
+            isEditing = false;
+        }
+    }
+
+    // Sletter valgt bruger fra databasen og fjerner dem fra lokal liste. Lukker modal.
+    private async Task SletBrugerAsync()
+    {
+        if (valgtBruger != null)
+        {
+            await UserService.DeleteAsync(valgtBruger.Id);
+            brugere.Remove(valgtBruger);
+            valgtBruger = null;
+        }
+    }
+
+    // Navigerer til elevplan for den valgte elev ved at bruge elevplanens id i URL'en.
+    private void SeElevplan(int elevplanId) => NavManager.NavigateTo($"/delmaal/{elevplanId}");
+
+    // Finder og returnerer skoleperiode for en given bruger via elevplaner.
+    // Hvis elevplan ikke findes, returneres teksten "Ikke angivet".
+    private string HentSkoleperiode(UserModel bruger)
+    {
+        var plan = elevplaner.FirstOrDefault(p => p.Id == bruger.ElevplanId);
+        return plan?.Skoleperiode ?? "Ikke angivet";
+    }
+
+    // Finder og returnerer skoleforløb for en given bruger via elevplaner.
+    // Hvis elevplan ikke findes, returneres teksten "Ikke angivet".
+    private string HentSkoleforloeb(UserModel bruger)
+    {
+        var plan = elevplaner.FirstOrDefault(p => p.Id == bruger.ElevplanId);
+        return plan?.SkoleForløb ?? "Ikke angivet";
+    }
+
+    // Genererer URL til brugerens profilbillede baseret på bruger-id.
+    // Billeder forventes at ligge i uploads-mappen på serveren.
+    private string GetImageUrl(int id) => $"https://localhost:7013/uploads/{id}.jpg";
+
+    // Returnerer CSS-klasse til at farvekode brugere visuelt efter rolle.
+    // Det gør det nemmere at genkende hvilken rolle en bruger har i brugerlisten.
+    private string GetRoleClass(string? role) => role?.ToLower() switch
+    {
+        "admin" => "role-admin",
+        "elev" => "role-elev",
+        "kok" => "role-kok",
+        _ => "role-ukendt"
+    };
+}
