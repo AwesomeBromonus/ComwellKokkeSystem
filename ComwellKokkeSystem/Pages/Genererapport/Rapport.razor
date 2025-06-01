@@ -1,0 +1,144 @@
+﻿@page "/rapportside"
+
+@using ComwellKokkeSystem.Service
+@inject IRapportService RapportService              // Service til rapportgenerering og eksport
+@inject IUserService UserService                      // Service til brugerdata
+@inject IDelmaalService DelmaalService                // Service til delmål
+@inject IUnderdelmaalService UnderdelmaalService      // Service til underdelmål
+@inject IPraktikperiodeService praktikperiodeService  // Service til praktikperioder
+@inject IJSRuntime JS                                  // Til JS-invokation, fx download af filer
+@using Modeller
+
+<h3 class="mb-4">Elevrapport 📊</h3>
+
+@* Hvis data endnu ikke er hentet, vis loading tekst *@
+@if (brugere == null || delmaalListe == null)
+{
+    <p>Indlæser data...</p>
+}
+else
+{
+    @* Knap til at eksportere hele rapporten til Excel *@
+    <button class="btn btn-success mb-3" @onclick="EksporterExcel">Eksportér til Excel 📥</button>
+
+    @* Tabellen viser detaljeret oversigt over brugeres delmål og underdelmål samt praktikperioder *@
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>Elevnavn</th>
+                <th>Email</th>
+                <th>Hotel</th>
+                <th>Delmål</th>
+                <th>Delmål Deadline</th>
+                <th>Delmål Status</th>
+                <th>Underdelmål</th>
+                <th>Underdelmål Deadline</th>
+                <th>Underdelmål Status</th>
+                <th>Praktikperiode</th>
+                <th>Praktikperiode Status</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @* For hver elev listes delmål og underdelmål med status og deadlines *@
+            @foreach (var bruger in brugere)
+            {
+                var elevensPerioder = praktikperioder
+                .Where(p => p.ElevplanId == bruger.ElevplanId)
+                .Select(p => p.Id);
+
+                var elevensDelmaal = delmaalListe
+                .Where(d => elevensPerioder.Contains(d.PraktikperiodeId));
+
+
+                foreach (var d in elevensDelmaal)
+                {
+                    var underdelmaal = underdelmaalMap.ContainsKey(d.Id) ? underdelmaalMap[d.Id] : new List<Underdelmaal>();
+                    var periode = praktikperioder.FirstOrDefault(p => p.Id == d.PraktikperiodeId);
+
+                    @* Hvis der findes underdelmål, vises de alle *@
+                    if (underdelmaal.Any())
+                    {
+                        foreach (var u in underdelmaal)
+                        {
+                            <tr>
+                                <td>@bruger.Navn</td>
+                                <td>@bruger.Email</td>
+                                <td>@bruger.HotelNavn</td>
+                                <td>@d.Beskrivelse</td>
+                                <td>@d.Deadline.ToShortDateString()</td>
+                                <td>@d.Status</td>
+                                <td>@u.Beskrivelse</td>
+                                <td>@u.Deadline.ToShortDateString()</td>
+                                <td>@u.Status</td>
+                                <td>@periode?.Navn</td>
+                                <td>@periode?.Status</td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        @* Hvis ingen underdelmål, vis "-" i felterne for underdelmål *@
+                        <tr>
+                            <td>@bruger.Navn</td>
+                            <td>@bruger.Email</td>
+                            <td>@bruger.HotelNavn</td>
+                            <td>@d.Beskrivelse</td>
+                            <td>@d.Deadline.ToShortDateString()</td>
+                            <td>@d.Status</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>@periode?.Navn</td>
+                            <td>@periode?.Status</td>
+                        </tr>
+                    }
+                }
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    // Liste over alle brugere med rollen "elev"
+    private List<UserModel>? brugere;
+
+    // Liste over alle delmål i systemet
+    private List<Delmål>? delmaalListe;
+
+    // Liste over alle praktikperioder i systemet
+    private List<Praktikperiode> praktikperioder = new();
+
+    // Dictionary der kortlægger hvert delmåls id til dets underdelmål
+    private Dictionary<int, List<Underdelmaal>> underdelmaalMap = new();
+
+    // Når komponent initialiseres, hentes alle nødvendige data fra backend
+    protected override async Task OnInitializedAsync()
+    {
+        // Hent alle elever
+        brugere = (await UserService.GetAllAsync()).Where(u => u.Role.ToLower() == "elev").ToList();
+
+        // Hent alle delmål
+        delmaalListe = await DelmaalService.GetAllAsync();
+
+        // Hent alle praktikperioder
+        praktikperioder = await praktikperiodeService.GetAllAsync();
+
+        // For hvert delmål hentes underdelmål og gemmes i dictionary
+        foreach (var d in delmaalListe)
+        {
+            var under = await UnderdelmaalService.GetByDelmaalIdAsync(d.Id);
+            underdelmaalMap[d.Id] = under ?? new();
+        }
+    }
+
+    // Eksporter data som Excel-fil ved at hente bytes fra RapportService og initiere download i browseren
+    private async Task EksporterExcel()
+    {
+        var data = await RapportService.HentExcelRapportAsync();
+        var filnavn = $"Elevrapport_{DateTime.Now:yyyyMMddHHmmss}.xlsx";
+
+        using var streamRef = new DotNetStreamReference(new MemoryStream(data));
+        await JS.InvokeVoidAsync("downloadFileFromStream", filnavn, streamRef);
+    }
+}

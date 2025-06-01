@@ -10,12 +10,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="867a39b7-f00d-4256-9506-36754830a52e" name="Changes" comment="XML n TAILWIND">
+    <list default="true" id="867a39b7-f00d-4256-9506-36754830a52e" name="Changes" comment="Små ændringer">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.ComwellKokkeSystem/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.ComwellKokkeSystem/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ComwellKokkeSystem.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/ComwellKokkeSystem.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Pages/Genererapport/GenereRapport.razor" beforeDir="false" afterPath="$PROJECT_DIR$/Pages/Genererapport/GenereRapport.razor" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/ComwellSystemAPI.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/ComwellSystemAPI.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Repositories/GenereRapportMongoDB.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Repositories/GenereRapportMongoDB.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Pages/Læring.razor" beforeDir="false" afterPath="$PROJECT_DIR$/Pages/Læring.razor" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Pages/Quiz/QuizOpret.razor" beforeDir="false" afterPath="$PROJECT_DIR$/Pages/Quiz/QuizOpret.razor" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ComwellSystemAPI/Repositories/ElevplanRepositoryMongodb.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../ComwellSystemAPI/Repositories/ElevplanRepositoryMongodb.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -28,7 +27,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$/.." value="lukas" />
+        <entry key="$PROJECT_DIR$/.." value="Retter" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
@@ -57,26 +56,28 @@
   }
 }</component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="file://$PROJECT_DIR$/Pages/Components/Pratikperioder.razor" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" root2="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Pages/Components/RapportFiltre.razor" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" root2="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Pages/Genererapport/GenereRapport.razor" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" root2="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Pages/Genererapport/Helpers/EnumerableExtensions.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock://C:/Eksamen/ComwellKokkeSystem/Program.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://C:/Eksamen/ComwellKokkeSystem/Program.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://C:/Eksamen/ComwellKokkeSystem/Program.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://C:/Eksamen/ComwellKokkeSystem/Program.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://C:/Eksamen/ComwellKokkeSystem/Program.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://C:/Eksamen/ComwellKokkeSystem/Program.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Pages/Quiz/TagQuiz.razor" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" root2="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Program.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Service/InterfaceService/IUnderdelmaalService.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Service/ServiceService/ElevplanService.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Service/ServiceService/UnderdelmaalService.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/package-lock.json" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/../ComwellSystemAPI/Controllers/QuizController.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/../ComwellSystemAPI/Interfaces/IQuestion.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/../ComwellSystemAPI/Interfaces/IQuiz.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/../ComwellSystemAPI/Interfaces/IUser.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../ComwellSystemAPI/Repositories/DelmaalSkabelonRepository .cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../ComwellSystemAPI/Repositories/DelmålRepositoryMongodb.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/../ComwellSystemAPI/Repositories/QuestionsRepositoryMongoDB.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/../ComwellSystemAPI/Repositories/QuizRepositoryMongoDB.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/../ComwellSystemAPI/Repositories/UserRepositoryMongodb.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../Modeller/QuizDTO.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../Modeller/Underdelmaal.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/76803a04e31b4fee99d90bcbfc5a6bdde8e930/7b/0366cfd4/ExceptionDispatchInfo.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/ce37be1a06b16c6faa02038d2cc477dd3bca5b217ceeb41c5f2ad45c1bf9/ServiceProvider.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/de8c9d9014ed8851ff8db88744302e50dddf33c626b751126f43a9cbb5ef7b6/HttpClientJsonExtensions.Post.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock://diff.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://diff.cs" root0="SKIP_HIGHLIGHTING" />
   </component>
   <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="true" />
   <component name="ProjectColorInfo">{
@@ -88,24 +89,24 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    ".NET Launch Settings Profile.ComwellKokkeSystem: http.executor": "Run",
-    ".NET Launch Settings Profile.ComwellKokkeSystem: https.executor": "Run",
-    ".NET Launch Settings Profile.ComwellSystemAPI: http.executor": "Run",
-    ".NET Launch Settings Profile.ComwellSystemAPI: https.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "master",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "preferences.lookFeel",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;.NET Launch Settings Profile.ComwellKokkeSystem: http.executor&quot;: &quot;Run&quot;,
+    &quot;.NET Launch Settings Profile.ComwellKokkeSystem: https.executor&quot;: &quot;Run&quot;,
+    &quot;.NET Launch Settings Profile.ComwellSystemAPI: http.executor&quot;: &quot;Debug&quot;,
+    &quot;.NET Launch Settings Profile.ComwellSystemAPI: https.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager" selected="Multi-Launch.Kør">
     <configuration name="ComwellKokkeSystem: https" type="LaunchSettings" factoryName=".NET Launch Settings Profile">
       <option name="LAUNCH_PROFILE_PROJECT_FILE_PATH" value="$PROJECT_DIR$/ComwellKokkeSystem.csproj" />
@@ -289,6 +290,9 @@
       <workItem from="1747247658073" duration="15303000" />
       <workItem from="1747701593702" duration="7754000" />
       <workItem from="1748210088681" duration="2376000" />
+      <workItem from="1748278595011" duration="5765000" />
+      <workItem from="1748285393261" duration="407000" />
+      <workItem from="1748506073494" duration="8911000" />
     </task>
     <task id="LOCAL-00001" summary="Genere rapport - sorry hvis der er problemer...">
       <option name="closed" value="true" />
@@ -338,7 +342,47 @@
       <option name="project" value="LOCAL" />
       <updated>1748269010307</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="HMm">
+      <option name="closed" value="true" />
+      <created>1748278468325</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1748278468325</updated>
+    </task>
+    <task id="LOCAL-00008" summary="I håb om at fikse rapportside">
+      <option name="closed" value="true" />
+      <created>1748285159781</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1748285159781</updated>
+    </task>
+    <task id="LOCAL-00009" summary="Fjener �">
+      <option name="closed" value="true" />
+      <created>1748285449189</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1748285449189</updated>
+    </task>
+    <task id="LOCAL-00010" summary="XML">
+      <option name="closed" value="true" />
+      <created>1748285465108</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1748285465108</updated>
+    </task>
+    <task id="LOCAL-00011" summary="Quiz fixx">
+      <option name="closed" value="true" />
+      <created>1748289885085</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1748289885085</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -403,6 +447,11 @@
     <MESSAGE value="Tailwind" />
     <MESSAGE value="workspace.xml" />
     <MESSAGE value="XML n TAILWIND" />
-    <option name="LAST_COMMIT_MESSAGE" value="XML n TAILWIND" />
+    <MESSAGE value="HMm" />
+    <MESSAGE value="I håb om at fikse rapportside" />
+    <MESSAGE value="Fjener �" />
+    <MESSAGE value="XML" />
+    <MESSAGE value="Quiz fixx" />
+    <option name="LAST_COMMIT_MESSAGE" value="Quiz fixx" />
   </component>
 </project>

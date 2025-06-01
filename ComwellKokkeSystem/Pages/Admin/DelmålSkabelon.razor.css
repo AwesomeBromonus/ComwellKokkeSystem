@@ -1,0 +1,22 @@
+﻿.beskrivelse-col {
+    width: 50%;
+    vertical-align: middle;
+}
+
+.underdelmaal-col {
+    width: 20%;
+    text-align: center;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.handlinger-col {
+    width: 30%;
+    text-align: right;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.list-group-item .btn {
+    white-space: nowrap;
+}

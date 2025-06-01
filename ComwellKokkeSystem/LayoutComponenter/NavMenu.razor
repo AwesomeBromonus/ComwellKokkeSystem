@@ -1,0 +1,108 @@
+﻿@inject NavigationManager NavManager
+@inject IUserStateService UserState
+@implements IDisposable
+
+<div class="admin-sidebar d-flex flex-column justify-content-between">
+    <!-- Klikbart logo -->
+    <div>
+        <div class="admin-logo text-center mb-4">
+            <button @onclick="HandleLogoClick" style="border:none; background:none; padding:0; cursor:pointer;">
+                <img src="/ComwellLogo2.png" alt="Comwell logo" style="max-width: 100%; height: auto;" />
+            </button>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="admin-nav">
+            @if (!UserState.IsLoggedInChecked)
+            {
+                <span class="text-white">⏳ Indlæser menu...</span>
+            }
+            else if (UserState.Role?.ToLower() == "admin")
+            {
+                <NavLink class="nav-link" href="/administrator" Match="NavLinkMatch.All">🏠 Adminpanel</NavLink>
+                <NavLink class="nav-link" href="/anmodninger">📬 Notifikationer</NavLink>
+                <NavLink class="nav-link" href="/delmaalskabeloner">🧾 Skabelon</NavLink>
+                <NavLink class="nav-link" href="/rapportside">📊 Rapport</NavLink>
+                <NavLink class="nav-link" href="/quizcreator">✍️ Lav en Quiz</NavLink>
+            }
+            else if (UserState.Role?.ToLower() == "kok")
+            {
+                <NavLink class="nav-link" href="/mitoverblik" Match="NavLinkMatch.All">🗂️ Mit overblik</NavLink>
+                <NavLink class="nav-link" href="/anmodninger">📬 Notifikationer</NavLink>
+            }
+            else if (UserState.CurrentUser != null && UserState.IsInRole("elev"))
+            {
+                <NavLink class="nav-link" href="/mitoverblik" Match="NavLinkMatch.All">🗂️ Mit overblik</NavLink>
+            }
+
+            @if (UserState.IsLoggedIn)
+            {
+                <NavLink class="nav-link" href="/laering">📚 Læring</NavLink>
+                <NavLink class="nav-link" href="/quizlist">🧠 Quizzes</NavLink>
+                <NavLink class="nav-link" href="/minprofil">🙍‍♂️ Min profil</NavLink>
+            }
+        </nav>
+    </div>
+
+    <!-- Footer med profilbillede -->
+    <div class="admin-footer text-center mt-4 px-3 pb-4">
+        @if (UserState.IsLoggedIn && UserState.Id is not null)
+        {
+            <div>
+                <img src="@($"https://localhost:7013/uploads/{UserState.Id}.jpg?cache={DateTime.Now.Ticks}")"
+                     alt="Profilbillede"
+                     class="rounded-circle shadow-sm"
+                     style="width: 110px; height: 110px; object-fit: cover; border: 3px solid #fff;" />
+
+                <p class="text-white small mt-2 mb-1">
+                    🔐 <strong>@UserState.CurrentUser?.Username</strong><br />
+                    <span class="text-white-50" style="font-size: 0.75rem;">(@UserState.Role)</span>
+                </p>
+
+                <button class="btn btn-outline-light btn-sm w-100 mt-1" @onclick="LogoutAsync">
+                    Log ud
+                </button>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        UserState.OnChange += StateHasChanged;
+        if (!UserState.IsLoggedInChecked)
+        {
+            await UserState.InitializeAsync();
+        }
+    }
+
+    public void Dispose()
+    {
+        UserState.OnChange -= StateHasChanged;
+    }
+
+    private async Task LogoutAsync()
+    {
+        await UserState.LogoutAsync();
+        NavManager.NavigateTo("/login", true);
+    }
+
+    private void HandleLogoClick()
+    {
+        if (UserState.IsLoggedIn)
+        {
+            var role = UserState.Role?.ToLower();
+            if (role == "admin")
+                NavManager.NavigateTo("/administrator");
+            else if (role == "kok" || role == "elev")
+                NavManager.NavigateTo("/mitoverblik");
+            else
+                NavManager.NavigateTo("/");
+        }
+        else
+        {
+            NavManager.NavigateTo("/login");
+        }
+    }
+}

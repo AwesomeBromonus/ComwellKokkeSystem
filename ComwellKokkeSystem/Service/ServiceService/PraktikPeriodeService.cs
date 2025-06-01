@@ -1,4 +1,5 @@
 ﻿using Modeller;
+using System.Net.Http;
 using System.Net.Http.Json;
 
 public class PraktikperiodeService : IPraktikperiodeService
@@ -24,4 +25,14 @@ public class PraktikperiodeService : IPraktikperiodeService
     // ✅ Den du skal bruge i din delmål-side
     public async Task<List<Praktikperiode>> GetByElevplanIdAsync(int elevplanId) =>
         await _http.GetFromJsonAsync<List<Praktikperiode>>($"api/praktikperiode/elevplan/{elevplanId}");
+    public async Task UpdateAsync(Praktikperiode periode)
+    {
+        await _http.PutAsJsonAsync($"api/praktikperiode/{periode.Id}", periode);
+    }
+    public async Task AddAsync(Praktikperiode periode)
+    {
+        await _http.PostAsJsonAsync("api/praktikperiode", periode);
+    }
+
+
 }

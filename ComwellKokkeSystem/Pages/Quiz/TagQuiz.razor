@@ -1,14 +1,16 @@
 ﻿@page "/taketquiz/{QuizId:int}"
+
 @using ComwellKokkeSystem.Service.QuizService
 @using Modeller
 @inject IQuizService QuizService
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime
 
-<div class="min-h-screen bg-gray-100 flex items-center justify-center p-6 font-sans"> @* Subtil grå baggrund, centrerer indholdet *@
-    <div class="max-w-3xl w-full bg-white rounded-lg shadow-2xl p-8 border border-gray-200"> @* Større og mere fremtrædende hvid boks *@
-        <h3 class="text-4xl font-extrabold text-center mb-8 text-purple-700">Tag Quiz 🧠</h3> @* Kahoot-agtig farve og emoji *@
+<div class="min-h-screen bg-gray-100 flex items-center justify-center p-6 font-sans">
+    <div class="max-w-3xl w-full bg-white rounded-lg shadow-2xl p-8 border border-gray-200">
+        <h3 class="text-4xl font-extrabold text-center mb-8 text-purple-700">Tag Quiz 🧠</h3>
 
+        @* Hvis quizdata ikke er hentet endnu, vis loading eller fejlbesked *@
         @if (quiz == null)
         {
             @if (isLoading)
@@ -22,23 +24,26 @@
         }
         else
         {
+            @* Hvis quiz ikke er afsluttet, vis spørgsmål og svarmuligheder *@
             @if (!quizCompleted)
             {
                 <h4 class="text-3xl font-bold mb-4 text-center text-blue-700">@quiz.Quiz.Title</h4>
-                <p class="text-center text-xl text-gray-700 mb-6">Spørgsmål <span class="font-bold">@(currentQuestionIndex + 1)</span> af <span class="font-bold">@quiz.Questions.Count</span></p>
+                <p class="text-center text-xl text-gray-700 mb-6">
+                    Spørgsmål <span class="font-bold">@(currentQuestionIndex + 1)</span> af <span class="font-bold">@quiz.Questions.Count</span>
+                </p>
 
                 @if (currentQuestion != null)
                 {
                     <div class="bg-gray-50 p-6 rounded-lg shadow-inner mb-6 border border-gray-100">
                         <h5 class="text-2xl font-bold text-gray-800 mb-6 text-center">@currentQuestion.Text</h5>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4"> @* Gør knapperne til et grid *@
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             @foreach (var option in currentQuestion.Options.Select((value, index) => new { value, index }))
                             {
                                 <label class="
                                     flex items-center justify-center p-5 rounded-lg shadow-md cursor-pointer transition duration-300 transform hover:scale-105
-                                    @(selectedOptionIndex == option.index ? "ring-4 ring-purple-500 bg-purple-600 text-white" : "bg-blue-500 hover:bg-blue-600 text-white")"> @* Farverig baggrund og ring ved valg *@
+                                    @(selectedOptionIndex == option.index ? "ring-4 ring-purple-500 bg-purple-600 text-white" : "bg-blue-500 hover:bg-blue-600 text-white")">
                                     <input type="radio"
-                                           class="hidden" @* Skjul standard radio-knap *@
+                                           class="hidden"
                                            name="quizOption"
                                            value="@option.index"
                                            @onchange="() => OnOptionSelected(option.index)"
@@ -50,31 +55,42 @@
                     </div>
 
                     <div class="flex justify-between mt-8">
+                        @* Forrige knap vises kun hvis vi ikke er på første spørgsmål *@
                         @if (currentQuestionIndex > 0)
                         {
                             <button class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 transform hover:scale-105" @onclick="PreviousQuestion">Forrige ⬅️</button>
                         }
                         else
                         {
-                            <div class="w-1/4"></div> @* Placeholder to keep buttons aligned *@
+                            <div class="w-1/4"></div>
                         }
 
+                        @* Næste knap eller afslut-knap afhængigt af om vi er på sidste spørgsmål *@
                         @if (currentQuestionIndex < quiz.Questions.Count - 1)
                         {
-                            <button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 transform hover:scale-105 @(selectedOptionIndex == -1 ? "opacity-50 cursor-not-allowed" : "")" @onclick="NextQuestion" disabled="@(selectedOptionIndex == -1)">Næste ➡️</button>
+                            <button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 transform hover:scale-105 @(selectedOptionIndex == -1 ? "opacity-50 cursor-not-allowed" : "")"
+                                    @onclick="NextQuestion" disabled="@(selectedOptionIndex == -1)">
+                                Næste ➡️
+                            </button>
                         }
                         else
                         {
-                            <button class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg shadow-xl transition duration-300 transform hover:scale-105 @(userAnswers.GetValueOrDefault(currentQuestionIndex, -1) == -1 ? "opacity-50 cursor-not-allowed" : "")" @onclick="SubmitQuiz" disabled="@(userAnswers.GetValueOrDefault(currentQuestionIndex, -1) == -1)">Afslut Quiz 🎉</button>
+                            <button class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg shadow-xl transition duration-300 transform hover:scale-105 @(userAnswers.GetValueOrDefault(currentQuestionIndex, -1) == -1 ? "opacity-50 cursor-not-allowed" : "")"
+                                    @onclick="SubmitQuiz" disabled="@(userAnswers.GetValueOrDefault(currentQuestionIndex, -1) == -1)">
+                                Afslut Quiz 🎉
+                            </button>
                         }
                     </div>
                 }
             }
             else if (quizCompleted)
             {
-                <div class="bg-green-100 border-l-8 border-green-500 text-green-700 p-6 rounded-lg shadow-md mt-3"> @* Markant resultatboks *@
+                @* Vis resultatet når quizzen er afsluttet *@
+                <div class="bg-green-100 border-l-8 border-green-500 text-green-700 p-6 rounded-lg shadow-md mt-3">
                     <h4 class="text-3xl font-bold mb-3">Quiz Afsluttet! 🎉</h4>
-                    <p class="text-xl mb-6">Du har besvaret <span class="font-bold text-green-800">@correctAnswers</span> ud af <span class="font-bold">@quiz.Questions.Count</span> spørgsmål korrekt.</p>
+                    <p class="text-xl mb-6">
+                        Du har besvaret <span class="font-bold text-green-800">@correctAnswers</span> ud af <span class="font-bold">@quiz.Questions.Count</span> spørgsmål korrekt.
+                    </p>
                     <button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 transform hover:scale-105" @onclick="GoBackToQuizList">Tilbage til Quiz Liste</button>
                 </div>
             }
@@ -86,29 +102,21 @@
     [Parameter]
     public int QuizId { get; set; }
 
-    private Modeller.QuizWithQuestions? quiz;
-    private bool isLoading = true;
-    private int currentQuestionIndex = 0;
+    private Modeller.QuizWithQuestions? quiz;          // Quiz data inkl. spørgsmål
+    private bool isLoading = true;                      // Loader flag
+    private int currentQuestionIndex = 0;               // Indeks på aktuelt spørgsmål
     private Question? currentQuestion => quiz?.Questions?.ElementAtOrDefault(currentQuestionIndex);
-    private int selectedOptionIndex = -1;
-    private Dictionary<int, int> userAnswers = new Dictionary<int, int>();
-    private bool quizCompleted = false;
-    private int correctAnswers = 0;
+    private int selectedOptionIndex = -1;               // Valgt svarindeks på aktuelt spørgsmål, -1 hvis intet valgt
+    private Dictionary<int, int> userAnswers = new();   // Brugers svar: spørgsmål indeks -> valgte svar indeks
+    private bool quizCompleted = false;                  // Flag om quiz er afsluttet
+    private int correctAnswers = 0;                       // Antal korrekte svar
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
             isLoading = true;
-            quiz = await QuizService.GetQuizWithQuestionsAsync(QuizId.ToString());
-
-            if (quiz?.Questions != null)
-            {
-                for (int i = 0; i < quiz.Questions.Count; i++)
-                {
-                    userAnswers[i] = -1;
-                }
-            }
+            quiz = await QuizService.GetQuizWithQuestionsAsync(QuizId);
         }
         catch (Exception ex)
         {
@@ -131,11 +139,7 @@
 
     private void NextQuestion()
     {
-        if (selectedOptionIndex == -1 && currentQuestion != null && currentQuestion.Options.Any())
-        {
-            // Optional alert: await JSRuntime.InvokeVoidAsync("alert", "Venligst vælg et svar før du fortsætter.");
-            return;
-        }
+        if (selectedOptionIndex == -1) return; // Forhindrer at gå videre uden svar
 
         if (currentQuestionIndex < quiz.Questions.Count - 1)
         {
@@ -157,11 +161,7 @@
 
     private async Task SubmitQuiz()
     {
-        if (selectedOptionIndex == -1 && currentQuestion != null && currentQuestion.Options.Any())
-        {
-            // Optional alert: await JSRuntime.InvokeVoidAsync("alert", "Venligst vælg et svar før du afslutter.");
-            return;
-        }
+        if (selectedOptionIndex == -1) return; // Forhindrer submit uden svar
 
         correctAnswers = 0;
         if (quiz != null && quiz.Questions != null)

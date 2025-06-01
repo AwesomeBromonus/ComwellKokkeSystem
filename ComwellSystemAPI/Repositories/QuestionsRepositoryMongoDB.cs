@@ -11,11 +11,9 @@ public class QuestionRepository : IQuestion
 {
     private readonly IMongoCollection<Question> _questions;
 
-    public QuestionRepository()
+    public QuestionRepository(IMongoDatabase database)
     {
-        var client = new MongoClient("mongodb+srv://Bromus:Bromus12344321@cluster0.k4kon.mongodb.net/");
-        var db = client.GetDatabase("Comwell");
-        _questions = db.GetCollection<Question>("Questions");
+        _questions = database.GetCollection<Question>("Questions");
     }
 
     public async Task<List<Question>> GetAllQuestionsAsync()

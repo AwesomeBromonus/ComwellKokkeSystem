@@ -1,42 +1,50 @@
 ﻿@page "/mitoverblik"
-@inject NavigationManager NavManager
-@inject UserState UserState
-@inject HttpClient Http
+@inject NavigationManager NavManager                      // Til navigation mellem sider
+@inject IUserStateService UserStateService                // Til at holde styr på loginstatus og brugerdata
+@inject IElevplanService ElevplanService                  // Service til at hente elevplaner
+@using ComwellKokkeSystem.Service
 
-<h3 class="mb-4">🎓 Mit Elev Overblik</h3>
 
-@if (!UserState.IsLoggedInChecked)
+<h3 class="mb-4">Mit Elev Overblik</h3>
+
+@* Først tjekker vi om systemet har undersøgt loginstatus. Indtil da vises en loading-besked *@
+@if (!UserStateService.IsLoggedInChecked)
 {
-    <p>⏳ Indlæser brugerstatus...</p>
+    <p>Indlæser brugerstatus...</p>
 }
-else if (!UserState.IsLoggedIn)
+@* Hvis brugeren ikke er logget ind, vises en advarsel om at login er nødvendigt *@
+else if (!UserStateService.IsLoggedIn)
 {
-    <div class="alert alert-warning">🔒 Du skal være logget ind for at se denne side.</div>
+    <div class="alert alert-warning">Du skal være logget ind for at se denne side.</div>
 }
-else if (UserState.Role?.ToLower() != "elev")
+@* Hvis brugeren ikke har rollen elev eller kok, vises adgang nægtet *@
+else if (UserStateService.CurrentUser?.Role?.ToLower() != "elev" && UserStateService.CurrentUser?.Role?.ToLower() != "kok")
 {
-    <div class="alert alert-danger">🚫 Adgang nægtet – kun elever har adgang til denne side.</div>
+    <div class="alert alert-danger">Adgang nægtet – kun elever og kokke har adgang til denne side.</div>
 }
 else
 {
+    @* Velkomstboks med brugerens navn, når login og rolle er i orden *@
     <div class="card shadow-sm border-0 mb-4 bg-light p-4 rounded-4">
-        <h5 class="fw-bold">Velkommen til Comwells elev system, @UserState.Username!</h5>
-       
+        <h5 class="fw-bold">Velkommen til Comwells elevsystem, @UserStateService.CurrentUser?.Navn!</h5>
     </div>
 
+    @* Hvis elevplanen stadig hentes, vis loading-tekst *@
     @if (elevplanLoading)
     {
-        <p>⏳ Indlæser elevplan...</p>
+        <p>Indlæser elevplan...</p>
     }
+    @* Hvis der opstod fejl ved hentning, vis fejlbesked *@
     else if (!string.IsNullOrWhiteSpace(fejlbesked))
     {
         <div class="alert alert-warning">@fejlbesked</div>
     }
+    @* Hvis elevplanen er fundet, vis den med oplysninger og knap til delmål *@
     else if (aktivElevplan != null)
     {
         <div class="card bg-light shadow-sm rounded mb-4">
             <div class="card-body">
-                <h5 class="card-title">📋 Din elevplan</h5>
+                <h5 class="card-title">Din elevplan</h5>
                 <p><strong>Startdato:</strong> @aktivElevplan.StartDato.ToShortDateString()</p>
                 <p><strong>Slutdato:</strong> @aktivElevplan.SlutDato.ToShortDateString()</p>
                 <p><strong>Kommentar:</strong> @aktivElevplan.Kommentar</p>
@@ -47,16 +55,21 @@ else
             </div>
         </div>
     }
+    @* Hvis der ikke findes nogen elevplan, vis info til brugeren *@
     else
     {
         <div class="alert alert-info">Ingen elevplan fundet endnu.</div>
     }
 
+    <br />
+    <h4 class="fw-semibold mb-3 border-bottom pb-2">Dit elevdashboard</h4>
+
     <div class="row g-4 mb-4">
+        @* Point og niveau sektion - her statisk data som eksempel *@
         <div class="col-md-6">
-            <div class="card border-success shadow rounded-4">
-                <div class="card-header bg-success text-white rounded-top-4">
-                    🔥 Point & Niveau
+            <div class="card border-0 shadow rounded-4 overflow-hidden">
+                <div class="card-header bg-success text-white">
+                    Point & Niveau
                 </div>
                 <div class="card-body">
                     <p>Du har <strong>450 XP</strong></p>
@@ -65,18 +78,16 @@ else
             </div>
         </div>
 
-        <div class="col-md-6">
-            <div class="card border-primary shadow rounded-4">
-                <div class="card-header bg-primary text-white rounded-top-4">
-                    🗨️ ComwellConnect
+        @* GIF-billeder for visuel effekt og engagement *@
+        <div class="row g-4 mb-4">
+            <div class="col-md-6">
+                <div class="gif-item">
+                    <img src="/sample-data/CookingGif.gif" class="gif-img" alt="Cooking GIF" />
                 </div>
-                <div class="card-body text-center">
-                    <p class="mb-3 text-muted">
-                        Deltag i samtaler med andre elever, grupper og undervisere via intern chat.
-                    </p>
-                    <a href="/messages" class="btn btn-primary btn-lg shadow rounded-pill px-4">
-                        Åbn ComwellConnect
-                    </a>
+            </div>
+            <div class="col-md-6">
+                <div class="gif-item">
+                    <img src="/sample-data/SanjicookingGif.gif" class="gif-img" alt="Sanji Cooking GIF" />
                 </div>
             </div>
         </div>
@@ -84,39 +95,47 @@ else
 }
 
 @code {
-    private Elevplan? aktivElevplan;
+    // Elevplan til den aktuelle bruger, kan være null hvis ikke fundet
+    private Modeller.Elevplan? aktivElevplan;
+
+    // String til eventuelle fejlbeskeder
     private string? fejlbesked;
+
+    // Flag der angiver om elevplan stadig hentes
     private bool elevplanLoading = true;
 
+    // Når komponenten initialiseres, prøver vi at hente elevplaner for den nuværende bruger
     protected override async Task OnInitializedAsync()
     {
-        if (UserState.IsLoggedIn && UserState.Id.HasValue)
+        if (UserStateService.IsLoggedIn && UserStateService.CurrentUser?.ElevplanId != null)
         {
             try
             {
-                aktivElevplan = await Http.GetFromJsonAsync<Elevplan>($"api/elevplan/byuser/{UserState.Id.Value}");
+                aktivElevplan = await ElevplanService.GetElevplanByIdAsync(UserStateService.CurrentUser.ElevplanId.Value);
+
+                if (aktivElevplan == null)
+                    fejlbesked = "Ingen elevplan fundet.";
             }
             catch (Exception ex)
             {
+                // Ved fejl i hentning af data vises fejlbesked med detaljer
                 fejlbesked = "Fejl under hentning af elevplan: " + ex.Message;
             }
         }
+        else
+        {
+            fejlbesked = "Ingen aktiv elevplan tilknyttet din bruger.";
+        }
+
+        // Uanset resultat er hentning færdig, så fjern loading-flag
         elevplanLoading = false;
     }
+
+
+
 
     private void GåTilDelmål(int elevplanId)
     {
         NavManager.NavigateTo($"/delmaal/{elevplanId}");
-    }
-
-    public class Elevplan
-    {
-        public int Id { get; set; }
-        public DateTime OprettetDato { get; set; }
-        public string Kommentar { get; set; } = "";
-        public DateTime StartDato { get; set; }
-        public DateTime SlutDato { get; set; }
-        public int ElevId { get; set; }
-        public List<int> PraktikperiodeIds { get; set; } = new();
     }
 }

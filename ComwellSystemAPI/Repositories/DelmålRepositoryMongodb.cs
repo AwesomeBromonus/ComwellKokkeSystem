@@ -6,24 +6,22 @@ public class DelmålRepository : IDelmål
 {
     private readonly IMongoCollection<Delmål> _collection;
     private readonly IMongoCollection<Underdelmaal> _underdelmaalCollection;
+    private readonly IMongoCollection<UnderdelmaalSkabelon> _underdelSkabelonCollection;
 
-    public DelmålRepository()
+    // Konstruktor initialiserer MongoDB-samlinger for delmål, underdelmål og skabeloner
+    public DelmålRepository(IMongoDatabase database)
     {
-        var client = new MongoClient("mongodb+srv://Brobolo:Bromus12344321@cluster0.k4kon.mongodb.net/");
-        var db = client.GetDatabase("Comwell");
-        _collection = db.GetCollection<Delmål>("Delmål");
-        _underdelmaalCollection = db.GetCollection<Underdelmaal>("Underdelmaal");
+        _collection = database.GetCollection<Delmål>("Delmål");
+        _underdelmaalCollection = database.GetCollection<Underdelmaal>("Underdelmaal");
+        _underdelSkabelonCollection = database.GetCollection<UnderdelmaalSkabelon>("UnderdelmaalSkabelon");
     }
 
+    // Tilføjer et nyt delmål med automatisk genereret ID
+    // Opretter tilhørende underdelmål baseret på skabeloner knyttet til delmålet
     public async Task AddAsync(Delmål delmaal)
-    {   
-        
+    {
         delmaal.Id = await GetNextIdAsync();
         await _collection.InsertOneAsync(delmaal);
-
-        var db = _collection.Database;
-        var underdelSkabelonCollection = db.GetCollection<UnderdelmaalSkabelon>("UnderdelmaalSkabelon");
-        var underdelCollection = db.GetCollection<Underdelmaal>("Underdelmaal");
 
         if (delmaal.DelmaalSkabelonId == null)
         {
@@ -31,7 +29,8 @@ public class DelmålRepository : IDelmål
             return;
         }
 
-        var underSkabeloner = await underdelSkabelonCollection
+        // Henter underdelmålsskabeloner tilknyttet delmålsskabelonen
+        var underSkabeloner = await _underdelSkabelonCollection
             .Find(u => u.DelmaalSkabelonId == delmaal.DelmaalSkabelonId)
             .ToListAsync();
 
@@ -41,29 +40,29 @@ public class DelmålRepository : IDelmål
             return;
         }
 
-        var sidste = await underdelCollection.Find(_ => true)
+        // Finder højeste nuværende ID for underdelmål for at sætte nye unikke ID'er
+        var sidste = await _underdelmaalCollection.Find(_ => true)
             .SortByDescending(x => x.Id)
             .Limit(1)
             .FirstOrDefaultAsync();
 
         int næsteId = sidste?.Id + 1 ?? 1;
 
+        // Opretter nye underdelmål ud fra skabelonerne med status "Ikke fuldført"
         var underdelmaal = underSkabeloner.Select(s => new Underdelmaal
         {
             Id = næsteId++,
             DelmaalId = delmaal.Id,
             Beskrivelse = s.Beskrivelse,
-            DeadlineOffsetDage = s.DeadlineOffsetDage,
+            Deadline = s.Deadline,
             Status = "Ikke fuldført"
         }).ToList();
 
-        await underdelCollection.InsertManyAsync(underdelmaal);
+        await _underdelmaalCollection.InsertManyAsync(underdelmaal);
         Console.WriteLine($"✅ {underdelmaal.Count} underdelmål oprettet for delmål ID {delmaal.Id}");
     }
 
-
-
-
+    // Hjælpefunktion der finder det næste ledige unikke ID for delmål
     private async Task<int> GetNextIdAsync()
     {
         var sort = Builders<Delmål>.Sort.Descending(d => d.Id);
@@ -71,52 +70,35 @@ public class DelmålRepository : IDelmål
         return last == null ? 1 : last.Id + 1;
     }
 
+    // Opdaterer et delmål helt
     public async Task UpdateDelmaalAsync(Delmål delmaal)
     {
         var filter = Builders<Delmål>.Filter.Eq(d => d.Id, delmaal.Id);
         await _collection.ReplaceOneAsync(filter, delmaal);
     }
 
+    // Henter delmål baseret på praktikperiode-id
     public async Task<List<Delmål>> GetByPraktikperiodeIdAsync(int praktikperiodeId)
     {
         return await _collection.Find(d => d.PraktikperiodeId == praktikperiodeId).ToListAsync();
     }
 
-    public async Task<List<Delmål>> GetByElevplanIdAndPraktikperiodeIdAsync(int elevplanId, int praktikperiodeId)
-    {
-        return await _collection.Find(d => d.ElevplanId == elevplanId && d.PraktikperiodeId == praktikperiodeId).ToListAsync();
-    }
+   
 
-    public async Task<List<Delmål>> GetByElevIdAsync(int elevId)
-    {
-        var delmaal = await _collection.Find(d => d.ElevId == elevId).ToListAsync();
-        // hent og tilføj underdelmål til hvert hovedmål 
-        foreach (var dm in delmaal)
-        {
-            dm.UnderdelmaalList = await _underdelmaalCollection
-                .Find(ud => ud.DelmaalId == dm.Id)
-                .ToListAsync();
-        }
-        return delmaal;
-
-    }
+   
     public async Task<List<Delmål>> GetAllForYearAsync(int year)
     {
-        // Henter alle delmål. Hvis du har ekstremt mange delmål,
-        // kan du overveje at filtrere på et bredere datointerval i MongoDB først (f.eks. startdato for året).
-        // For nu henter vi bare alle og filtrerer i hukommelsen.
         var allDelmaal = await _collection.Find(_ => true).ToListAsync();
-
-        // Filtrer i C# efter året for Deadline
         return allDelmaal.Where(d => d.Deadline.Year == year).ToList();
     }
-    
 
+    // Henter et enkelt delmål baseret på id
     public async Task<Delmål?> GetByIdAsync(int id)
     {
         return await _collection.Find(d => d.Id == id).FirstOrDefaultAsync();
     }
 
+    // Opdaterer kun statusfeltet for et delmål
     public async Task UpdateStatusAsync(int delmaalId, string nyStatus)
     {
         var filter = Builders<Delmål>.Filter.Eq(d => d.Id, delmaalId);
@@ -124,13 +106,30 @@ public class DelmålRepository : IDelmål
         await _collection.UpdateOneAsync(filter, update);
     }
 
+    // Sletter et delmål baseret på id
     public async Task DeleteDelmaalAsync(int id)
     {
         var filter = Builders<Delmål>.Filter.Eq(d => d.Id, id);
         await _collection.DeleteOneAsync(filter);
     }
 
+    // Henter alle delmål
+    public async Task<List<Delmål>> GetAllAsync()
+    {
+        return await _collection.Find(_ => true).ToListAsync();
+    }
 
+    // Henter delmål med deadline inden for et bestemt antal dage fra nu
+    public async Task<List<Delmål>> GetWithDeadlineWithinDaysAsync(int antalDage)
+    {
+        var nu = DateTime.Now;
+        var grænse = nu.AddDays(antalDage);
 
- 
+        var filter = Builders<Delmål>.Filter.And(
+            Builders<Delmål>.Filter.Gte(d => d.Deadline, nu),
+            Builders<Delmål>.Filter.Lte(d => d.Deadline, grænse)
+        );
+
+        return await _collection.Find(filter).ToListAsync();
+    }
 }

@@ -11,7 +11,7 @@ namespace Modeller
         public int Id { get; set; }
         public int DelmaalSkabelonId { get; set; } // Reference til tilhørende DelmaalSkabelon
         public string Beskrivelse { get; set; } = string.Empty;
-        public int DeadlineOffsetDage { get; set; } = 0;
+        public DateTime Deadline { get; set; }
     }
 }
 

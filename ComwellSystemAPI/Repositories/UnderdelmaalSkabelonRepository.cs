@@ -9,11 +9,9 @@ namespace ComwellSystemAPI.Repositories
     {
         private readonly IMongoCollection<UnderdelmaalSkabelon> _collection;
 
-        public UnderdelmaalSkabelonRepository()
+        public UnderdelmaalSkabelonRepository(IMongoDatabase database)
         {
-            var client = new MongoClient("mongodb+srv://Brobolo:Bromus12344321@cluster0.k4kon.mongodb.net/");
-            var db = client.GetDatabase("Comwell");
-            _collection = db.GetCollection<UnderdelmaalSkabelon>("UnderdelmaalSkabelon");
+            _collection = database.GetCollection<UnderdelmaalSkabelon>("UnderdelmaalSkabelon");
         }
 
         public async Task<List<UnderdelmaalSkabelon>> GetByDelmaalSkabelonIdAsync(int delmaalSkabelonId)

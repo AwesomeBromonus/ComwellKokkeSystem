@@ -1,105 +1,92 @@
 ﻿using Microsoft.JSInterop;
+using Modeller;
 using System.Text.Json;
 
-public class UserState
+// Denne klasse implementerer IUserStateService og håndterer den aktuelle brugers tilstand i applikationen
+public class UserStateService : IUserStateService
 {
-    private readonly IJSRuntime _js;
+    private readonly IJSRuntime _js;               // JavaScript runtime til at tilgå browserens localStorage
+    private const string StorageKey = "userState"; // Nøgle til at gemme brugerdata i localStorage
 
-    public string? Username { get; private set; }
-    public string? Role { get; private set; }
-    public int? Id { get; private set; }
-    public int? HotelId { get; private set; }
-    public int? ElevplanId { get; private set; }
-    public string? Navn { get; private set; }
-    public string? Email { get; private set; }
+    // Den aktuelle bruger, hvis nogen er logget ind; ellers null
+    public UserModel? CurrentUser { get; private set; }
 
-    public bool IsLoggedIn => !string.IsNullOrEmpty(Username);
-    public bool IsLoggedInChecked { get; private set; } = false;
+    // Returnerer true hvis der er en bruger logget ind (CurrentUser ikke null)
+    public bool IsLoggedIn => CurrentUser != null;
 
+    // Angiver om loginstatus er kontrolleret og initialiseret
+    public bool IsLoggedInChecked { get; private set; }
+
+    // Event der udsendes, når brugerens tilstand ændres – bruges af UI til at opdatere sig
     public event Action? OnChange;
 
-    public UserState(IJSRuntime js)
+    // Konstruktor modtager IJSRuntime til at interagere med JavaScript i browseren
+    public UserStateService(IJSRuntime js)
     {
         _js = js;
     }
 
+    // Initialiserer brugerens tilstand asynkront, ved at læse data fra browserens localStorage
     public async Task InitializeAsync()
     {
-        var json = await _js.InvokeAsync<string>("localStorage.getItem", "userState");
+        var json = await _js.InvokeAsync<string>("localStorage.getItem", StorageKey);
         if (!string.IsNullOrEmpty(json))
         {
             try
             {
-                var data = JsonSerializer.Deserialize<UserData>(json);
-                if (data != null)
+                // Deserialiser JSON-streng til UserModel objekt
+                var user = JsonSerializer.Deserialize<UserModel>(json);
+                if (user != null)
                 {
-                    Username = data.Username;
-                    Role = data.Role;
-                    Id = data.Id;
-                    HotelId = data.HotelId;
-                    ElevplanId = data.ElevplanId;
-                    Navn = data.Navn;
-                    Email = data.Email;
+                    CurrentUser = user;
                 }
             }
-            catch { }
+            catch
+            {
+                // Fejlhåndtering kan tilføjes her, fx logning
+            }
         }
 
+        // Marker at loginstatus nu er kontrolleret
         IsLoggedInChecked = true;
+
+        // Notificer abonnenter om tilstandsændring
         NotifyStateChanged();
     }
 
-    public async Task SetUserAsync(string username, string role, int id, int? hotelId, int? elevplanId, string navn, string email)
+    // Sætter den aktuelle bruger og gemmer brugerdata i localStorage som JSON
+    public async Task SetUserAsync(UserModel user)
     {
-        Username = username;
-        Role = role;
-        Id = id;
-        HotelId = hotelId;
-        ElevplanId = elevplanId;
-        Navn = navn;
-        Email = email;
+        CurrentUser = user;
         IsLoggedInChecked = true;
 
-        var json = JsonSerializer.Serialize(new UserData
-        {
-            Username = username,
-            Role = role,
-            Id = id,
-            HotelId = hotelId,
-            ElevplanId = elevplanId,
-            Navn = navn,
-            Email = email
-        });
+        var json = JsonSerializer.Serialize(user);
+        await _js.InvokeVoidAsync("localStorage.setItem", StorageKey, json);
 
-        await _js.InvokeVoidAsync("localStorage.setItem", "userState", json);
         NotifyStateChanged();
     }
 
+    // Logger brugeren ud ved at nulstille CurrentUser og fjerne data fra localStorage
     public async Task LogoutAsync()
     {
-        Username = null;
-        Role = null;
-        Id = null;
-        HotelId = null;
-        ElevplanId = null;
-        Navn = null;
-        Email = null;
+        CurrentUser = null;
         IsLoggedInChecked = true;
 
-        await _js.InvokeVoidAsync("localStorage.removeItem", "userState");
+        await _js.InvokeVoidAsync("localStorage.removeItem", StorageKey);
+
         NotifyStateChanged();
     }
 
+    // Returnerer true, hvis den aktuelle bruger har den angivne rolle (case-insensitive)
+    public bool IsInRole(string role)
+    {
+        return CurrentUser?.Role?.Equals(role, StringComparison.OrdinalIgnoreCase) == true;
+    }
+
+    // Hjælpefunktion til at udløse OnChange-eventet
     private void NotifyStateChanged() => OnChange?.Invoke();
 
-    private class UserData
-    {
-        public string Username { get; set; } = "";
-        public string Role { get; set; } = "";
-        public int Id { get; set; }
-        public int? HotelId { get; set; }
-        public int? ElevplanId { get; set; }
-        public string Navn { get; set; } = "";
-        public string Email { get; set; } = "";
-    }
+    // Hjælpeegenskaber til hurtig adgang til brugerens Id og rolle
+    public int? Id => CurrentUser?.Id;
+    public string? Role => CurrentUser?.Role;
 }
