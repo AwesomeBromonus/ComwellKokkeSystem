@@ -7,6 +7,7 @@ namespace ComwellKokkeSystem.Service
     {
         private readonly HttpClient _http;
 
+        //konstruktør
         public AnmodningService(HttpClient http)
         {
             _http = http;

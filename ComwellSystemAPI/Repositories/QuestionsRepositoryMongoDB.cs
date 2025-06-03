@@ -13,12 +13,12 @@ public class QuestionRepository : IQuestion
 
     public QuestionRepository(IMongoDatabase database)
     {
-        _questions = database.GetCollection<Question>("Questions");
+        this._questions = database.GetCollection<Question>("Questions");
     }
 
     public async Task<List<Question>> GetAllQuestionsAsync()
     {
-        return await _questions.Find(_ => true).ToListAsync();
+       return await _questions.Find(_ => true).ToListAsync();
     }
 
     // RETTET: id parameter er nu int

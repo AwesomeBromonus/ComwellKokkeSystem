@@ -10,7 +10,7 @@ public class ElevplanService : IElevplanService
     //Konstruktor
     public ElevplanService(HttpClient http)
     {
-        _http = http;
+        this._http = http;
     }
 
     public async Task<List<Elevplan>?> GetElevplanerAsync() =>

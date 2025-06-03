@@ -21,7 +21,7 @@ public class Program
 
         builder.Services.AddScoped(sp => new HttpClient
         {
-            BaseAddress = new Uri("https://itakokkesystem.azurewebsites.net")
+            BaseAddress = new Uri("https://itakokkesystemapi.azurewebsites.net/")
         });
 
         builder.Services.AddBlazoredLocalStorage();

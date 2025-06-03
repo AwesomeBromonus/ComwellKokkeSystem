@@ -22,7 +22,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowBlazor", policy =>
     {
         policy
-            .WithOrigins("https://itakokkesystemapi.azurewebsites.net")
+            .WithOrigins("https://itakokkesystem.azurewebsites.net")
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
@@ -39,6 +39,7 @@ builder.Services.AddSingleton<IMongoClient>(sp =>
     var settings = sp.GetRequiredService<IOptions<MongoDbSettings>>().Value;
     return new MongoClient(settings.ConnectionString);
 });
+
 
 
 // Registrér selve databasen som singleton ✅
