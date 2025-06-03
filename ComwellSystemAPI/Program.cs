@@ -22,7 +22,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowBlazor", policy =>
     {
         policy
-            .WithOrigins("https://itakokkesystemapi.azurewebsites.net")
+            .WithOrigins("https://localhost:7139")
             .AllowAnyHeader()
             .AllowAnyMethod();
     });

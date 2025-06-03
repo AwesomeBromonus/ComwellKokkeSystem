@@ -11,7 +11,7 @@ namespace ComwellKokkeSystem.Service.Elev
     //Konstruktor
     public ElevplanService(HttpClient http)
     {
-        _http = http;
+        this._http = http;
     }
 
         // @* Henter alle elevplaner via GET *@

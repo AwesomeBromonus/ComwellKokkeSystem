@@ -14,13 +14,13 @@ public class QuestionRepository : IQuestion
     // Konstruktor initialiserer MongoDB-samlingen for spørgsmål
     public QuestionRepository(IMongoDatabase database)
     {
-        _questions = database.GetCollection<Question>("Questions");
+        this._questions = database.GetCollection<Question>("Questions");
     }
 
     // Henter alle spørgsmål som en liste
     public async Task<List<Question>> GetAllQuestionsAsync()
     {
-        return await _questions.Find(_ => true).ToListAsync();
+       return await _questions.Find(_ => true).ToListAsync();
     }
 
     // Henter et enkelt spørgsmål baseret på id

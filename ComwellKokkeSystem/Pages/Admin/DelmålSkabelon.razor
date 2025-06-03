@@ -3,8 +3,12 @@
 
 @inject IDelmaalSkabelonService DelmaalSkabelonService
 @inject IUnderdelmaalSkabelonService UnderdelmaalSkabelonService
+@using LayoutComponenter
+
 @using Modeller
 @using System.Linq
+<link href="css/modal.css" rel="stylesheet" />
+
 
 <link href="css/Delmaal.css" rel="stylesheet" />
 
@@ -85,56 +89,44 @@ else
 <!-- Tilføj delmål-knap -->
 <button class="btn btn-primary mb-4" @onclick="ÅbenTilføjModal">➕ Tilføj delmål</button>
 
-<!-- Modal: Tilføj/rediger delmålsskabelon -->
-<div class="modal fade @(visModal ? "show d-block" : "")" tabindex="-1" style="background-color: rgba(0,0,0,0.5);" role="dialog">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">@((redigerMode ? "Rediger delmålsskabelon" : "Tilføj ny delmålsskabelon"))</h5>
-                <button type="button" class="btn-close" @onclick="LukModal"></button>
-            </div>
-            <div class="modal-body">
-                <EditForm Model="nySkabelon" OnValidSubmit="GemSkabelon">
-                    <DataAnnotationsValidator />
-                    <ValidationSummary />
-                    <InputNumber class="form-control mb-2" @bind-Value="nySkabelon.PraktikperiodeNummer" />
-                    <InputText class="form-control mb-2" @bind-Value="nySkabelon.Beskrivelse" />
-                    <InputText class="form-control mb-2" @bind-Value="nySkabelon.Ansvarlig" />
-                    <InputText class="form-control mb-2" @bind-Value="nySkabelon.Igangsætter" />
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-success">@((redigerMode) ? "Opdater" : "Tilføj")</button>
-                        <button type="button" class="btn btn-secondary" @onclick="LukModal">Annuller</button>
-                    </div>
-                </EditForm>
-            </div>
-        </div>
-    </div>
-</div>
+<!--Modaldialog komponent for delmål-->
+<Modal Show="@visModal"
+       Title="@((redigerMode ? "Rediger delmålsskabelon" : "Tilføj ny delmålsskabelon"))"
+       OnClose="LukModal">
+    <ChildContent>
+        <EditForm Model="nySkabelon" OnValidSubmit="GemSkabelon">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+            <InputNumber class="form-control mb-2" @bind-Value="nySkabelon.PraktikperiodeNummer" />
+            <InputText class="form-control mb-2" @bind-Value="nySkabelon.Beskrivelse" />
+            <InputText class="form-control mb-2" @bind-Value="nySkabelon.Ansvarlig" />
+            <InputText class="form-control mb-2" @bind-Value="nySkabelon.Igangsætter" />
+        </EditForm>
+    </ChildContent>
+    <FooterContent>
+        <button type="submit" class="btn btn-success">@((redigerMode) ? "Opdater" : "Tilføj")</button>
+        <button type="button" class="btn btn-secondary" @onclick="LukModal">Annuller</button>
+    </FooterContent>
+</Modal>
 
-<!-- Modal: Tilføj/rediger underdelmålsskabelon -->
-<div class="modal fade @(visUnderdelmaalModal ? "show d-block" : "")" tabindex="-1" style="background-color: rgba(0,0,0,0.5);" role="dialog">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Tilføj underdelmål til delmål @valgtDelmaalSkabelonId</h5>
-                <button type="button" class="btn-close" @onclick="LukUnderdelmaalModal"></button>
-            </div>
-            <div class="modal-body">
-                <EditForm Model="nyUnderdelmaal" OnValidSubmit="GemUnderdelmaalSkabelon">
-                    <DataAnnotationsValidator />
-                    <ValidationSummary />
-                    <InputText class="form-control mb-2" @bind-Value="nyUnderdelmaal.Beskrivelse" />
-                    <label for="deadlineInput">Deadline</label>
-                    <InputDate id="deadlineInput" class="form-control mb-2" @bind-Value="nyUnderdelmaal.Deadline" />
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-success">@((redigererUnderdelmaal) ? "Opdater" : "Tilføj")</button>
-                        <button type="button" class="btn btn-secondary" @onclick="LukUnderdelmaalModal">Annuller</button>
-                    </div>
-                </EditForm>
-            </div>
-        </div>
-    </div>
-</div>
+<!--Modaldialog komponent for underdelmål-->
+<Modal Show="@visUnderdelmaalModal"
+       Title="@(redigererUnderdelmaal ? "Rediger underdelmål" : $"Tilføj underdelmål til delmål {valgtDelmaalSkabelonId}")"
+       OnClose="LukUnderdelmaalModal">
+    <ChildContent>
+        <EditForm Model="nyUnderdelmaal" OnValidSubmit="GemUnderdelmaalSkabelon">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+            <InputText class="form-control mb-2" @bind-Value="nyUnderdelmaal.Beskrivelse" />
+            <label for="deadlineInput">Deadline</label>
+            <InputDate id="deadlineInput" class="form-control mb-2" @bind-Value="nyUnderdelmaal.Deadline" />
+        </EditForm>
+    </ChildContent>
+    <FooterContent>
+        <button type="submit" class="btn btn-success">@((redigererUnderdelmaal) ? "Opdater" : "Tilføj")</button>
+        <button type="button" class="btn btn-secondary" @onclick="LukUnderdelmaalModal">Annuller</button>
+    </FooterContent>
+</Modal>
 
 @code {
     @* KLASSE: C# kode bag komponenten *@
