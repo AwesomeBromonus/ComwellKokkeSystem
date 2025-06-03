@@ -1,6 +1,7 @@
 ﻿@page "/delmaal/{elevplanId:int}"
 @using Modeller
 @using ComwellKokkeSystem.Service
+@using LayoutComponenter
 @inject IPraktikperiodeService PraktikperiodeService
 @inject IDelmaalService DelmaalService
 @inject IElevplanService ElevplanService
@@ -223,168 +224,106 @@ else
     <button class="btn btn-secondary mt-4" @onclick="Tilbage">🔙 Tilbage</button>
 }
 
-<!-- Modal: Tilføj/rediger delmål -->
-@if (visModal)
-{
-    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">@((redigerMode ? "Rediger delmål" : "Tilføj nyt delmål"))</h5>
-                    <button type="button" class="btn-close" @onclick="LukModal"></button>
-                </div>
-                <div class="modal-body">
-                    <EditForm Model="nytDelmaal" OnValidSubmit="GemDelmaal">
-                        <DataAnnotationsValidator />
-                        <ValidationSummary />
-
-                        <div class="mb-3">
-                            <label>Beskrivelse:</label>
-                            <InputText class="form-control" @bind-Value="nytDelmaal.Beskrivelse" />
-                        </div>
-
-                        <div class="mb-3">
-                            <label>Deadline:</label>
-                            <InputDate class="form-control" @bind-Value="nytDelmaal.Deadline" />
-                        </div>
-
-                        <div class="mb-3">
-                            <label>Status:</label>
-                            <select class="form-select" @bind="nytDelmaal.Status">
-                                <option value="Ikke fuldført">❌ Ikke fuldført</option>
-                                <option value="I gang">🔄 I gang</option>
-                                <option value="Fuldført">✅ Fuldført</option>
-                            </select>
-                        </div>
-
-                        <div class="modal-footer">
-                            <button type="submit" class="btn btn-success">@((redigerMode) ? "Opdater" : "Tilføj")</button>
-                            <button type="button" class="btn btn-secondary" @onclick="LukModal">Annuller</button>
-                        </div>
-                    </EditForm>
-                </div>
+<!-- Modal komponenter -->
+<Modal Show="visModal" Title="@(redigerMode ? "Rediger delmål" : "Tilføj nyt delmål")" OnClose="LukModal">
+    <ChildContent>
+        <EditForm Model="nytDelmaal" OnValidSubmit="GemDelmaal">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+            <div class="mb-3">
+                <label>Beskrivelse:</label>
+                <InputText class="form-control" @bind-Value="nytDelmaal.Beskrivelse" />
             </div>
-        </div>
-    </div>
-}
-
-<!-- Modal: Anmodning -->
-@if (visAnmodningsModal)
-{
-    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Anmod om statusændring</h5>
-                    <button type="button" class="btn-close" @onclick="LukAnmodningsModal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label>Ønsket status:</label>
-                        <select class="form-select" @bind="ønsketStatus">
-                            <option value="I gang">🔄 I gang</option>
-                            <option value="Fuldført">✅ Fuldført</option>
-                        </select>
-                    </div>
-
-                    <div class="mb-3">
-                        <label>Vælg modtager:</label>
-                        <select class="form-select" @bind="valgtModtagerId">
-                            @foreach (var m in muligeModtagere)
-                            {
-                                <option value="@m.Id">@m.Username (@m.Role)</option>
-                            }
-                        </select>
-                    </div>
-
-                    <div class="modal-footer">
-                        <button class="btn btn-primary" @onclick="SendAnmodning">Send anmodning</button>
-                        <button class="btn btn-secondary" @onclick="LukAnmodningsModal">Annuller</button>
-                    </div>
-                </div>
+            <div class="mb-3">
+                <label>Deadline:</label>
+                <InputDate class="form-control" @bind-Value="nytDelmaal.Deadline" />
             </div>
-        </div>
-    </div>
-}
-
-
-<!-- Modal: Underdekmåls Anmodning -->
-@if (visUnderdelmaalAnmodningModal)
-{
-    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Anmod om ændring på underdelmål</h5>
-                    <button type="button" class="btn-close" @onclick="() => visUnderdelmaalAnmodningModal = false"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label>Ønsket status:</label>
-                        <select class="form-select" @bind="ønsketStatus">
-                            <option value="I gang">🔄 I gang</option>
-                            <option value="Fuldført">✅ Fuldført</option>
-                        </select>
-                    </div>
-
-                    <div class="mb-3">
-                        <label>Vælg modtager:</label>
-                        <select class="form-select" @bind="valgtModtagerId">
-                            @foreach (var m in muligeModtagere)
-                            {
-                                <option value="@m.Id">@m.Username (@m.Role)</option>
-                            }
-                        </select>
-                    </div>
-
-                    <div class="modal-footer">
-                        <button class="btn btn-primary" @onclick="SendUnderdelmaalAnmodning">Send anmodning</button>
-                        <button class="btn btn-secondary" @onclick="() => visUnderdelmaalAnmodningModal = false">Annuller</button>
-                    </div>
-                </div>
+            <div class="mb-3">
+                <label>Status:</label>
+                <select class="form-select" @bind="nytDelmaal.Status">
+                    <option value="Ikke fuldført">❌ Ikke fuldført</option>
+                    <option value="I gang">🔄 I gang</option>
+                    <option value="Fuldført">✅ Fuldført</option>
+                </select>
             </div>
+        </EditForm>
+    </ChildContent>
+    <FooterContent>
+        <button class="btn btn-success" @onclick="GemDelmaal">@((redigerMode) ? "Opdater" : "Tilføj")</button>
+        <button class="btn btn-secondary" @onclick="LukModal">Annuller</button>
+    </FooterContent>
+</Modal>
+
+<Modal Show="visAnmodningsModal" Title="Anmod om statusændring" OnClose="LukAnmodningsModal">
+    <ChildContent>
+        <div class="mb-3">
+            <label>Ønsket status:</label>
+            <select class="form-select" @bind="ønsketStatus">
+                <option value="I gang">🔄 I gang</option>
+                <option value="Fuldført">✅ Fuldført</option>
+            </select>
         </div>
-    </div>
-}
+        <div class="mb-3">
+            <label>Vælg modtager:</label>
+            <select class="form-select" @bind="valgtModtagerId">
+                @foreach (var m in muligeModtagere)
+                {
+                    <option value="@m.Id">@m.Username (@m.Role)</option>
+                }
+            </select>
+        </div>
+    </ChildContent>
+    <FooterContent>
+        <button class="btn btn-primary" @onclick="SendAnmodning">Send anmodning</button>
+        <button class="btn btn-secondary" @onclick="LukAnmodningsModal">Annuller</button>
+    </FooterContent>
+</Modal>
 
-<!-- Modal: Underdelmål-->
+<Modal Show="visUnderdelmaalAnmodningModal" Title="Anmod om ændring på underdelmål" OnClose="() => visUnderdelmaalAnmodningModal = false">
+    <ChildContent>
+        <div class="mb-3">
+            <label>Ønsket status:</label>
+            <select class="form-select" @bind="ønsketStatus">
+                <option value="I gang">🔄 I gang</option>
+                <option value="Fuldført">✅ Fuldført</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label>Vælg modtager:</label>
+            <select class="form-select" @bind="valgtModtagerId">
+                @foreach (var m in muligeModtagere)
+                {
+                    <option value="@m.Id">@m.Username (@m.Role)</option>
+                }
+            </select>
+        </div>
+    </ChildContent>
+    <FooterContent>
+        <button class="btn btn-primary" @onclick="SendUnderdelmaalAnmodning">Send anmodning</button>
+        <button class="btn btn-secondary" @onclick="() => visUnderdelmaalAnmodningModal = false">Annuller</button>
+    </FooterContent>
+</Modal>
 
-@if (visUnderdelmaalModal)
-{
-    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">@((redigererUnderdelmaal ? "Rediger underdelmål" : "Tilføj underdelmål"))</h5>
-                    <button type="button" class="btn-close" @onclick="LukUnderdelmaalModal"></button>
-                </div>
-                <div class="modal-body">
-                    <EditForm Model="nyUnderdelmaal" OnValidSubmit="GemUnderdelmaal">
-                        <DataAnnotationsValidator />
-                        <ValidationSummary />
-
-                        <div class="mb-3">
-                            <label>Beskrivelse:</label>
-                            <InputText class="form-control" @bind-Value="nyUnderdelmaal.Beskrivelse" />
-                        </div>
-
-                        <div class="mb-3">
-                            <label>Deadline offset (dage):</label>
-                            <InputDate class="form-control" @bind-Value="nyUnderdelmaal.Deadline" />
-
-                        </div>
-
-                        <div class="modal-footer">
-                            <button type="submit" class="btn btn-success">@((redigererUnderdelmaal ? "Opdater" : "Tilføj"))</button>
-                            <button type="button" class="btn btn-secondary" @onclick="LukUnderdelmaalModal">Annuller</button>
-                        </div>
-                    </EditForm>
-                </div>
+<Modal Show="visUnderdelmaalModal" Title="@((redigererUnderdelmaal ? "Rediger underdelmål" : "Tilføj underdelmål"))" OnClose="LukUnderdelmaalModal">
+    <ChildContent>
+        <EditForm Model="nyUnderdelmaal" OnValidSubmit="GemUnderdelmaal">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+            <div class="mb-3">
+                <label>Beskrivelse:</label>
+                <InputText class="form-control" @bind-Value="nyUnderdelmaal.Beskrivelse" />
             </div>
-        </div>
-    </div>
-}
-
+            <div class="mb-3">
+                <label>Deadline:</label>
+                <InputDate class="form-control" @bind-Value="nyUnderdelmaal.Deadline" />
+            </div>
+        </EditForm>
+    </ChildContent>
+    <FooterContent>
+        <button type="submit" class="btn btn-success" @onclick="GemUnderdelmaal">@((redigererUnderdelmaal ? "Opdater" : "Tilføj"))</button>
+        <button type="button" class="btn btn-secondary" @onclick="LukUnderdelmaalModal">Annuller</button>
+    </FooterContent>
+</Modal>
 @code {
     [Parameter] public int elevplanId { get; set; }
 

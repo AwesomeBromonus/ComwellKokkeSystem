@@ -1,0 +1,41 @@
+﻿.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1050;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-window {
+    background-color: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    width: 600px;
+    max-width: 95%;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    z-index: 1060;
+}
+
+.modal-header {
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 1rem;
+}
+
+.modal-footer {
+    margin-top: 1.5rem;
+    border-top: 1px solid #eee;
+    padding-top: 1rem;
+}
+
+.btn-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+}
