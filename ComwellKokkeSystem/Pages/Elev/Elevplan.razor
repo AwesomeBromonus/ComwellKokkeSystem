@@ -33,26 +33,37 @@ else
 }
 
 @code {
+    // Liste over elevplaner – hentes fra databasen
     private List<Modeller.Elevplan>? elevplaner;
+
+    // Brugerens rolle (fx "admin", "elev")
     private string? rolle;
 
+    // Kører automatisk når komponenten indlæses
     protected override async Task OnInitializedAsync()
     {
+        // Hent nuværende brugers rolle (f.eks. "admin" eller "elev")
         rolle = await AuthService.GetCurrentUserRoleAsync();
+
+        // Hent brugerens ID
         var brugerId = await AuthService.GetCurrentUserIdAsync();
 
+        // Hvis bruger er admin: hent alle elevplaner
         if (rolle == "admin")
         {
             elevplaner = await ElevplanService.GetElevplanerAsync();
         }
+        // Hvis bruger er elev: hent kun dennes egne elevplaner
         else if (brugerId.HasValue)
         {
             elevplaner = await ElevplanService.GetElevplanerForElevAsync(brugerId.Value);
         }
     }
+
+    // Naviger videre til delmål-siden for en specifik elevplan
     private void GåTilDelmål(int elevplanId)
     {
         Nav.NavigateTo($"/delmaal/{elevplanId}");
     }
-
 }
+

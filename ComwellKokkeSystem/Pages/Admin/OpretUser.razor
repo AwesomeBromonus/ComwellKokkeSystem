@@ -83,43 +83,63 @@
 </div>
 
 @code {
-    private UserModel newUser = new()
+        // Opretter et nyt UserModel-objekt, som formularen binder data til
+        private UserModel newUser = new()
         {
+            // Startdato sættes automatisk til dags dato (bruges fx til ansættelsesstart)
             StartDato = DateTime.Today,
+
+            // Slutdato er valgfri – derfor starter den som null
             SlutDato = null
         };
 
-    private string message = "";
-    private bool registerSuccess = false;
+        // Besked, der vises til brugeren efter forsøg på oprettelse (succes/fejl)
+        private string message = "";
 
+        // Bool der styrer om oprettelsen lykkedes eller ej – bruges til visuel feedback
+        private bool registerSuccess = false;
+
+    // Håndterer indsendelsen af formularen
     private async Task HandleRegister()
     {
+        // Forsøger at registrere brugeren via AuthService
         var success = await AuthService.Register(newUser);
 
+        // Gemmer om oprettelsen lykkedes
         registerSuccess = success;
 
         if (success)
         {
+            // Viser en succesbesked
             message = "Bruger oprettet!";
+
+            // Venter lidt så brugeren kan nå at læse beskeden
             await Task.Delay(1500);
+
+            // Navigerer tilbage til administrator-siden
             NavManager.NavigateTo("/administrator");
         }
         else
         {
+            // Viser en fejlbesked hvis noget gik galt
             message = "Noget gik galt – brugeren blev ikke oprettet.";
         }
     }
+    // Denne metode håndterer ændring af hotelværdien fra dropdown-menuen
     private void OnHotelChanged(ChangeEventArgs e)
     {
+        // Forsøger at konvertere den valgte værdi til et heltal
         if (int.TryParse(e.Value?.ToString(), out int id))
         {
+            // Gemmer ID’et på brugeren
             newUser.HotelId = id;
 
+            // Sætter det tilsvarende hotelnavn
             newUser.HotelNavn = id switch
             {
                 1 => "Kongeborgh",
                 2 => "Holte",
-                _ => null
+                _ => null // Hvis ID ikke matcher noget, sættes navnet til null
             };
         }
     }

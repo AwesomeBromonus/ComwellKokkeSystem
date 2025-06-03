@@ -67,70 +67,100 @@ else
 }
 
 @code {
+    // Listen over alle anmodninger, som vises på siden
     private List<Anmodning>? anmodninger;
+
+    // Opslagsmappe: Delmål-ID -> Delmål-objekt (bruges til at finde beskrivelse m.m.)
     private Dictionary<int, Delmål> delmaalMap = new();
+
+    // Opslagsmappe: Underdelmål-ID -> Underdelmål-objekt
     private Dictionary<int, Underdelmaal> underdelmaalMap = new();
+
+    // Opslagsmappe: Bruger-ID -> Brugerdata (fx navn), så man kan vise hvem der har sendt anmodningen
     private Dictionary<int, UserModel> brugerMap = new();
 
 
 
     protected override async Task OnInitializedAsync()
     {
+        // Hvis brugeren ikke er logget ind (dvs. intet ID findes i brugerens session)
         if (UserState.Id == null)
         {
+            // Navigér brugeren til login-siden
             Nav.NavigateTo("/login");
-            return;
-        }
-
-        anmodninger = await AnmodningService.GetTilModtagerAsync(UserState.Id.Value);
-
-        foreach (var a in anmodninger)
-        {
-            if (a.DelmaalId != null)
-            {
-                var delmaal = await DelmaalService.GetByIdAsync(a.DelmaalId.Value);
-                if (delmaal != null)
-                    delmaalMap[a.DelmaalId.Value] = delmaal;
-            }
-            else if (a.UnderdelmaalId != null)
-            {
-                var underdelmaal = await UnderdelmaalService.GetByIdAsync(a.UnderdelmaalId.Value);
-                if (underdelmaal != null)
-                    underdelmaalMap[a.UnderdelmaalId.Value] = underdelmaal;
-            }
-
-            if (!brugerMap.ContainsKey(a.ElevId))
-            {
-                var bruger = await UserService.GetByIdAsync(a.ElevId);
-                if (bruger != null)
-                {
-                    brugerMap[a.ElevId] = bruger;
-                }
-            }
+            return; // Stop videre behandling
         }
     }
 
-    private async Task BehandlAnmodning(int anmodningId, bool accepteret)
+
+    // Hent alle anmodninger der er sendt til den aktuelle bruger (fx en admin eller kok)
+    anmodninger = await AnmodningService.GetTilModtagerAsync(UserState.Id.Value);
+
+// Gennemgå hver enkelt anmodning
+foreach (var a in anmodninger)
+{
+    // Hvis anmodningen handler om et delmål
+    if (a.DelmaalId != null)
     {
-        await AnmodningService.BehandlAsync(anmodningId, accepteret);
+    // Hent delmålet fra databasen via DelmaalService
+    var delmaal = await DelmaalService.GetByIdAsync(a.DelmaalId.Value);
 
-        // Genindlæs anmodninger og delmål
-        anmodninger = await AnmodningService.GetTilModtagerAsync(UserState.Id.Value);
-        delmaalMap.Clear();
+    // Hvis det findes, tilføj det til opslagslisten (dictionary) med ID som nøgle
+    if (delmaal != null)
+        delmaalMap[a.DelmaalId.Value] = delmaal;
+    }
+    // Hvis anmodningen i stedet handler om et underdelmål
+    else if (a.UnderdelmaalId != null)
+    {
+    // Hent underdelmålet
+    var underdelmaal = await UnderdelmaalService.GetByIdAsync(a.UnderdelmaalId.Value);
 
-        foreach (var a in anmodninger)
-        {
-            if (a.DelmaalId != null)
-            {
-                var delmaal = await DelmaalService.GetByIdAsync(a.DelmaalId.Value);
-                if (delmaal != null)
-                {
-                    delmaalMap[delmaal.Id] = delmaal;
-                }
-            }
-        }
-
-        StateHasChanged();
+    // Tilføj til opslagslisten hvis det findes
+    if (underdelmaal != null)
+        underdelmaalMap[a.UnderdelmaalId.Value] = underdelmaal;
     }
 
+// Hent og gem elev-brugeren der har sendt anmodningen, hvis ikke allerede hentet
+if (!brugerMap.ContainsKey(a.ElevId))
+{
+    var bruger = await UserService.GetByIdAsync(a.ElevId);
+    if (bruger != null)
+    {
+    brugerMap[a.ElevId] = bruger;
+    }
+}
+}
+
+    
+
+  private async Task BehandlAnmodning(int anmodningId, bool accepteret)
+{
+    // 📤 Send svaret (accepter eller afvis) til backend via service
+    await AnmodningService.BehandlAsync(anmodningId, accepteret);
+
+    // 🔄 Hent opdateret liste af anmodninger (efter én er behandlet)
+    anmodninger = await AnmodningService.GetTilModtagerAsync(UserState.Id.Value);
+
+    // 🧹 Ryd opslagstabellen med delmål
+    delmaalMap.Clear();
+
+    // 🔁 Genopbyg delmål-opslaget med de nye/aktive anmodninger
+    foreach (var a in anmodninger)
+    {
+    if (a.DelmaalId != null)
+    {
+        // 🔍 Hent det specifikke delmål for denne anmodning
+        var delmaal = await DelmaalService.GetByIdAsync(a.DelmaalId.Value);
+
+        if (delmaal != null)
+        {
+            // 🗃️ Gem delmålet i lokal map (så vi kan slå det op senere uden ny hentning)
+            delmaalMap[delmaal.Id] = delmaal;
+        }
+    }
+    }
+
+    // 🔁 Tving UI til at opdatere sig selv med de nye data
+    StateHasChanged();
+}
 }

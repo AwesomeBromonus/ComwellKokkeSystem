@@ -435,49 +435,69 @@ else
 
         isLoading = false;
     }
-
     private void ÅbenUnderdelmaalModal(int delmaalId)
     {
+        // Gem ID'et på det delmål, underdelmålet skal knyttes til
         valgtDelmaalTilUnderdelmaal = delmaalId;
+
+        // Opret en ny instans af Underdelmaal med tilknytning til delmål
         nyUnderdelmaal = new Underdelmaal { DelmaalId = delmaalId };
+
+        // Sæt modaltilstand til opret-tilstand (ikke redigering)
         redigererUnderdelmaal = false;
+
+        // Vis modalvinduet i UI'et
+        visUnderdelmaalModal = true;
+    }
+    private void RedigerUnderdelmaal(Underdelmaal u)
+    {
+        // Opret en kopi af det eksisterende underdelmål, så det kan redigeres uden at ændre originalen direkte
+        nyUnderdelmaal = new Underdelmaal
+            {
+                Id = u.Id,                                 // Bevar ID'et for at sikre opdatering frem for oprettelse
+                DelmaalId = u.DelmaalId,                   // Tilknytning til det overordnede delmål
+                Beskrivelse = u.Beskrivelse,               // Beskrivelse kopieres til redigering
+                DeadlineOffsetDage = u.DeadlineOffsetDage, // Evt. forskydning af deadline i dage
+                Status = u.Status                          // Status som fx "Ikke fuldført", "I gang", "Fuldført"
+            };
+
+        // Gem det delmål ID, vi redigerer under
+        valgtDelmaalTilUnderdelmaal = u.DelmaalId;
+
+        // Sæt komponentens tilstand til rediger-tilstand
+        redigererUnderdelmaal = true;
+
+        // Vis modal-vinduet til redigering
         visUnderdelmaalModal = true;
     }
 
-    private void RedigerUnderdelmaal(Underdelmaal u)
-    {
-        nyUnderdelmaal = new Underdelmaal
-            {
-                Id = u.Id,
-                DelmaalId = u.DelmaalId,
-                Beskrivelse = u.Beskrivelse,
-                DeadlineOffsetDage = u.DeadlineOffsetDage,
-                Status = u.Status
-            };
-        valgtDelmaalTilUnderdelmaal = u.DelmaalId;
-        redigererUnderdelmaal = true;
-        visUnderdelmaalModal = true;
-    }
 
     private void LukUnderdelmaalModal()
     {
+        // Skjul modal-vinduet
         visUnderdelmaalModal = false;
+
+        // Nulstil underdelmålsmodellen, så feltet er tomt næste gang modal åbnes
         nyUnderdelmaal = new();
     }
     private async Task GemUnderdelmaal()
     {
         if (redigererUnderdelmaal)
         {
+            // Hvis vi er i redigeringstilstand, opdater det eksisterende underdelmål
             await UnderdelmaalService.UpdateAsync(nyUnderdelmaal);
         }
         else
         {
+            // Ellers tilføj det som et nyt underdelmål
             await UnderdelmaalService.AddAsync(nyUnderdelmaal);
         }
 
+        // Luk modal-vinduet og nulstil modellen
         visUnderdelmaalModal = false;
         nyUnderdelmaal = new();
 
+        // Ryd cache/visning for dette delmål og hent opdateret liste
         underdelmaalMap.Remove(valgtDelmaalTilUnderdelmaal);
         await ToggleUnderdelmaalVisning(valgtDelmaalTilUnderdelmaal);
     }
@@ -485,11 +505,15 @@ else
 
     private async Task SletUnderdelmaal(int id, int delmaalId)
     {
+        // Slet underdelmålet med det angivne ID via service-laget
         await UnderdelmaalService.DeleteAsync(id);
+
+        // Fjern den eksisterende liste med underdelmål for delmålet fra lokal cache
         underdelmaalMap.Remove(delmaalId);
+
+        // Hent og vis opdateret liste over underdelmål for det pågældende delmål
         await ToggleUnderdelmaalVisning(delmaalId);
     }
-
 
 
 
@@ -498,32 +522,48 @@ else
 
     private async Task VisDelmaal(int praktikperiodeId)
     {
+        // Gem det valgte praktikperiode-ID, så vi ved hvilke delmål der skal vises
         valgtPraktikId = praktikperiodeId;
+
+        // Hent delmål for den aktuelle elevplan og praktikperiode
         delmaalListe = await DelmaalService.GetByElevplanIdAndPraktikperiodeIdAsync(elevplanId, praktikperiodeId);
 
+        // For hvert delmål: klargør tom kommentar og hent tidligere kommentarer
         foreach (var d in delmaalListe)
         {
+            // Sæt en tom streng som standardværdi for ny kommentar til hvert delmål
             nyeKommentarer[d.Id] = "";
+
+            // Hent eksisterende kommentarer til dette delmål
             var eksisterendeKommentarer = await KommentarService.GetByDelmålIdAsync(d.Id);
+
+            // Gem kommentarerne i en dictionary, så de kan vises i UI’et
             kommentarer[d.Id] = eksisterendeKommentarer ?? new();
         }
     }
 
+
     private async Task OpdaterStatus(Modeller.Delmål d, string? nyStatus)
     {
+        // Tjek at der er valgt en ny status, og at den faktisk er forskellig fra den nuværende
         if (!string.IsNullOrEmpty(nyStatus) && d.Status != nyStatus)
         {
+            // Opdater status på delmålet i objektet
             d.Status = nyStatus;
+
+            // Gem ændringen i databasen via service
             await DelmaalService.UpdateDelmaalAsync(d);
         }
     }
-
+    // Returnerer true hvis delmålets status svarer til den angivne status (bruges fx til at sætte "selected" i en dropdown)
     private bool IsSelected(Modeller.Delmål d, string status) => d.Status == status;
-
+   
     private async Task GemKommentar(int delmaalId)
     {
+        // Tjek om der faktisk er skrevet en kommentar (ikke tom eller kun mellemrum)
         if (!string.IsNullOrWhiteSpace(nyeKommentarer[delmaalId]))
         {
+            // Opret et nyt Kommentar-objekt med tilknytning til delmål og aktuelt tidspunkt
             var kommentar = new Kommentar
                 {
                     DelmålId = delmaalId,
@@ -531,108 +571,151 @@ else
                     Tidspunkt = DateTime.Now
                 };
 
+            // Gem kommentaren via service
             await KommentarService.AddKommentarAsync(kommentar);
+
+            // Ryd inputfeltet for den aktuelle kommentar
             nyeKommentarer[delmaalId] = "";
 
+            // Hvis der ikke allerede er en liste med kommentarer for dette delmål, opret én
             if (!kommentarer.ContainsKey(delmaalId))
                 kommentarer[delmaalId] = new();
 
+            // Tilføj den nye kommentar til listen, så den vises med det samme i UI'et
             kommentarer[delmaalId].Add(kommentar);
         }
     }
+
     private async Task StartAnmodning(int delmaalId)
     {
+        // Gem ID på det delmål, der skal anmodes om statusændring på
         valgtDelmaalId = delmaalId;
+
+        // Foruddefiner ønsket status til "Fuldført"
         ønsketStatus = "Fuldført";
+
+        // Nulstil modtager-id, indtil der vælges én
         valgtModtagerId = 0;
 
+        // Hent en liste over brugere med rolle "admin" eller "kok"
         muligeModtagere = await AuthService.GetAdminsOgKokkeAsync();
 
+        // Hvis der ikke findes nogen brugere, log og afbryd
         if (muligeModtagere == null || !muligeModtagere.Any())
         {
             Console.WriteLine("❌ Ingen kokke eller admins fundet.");
             return;
         }
 
-        // Sæt første som standardvalg
+        // Vælg den første i listen som standardmodtager
         valgtModtagerId = muligeModtagere.First().Id;
 
+        // Vis modal-vinduet til at sende anmodningen
         visAnmodningsModal = true;
     }
 
 
     private async Task SendAnmodning()
     {
+        // Tjek at både elevens ID og modtagerens ID er sat – ellers afbryd
         if (UserState.Id == null || valgtModtagerId == 0)
         {
             Console.WriteLine("❌ Elev eller modtager ikke valgt.");
             return;
         }
 
+        // Opret en ny anmodning med nødvendige oplysninger
         var anmodning = new Anmodning
             {
-                DelmaalId = valgtDelmaalId,
-                ElevId = UserState.Id.Value,
-                ModtagerId = valgtModtagerId,
-                ØnsketStatus = ønsketStatus
+                DelmaalId = valgtDelmaalId,           // Det delmål der ønskes ændret
+                ElevId = UserState.Id.Value,          // ID på eleven der anmoder
+                ModtagerId = valgtModtagerId,         // ID på den person der skal godkende
+                ØnsketStatus = ønsketStatus           // Den status eleven gerne vil have ændret til
             };
 
+        // Send anmodningen via service-laget
         await AnmodningService.OpretAsync(anmodning);
+
+        // Luk modalvinduet efter afsendelse
         visAnmodningsModal = false;
     }
 
 
+
+    // Lukker modalvinduet for anmodning
     private void LukAnmodningsModal() => visAnmodningsModal = false;
+
+    // Navigerer brugeren tilbage til administratorforsiden
     private void Tilbage() => Nav.NavigateTo("/administrator");
 
     private void ÅbnModalTilføjDelmaal()
     {
+        // Opret en ny instans af Delmål med standardværdier
         nytDelmaal = new Modeller.Delmål
             {
-                ElevplanId = elevplanId,
-                PraktikperiodeId = valgtPraktikId,
-                Deadline = DateTime.Today,
-                Status = "Ikke fuldført"
+                ElevplanId = elevplanId,                  // Knyt delmålet til den aktuelle elevplan
+                PraktikperiodeId = valgtPraktikId,        // Knyt delmålet til den valgte praktikperiode
+                Deadline = DateTime.Today,                // Sæt dagens dato som standard deadline
+                Status = "Ikke fuldført"                  // Startstatus for nye delmål
             };
+
+        // Indstil komponenten til opret-tilstand, ikke redigerings-tilstand
         redigerMode = false;
+
+        // Vis modal-vinduet, så brugeren kan udfylde og oprette delmålet
         visModal = true;
     }
 
     private void RedigerDelmaal(Modeller.Delmål d)
     {
+        // Opret en kopi af det valgte delmål, så brugeren kan redigere det uden at ændre originalen direkte
         nytDelmaal = new Modeller.Delmål
             {
-                Id = d.Id,
-                Beskrivelse = d.Beskrivelse,
+                Id = d.Id,                                 // Bevar ID for at kunne opdatere det rigtige objekt senere
+                Beskrivelse = d.Beskrivelse,               // Udfyld formularen med eksisterende data
                 Deadline = d.Deadline,
                 Status = d.Status,
                 PraktikperiodeId = d.PraktikperiodeId,
                 ElevplanId = d.ElevplanId
             };
+
+        // Angiv at modalvinduet skal vises i redigeringstilstand
         redigerMode = true;
+
+        // Vis modalvinduet med den udfyldte formular
         visModal = true;
     }
+
 
     private async Task GemDelmaal()
     {
         if (redigerMode)
         {
+            // Hvis vi er i redigeringstilstand, opdater det eksisterende delmål
             await DelmaalService.UpdateDelmaalAsync(nytDelmaal);
         }
         else
         {
+            // Ellers opret et nyt delmål
             await DelmaalService.AddDelmaalAsync(nytDelmaal);
         }
 
+        // Luk modalvinduet efter gem
         visModal = false;
+
+        // Genindlæs delmålene for den valgte praktikperiode
         await VisDelmaal(valgtPraktikId);
     }
 
     private async Task SletDelmaal(int id)
     {
+        // Slet delmålet med det angivne ID via service-laget
         await DelmaalService.DeleteDelmaalAsync(id);
+
+        // Genindlæs delmålene for den valgte praktikperiode, så UI opdateres
         await VisDelmaal(valgtPraktikId);
     }
+
 
     private void LukModal()
     {
@@ -643,77 +726,110 @@ else
 
     private async Task ToggleUnderdelmaalVisning(int delmaalId)
     {
+        // Hvis delmålet allerede er udvidet, luk det sammen
         if (udvidetDelmaalId == delmaalId)
         {
             udvidetDelmaalId = null;
         }
         else
         {
+            // Udvid visningen for det valgte delmål
             udvidetDelmaalId = delmaalId;
 
+            // Hvis underdelmålene for delmålet ikke allerede er hentet
             if (!underdelmaalMap.ContainsKey(delmaalId))
             {
+                // Hent underdelmålene fra databasen via service
                 var result = await UnderdelmaalService.GetByDelmaalIdAsync(delmaalId);
+
+                // Gem dem i lokal map/ordbog – hvis null, brug tom liste
                 underdelmaalMap[delmaalId] = result ?? new();
             }
         }
     }
 
+
     private async Task StartUnderdelmaalAnmodning(int underdelmaalId)
     {
+        // Gem ID på det underdelmål, anmodningen handler om
         valgtUnderdelmaalId = underdelmaalId;
+
+        // Forudindstil ønsket status til "Fuldført"
         ønsketStatus = "Fuldført";
+
+        // Nulstil modtager-ID, så det kan vælges eller sættes automatisk
         valgtModtagerId = 0;
 
+        // Hent mulige modtagere (fx administratorer og kokke) via auth-service
         muligeModtagere = await AuthService.GetAdminsOgKokkeAsync();
 
+        // Hvis ingen modtagere findes, vis fejl og stop
         if (muligeModtagere == null || !muligeModtagere.Any())
         {
             Console.WriteLine("❌ Ingen kokke eller admins fundet.");
             return;
         }
 
+        // Vælg første modtager som standard
         valgtModtagerId = muligeModtagere.First().Id;
+
+        // Vis modal-vinduet til at sende anmodningen
         visUnderdelmaalAnmodningModal = true;
     }
 
+
     private async Task SendUnderdelmaalAnmodning()
     {
+        // Tjek at både elevens ID og modtagerens ID er sat — ellers stop
         if (UserState.Id == null || valgtModtagerId == 0)
         {
             Console.WriteLine("❌ Elev eller modtager ikke valgt.");
             return;
         }
 
+        // Opret en ny anmodning med relevante oplysninger
         var anmodning = new Anmodning
             {
-                UnderdelmaalId = valgtUnderdelmaalId, // ✅ korrekt
-                ElevId = UserState.Id.Value,
-                ModtagerId = valgtModtagerId,
-                ØnsketStatus = ønsketStatus
+                UnderdelmaalId = valgtUnderdelmaalId,   // ID på det underdelmål, anmodningen vedrører
+                ElevId = UserState.Id.Value,            // ID på den elev der sender anmodningen
+                ModtagerId = valgtModtagerId,           // ID på den modtager (fx admin eller kok)
+                ØnsketStatus = ønsketStatus             // Status eleven ønsker ændret til (fx "Fuldført")
             };
 
+        // Send anmodningen via service-laget
         await AnmodningService.OpretAsync(anmodning);
+
+        // Luk modal-vinduet efter afsendelse
         visUnderdelmaalAnmodningModal = false;
     }
-  
+
     private async Task OpdaterUnderdelmaalStatus(Underdelmaal u, string? nyStatus)
     {
+        // Tjek at den nye status ikke er tom, og at den faktisk er forskellig fra den nuværende
         if (!string.IsNullOrEmpty(nyStatus) && u.Status != nyStatus)
         {
+            // Opdater status på underdelmålet
             u.Status = nyStatus;
+
+            // Gem ændringen i databasen via service-laget
             await UnderdelmaalService.UpdateAsync(u);
 
-            // 🔁 Genindlæs listen så UI viser ny status
+            // 🔁 Genindlæs underdelmålene for det pågældende delmål, så UI opdateres
             await GenindlæsUnderdelmaal(u.DelmaalId);
         }
     }
 
+
     private async Task GenindlæsUnderdelmaal(int delmaalId)
     {
+        // Hent opdateret liste over underdelmål for det angivne delmål
         var result = await UnderdelmaalService.GetByDelmaalIdAsync(delmaalId);
+
+        // Gem resultatet i lokal ordbog – brug tom liste hvis null
         underdelmaalMap[delmaalId] = result ?? new();
-        StateHasChanged(); // Sørger for at UI opdateres
+
+        // Tving komponenten til at opdatere visningen
+        StateHasChanged();
     }
 
 

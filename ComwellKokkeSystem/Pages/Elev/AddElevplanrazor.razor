@@ -94,18 +94,34 @@ else
 }
 
 @code {
+    // Model til at holde den elevplan der oprettes via formularen
     private Modeller.Elevplan elevplan = new();
-    private List<Modeller.Praktikperiode> praktikPerioder = new();
-    private List<Modeller.UserModel> brugere = new();
-    private int valgtElevId = 0;
-    private bool success = false;
-    private bool erTilladt = false;
-    private string? fejlbesked = null;
-   
 
+    // Liste over eksisterende praktikperioder (kan bruges eller opdateres senere)
+    private List<Modeller.Praktikperiode> praktikPerioder = new();
+
+    // Liste over brugere hentet fra API’et – bruges til at vise mulige elever
+    private List<Modeller.UserModel> brugere = new();
+
+    // Id på den elev, som administratoren vælger i UI’et
+    private int valgtElevId = 0;
+
+    // Bruges til at vise succesbesked efter vellykket oprettelse
+    private bool success = false;
+
+    // Bruges til at styre om brugeren har adgang til at oprette elevplaner
+    private bool erTilladt = false;
+
+    // Fejlbesked vises til brugeren, hvis noget går galt i processen
+    private string? fejlbesked = null;
+
+    // Kører automatisk, når siden indlæses første gang
     protected override async Task OnInitializedAsync()
     {
+        // Hent rollen for den aktuelle bruger
         var rolle = await AuthService.GetCurrentUserRoleAsync();
+
+        // Hvis rollen ikke er "admin", næg adgang og omdiriger
         if (rolle?.ToLower() != "admin")
         {
             erTilladt = false;
@@ -113,33 +129,45 @@ else
             return;
         }
 
+        // Tillad adgang til siden og hent data
         erTilladt = true;
 
+        // Hent alle eksisterende praktikperioder (kan bruges hvis nødvendigt)
         praktikPerioder = await PraktikService.GetAllAsync();
+
+        // Hent alle brugere fra backend – bruges til at vise valgbare elever
         brugere = await Http.GetFromJsonAsync<List<Modeller.UserModel>>("api/users/all");
     }
 
+    // Kaldes, når brugeren indsender formularen og den er gyldig
     private async Task GemElevplan()
     {
+        // Nulstil tidligere fejlbesked
         fejlbesked = null;
 
+        // Tjek at en elev er valgt, ellers vis fejl og stop
         if (valgtElevId == 0)
         {
             fejlbesked = "Du skal vælge en elev.";
             return;
         }
 
+        // Udfyld grundlæggende data på elevplanen
         elevplan.ElevId = valgtElevId;
         elevplan.OprettetDato = DateTime.Now;
         elevplan.PraktikperiodeIds = new List<int>();
 
+        // Send elevplan til backend via POST
         var elevplanResponse = await Http.PostAsJsonAsync("api/elevplan", elevplan);
+
+        // Hvis oprettelsen fejler, vis fejl og stop
         if (!elevplanResponse.IsSuccessStatusCode)
         {
             fejlbesked = "Kunne ikke oprette elevplan.";
             return;
         }
 
+        // Hent den oprettede elevplan tilbage fra API-respons
         var oprettetPlan = await elevplanResponse.Content.ReadFromJsonAsync<Modeller.Elevplan>();
         if (oprettetPlan == null)
         {
@@ -147,6 +175,7 @@ else
             return;
         }
 
+        // Opret 3 praktikperioder og tilknyt dem til elevplanen
         for (int i = 1; i <= 3; i++)
         {
             var praktik = new Modeller.Praktikperiode
@@ -157,6 +186,8 @@ else
                 };
 
             var praktikResponse = await Http.PostAsJsonAsync("api/praktikperiode", praktik);
+
+            // Stop hvis en praktikperiode fejler
             if (!praktikResponse.IsSuccessStatusCode)
             {
                 fejlbesked = $"Kunne ikke oprette praktikperiode {i}.";
@@ -164,15 +195,20 @@ else
             }
 
             var oprettetPraktik = await praktikResponse.Content.ReadFromJsonAsync<Modeller.Praktikperiode>();
+
             if (oprettetPraktik != null)
             {
+                // Gem praktikperiode-id’et på elevplanen
                 oprettetPlan.PraktikperiodeIds.Add(oprettetPraktik.Id);
 
+                // Hent tilhørende delmål-skabeloner for praktikperiode i
                 var skabeloner = await Http.GetFromJsonAsync<List<Modeller.DelmaalSkabelon>>($"api/delmaalskabelon/periode/{i}");
+
                 if (skabeloner != null)
                 {
                     foreach (var skabelon in skabeloner)
                     {
+                        // Opret konkret delmål baseret på skabelon
                         var delmaal = new Modeller.Delmål
                             {
                                 Beskrivelse = skabelon.Beskrivelse,
@@ -185,24 +221,29 @@ else
                                 ElevId = valgtElevId,
                                 ElevplanId = oprettetPlan.Id,
                                 PraktikperiodeId = oprettetPraktik.Id,
-                                DelmaalSkabelonId = skabelon.Id // 👈 NYT!
+                                DelmaalSkabelonId = skabelon.Id // For at kunne spore skabelonen
                             };
 
+                        // Send delmålet til backend
                         await Http.PostAsJsonAsync("api/delmaal", delmaal);
                     }
                 }
             }
         }
 
+        // Opdater elevplanen med ID'er på de praktikperioder, der blev oprettet
         await Http.PutAsJsonAsync($"api/elevplan/{oprettetPlan.Id}", oprettetPlan);
 
+        // Tildel elevplanen til den valgte bruger (elev)
         var assignResponse = await Http.PutAsJsonAsync($"api/users/{valgtElevId}/assign-elevplan", new { ElevplanId = oprettetPlan.Id });
+
         if (!assignResponse.IsSuccessStatusCode)
         {
             fejlbesked = "Elevplan blev oprettet, men kunne ikke tildeles brugeren.";
             return;
         }
 
+        // Hvis alt lykkedes – vis succes og omdiriger
         success = true;
         Nav.NavigateTo("/administrator");
     }

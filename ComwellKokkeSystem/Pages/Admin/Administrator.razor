@@ -120,16 +120,24 @@
     private Dictionary<int, Elevplan> elevplaner = new(); // key = ElevplanId
 
 
+    // Denne metode kaldes automatisk, når komponenten initialiseres
     protected override async Task OnInitializedAsync()
     {
+        // 🔄 Hent alle brugere fra API'et og gem dem i 'brugere'-listen
         await LoadUsers();
+
+        // 📬 Hent og tæl antallet af anmodninger med status "afventer"
         await HentAntalAnmodninger();
 
+        // 🎓 Gennemgå alle brugere der er elever og har en tilknyttet elevplan
         foreach (var elev in brugere.Where(b => b.Role?.ToLower() == "elev" && b.ElevplanId.HasValue))
         {
             try
             {
+                // 📦 Hent elevens elevplan fra API'et via ID
                 var plan = await Http.GetFromJsonAsync<Elevplan>($"api/elevplan/{elev.ElevplanId.Value}");
+
+                // ✅ Hvis elevplanen blev hentet korrekt, tilføj den til ordbogen 'elevplaner'
                 if (plan != null)
                 {
                     elevplaner[elev.ElevplanId.Value] = plan;
@@ -137,21 +145,27 @@
             }
             catch
             {
+                // ⚠ Hvis noget går galt, log fejlbesked til konsollen
                 Console.WriteLine($"Kunne ikke hente elevplan for elev {elev.Username}");
             }
         }
     }
 
+
     private async Task LoadUsers()
     {
         try
         {
+            // 🔄 Hent alle brugere fra API'et som en liste af UserModel
             var users = await Http.GetFromJsonAsync<List<UserModel>>("api/users/all");
+
+            // ✅ Hvis der faktisk kom brugere tilbage, gem dem i brugere-listen
             if (users is not null)
                 brugere = users;
         }
         catch (Exception ex)
         {
+            // ⚠ Hvis noget går galt, log fejlen til konsollen
             Console.WriteLine("Fejl ved indlæsning af brugere: " + ex.Message);
         }
     }
@@ -160,56 +174,76 @@
     {
         try
         {
+            // 🔄 Hent alle anmodninger fra API'et
             var liste = await Http.GetFromJsonAsync<List<Anmodning>>("api/anmodning");
+
+            // ✅ Hvis listen ikke er null, tæl hvor mange har status "afventer"
             if (liste != null)
                 anmodningerAntal = liste.Count(a => a.Status?.ToLower() == "afventer");
         }
         catch
         {
+            // ⚠ Hvis noget går galt, sæt antallet til 0
             anmodningerAntal = 0;
         }
     }
 
+
+    // 🔍 Viser brugerens detaljer i et modal-vindue
     private void VisDetaljer(UserModel bruger) => valgtBruger = bruger;
+
+    // ❌ Lukker modal-vinduet ved at nulstille valgt bruger
     private void LukDetaljer() => valgtBruger = null;
 
     private async Task SletBrugerAsync()
     {
+        // ✅ Tjek først om der er valgt en bruger
         if (valgtBruger != null)
         {
+            // 🗑️ Send HTTP DELETE-anmodning til API'et for at slette brugeren
             var response = await Http.DeleteAsync($"api/users/{valgtBruger.Id}");
+
+            // ✅ Hvis sletningen lykkes (200 OK), fjern brugeren fra listen og luk modal
             if (response.IsSuccessStatusCode)
             {
-                brugere.Remove(valgtBruger);
-                valgtBruger = null;
+                brugere.Remove(valgtBruger); // Fjern fra lokal liste så UI opdateres
+                valgtBruger = null;          // Luk modalvinduet
             }
         }
     }
 
+
+    // 📄 Navigér til siden med delmål for en specifik elevplan
     private void SeElevplan(int elevplanId) => NavManager.NavigateTo($"/delmaal/{elevplanId}");
 
+    // 🖼️ Generér URL til brugerens profilbillede baseret på deres ID
     private string GetImageUrl(int id) => $"https://localhost:7013/uploads/{id}.jpg";
 
+    // 🎨 Returnér CSS-klasse baseret på brugerens rolle, så der kan vises farvekoder i UI'et
     private string GetRoleClass(string? role) => role?.ToLower() switch
     {
-        "admin" => "role-admin",
-        "elev" => "role-elev",
-        "kok" => "role-kok",
-        "hr" => "role-hr",
-        _ => "role-ukendt"
+        "admin" => "role-admin",   // Bliver fx farvet blå i CSS
+        "elev" => "role-elev",     // Fx grøn
+        "kok" => "role-kok",       // Fx rød
+        "hr" => "role-hr",         // Fx gul
+        _ => "role-ukendt"         // Ukendt rolle – fallback CSS-klasse
     };
+    // 📅 Returnerer skoleperiode for en elev – ellers "Ikke tilgængelig"
     private string HentSkoleperiode(UserModel bruger)
     {
+        // Tjek at det er en elev, at der findes en elevplan, og at vi har hentet den
         if (bruger.Role?.ToLower() == "elev" &&
             bruger.ElevplanId.HasValue &&
             elevplaner.TryGetValue(bruger.ElevplanId.Value, out var plan))
         {
+            // Hvis feltet er tomt eller null, returnér "Ikke angivet", ellers returnér periode
             return string.IsNullOrWhiteSpace(plan.Skoleperiode) ? "Ikke angivet" : plan.Skoleperiode;
         }
 
         return "Ikke tilgængelig";
     }
 
+    // 📘 Returnerer skoleforløb for en elev – ellers "Ikke tilgængelig"
     private string HentSkoleforloeb(UserModel bruger)
     {
         if (bruger.Role?.ToLower() == "elev" &&
@@ -221,6 +255,7 @@
 
         return "Ikke tilgængelig";
     }
+
 
 
 

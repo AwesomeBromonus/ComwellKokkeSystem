@@ -57,50 +57,66 @@
 
     protected override async Task OnInitializedAsync()
     {
+        // 🔄 Hent brugerens nuværende loginstatus og rolle (f.eks. fra local storage eller en API)
         await UserState.InitializeAsync();
 
+        // ✅ Hvis brugeren allerede er logget ind, skal de ikke blive på login-siden
         if (UserState.IsLoggedIn)
         {
+            // 🔁 Navigér dem direkte til deres startside baseret på deres rolle
             NavManager.NavigateTo(UserState.Role?.ToLower() switch
             {
-                "admin" => "/administrator",
-                "elev" => "/mitoverblik",
-                _ => "/"
-            }, forceLoad: true);
-            return;
+                "admin" => "/administrator",      // Hvis rollen er "admin", send til admin-panel
+                "elev" => "/mitoverblik",         // Hvis det er en elev, send til oversigt
+                _ => "/"                          // Hvis rollen er ukendt, send til forsiden
+            }, forceLoad: true);                  // forceLoad sikrer siden loades helt på ny
+
+            return; // Stop videre behandling af login-siden
         }
 
+        // 💾 Tjek om der er gemt et brugernavn i localStorage (hvis brugeren tidligere valgte "Husk mig")
         var storedUser = await localStorage.GetItemAsync<string>("rememberedUsername");
+
+        // Hvis vi fandt et brugernavn...
         if (!string.IsNullOrEmpty(storedUser))
         {
-            login.Username = storedUser;
-            rememberMe = true;
+            login.Username = storedUser; // ... så forudfyld login-feltet med det
+            rememberMe = true;           // og sæt checkboxen "Husk mig" som valgt
         }
     }
 
+    // 🔁 Skifter mellem at vise adgangskoden som tekst eller skjult
     private void TogglePassword()
     {
+        // Hvis adgangskoden vises som skjult ("password"), ændres den til synlig ("text")
+        // Ellers ændres den tilbage til skjult
         passwordType = passwordType == "password" ? "text" : "password";
     }
 
+    // 🔐 Håndterer login-logikken når brugeren trykker på "Log ind"
     private async Task HandleLogin()
     {
-        isLoading = true;
-        message = "";
+        isLoading = true;      // Vis evt. "Logger ind..." besked og deaktiver knappen
+        message = "";          // Ryd tidligere fejlbeskeder
 
         try
         {
+            // 🔎 Forsøg at logge ind via AuthService med de oplysninger brugeren har indtastet
             var success = await AuthService.Login(login);
+
             if (success)
             {
+                // 💾 Hvis brugeren har valgt "Husk mig", gem brugernavn i lokal storage
                 if (rememberMe)
                     await localStorage.SetItemAsync("rememberedUsername", login.Username);
                 else
-                    await localStorage.RemoveItemAsync("rememberedUsername");
+                    await localStorage.RemoveItemAsync("rememberedUsername"); // Ellers fjern tidligere gemt brugernavn
 
+                // 👤 Hent den fulde brugerprofil (ud fra brugernavnet)
                 var user = await AuthService.GetUserByUsername(login.Username);
                 if (user != null)
                 {
+                    // 📌 Gem brugerens oplysninger i den globale UserState (så resten af app'en ved hvem der er logget ind)
                     await UserState.SetUserAsync(
                         user.Username,
                         user.Role,
@@ -111,11 +127,12 @@
                         user.Email
                     );
 
+                    // 🚀 Navigér brugeren til den rette side baseret på deres rolle
                     NavManager.NavigateTo(user.Role?.ToLower() switch
                     {
                         "admin" => "/administrator",
                         "elev" => "/mitoverblik",
-                        _ => "/"
+                        _ => "/" // fallback
                     });
                 }
                 else
@@ -125,14 +142,16 @@
             }
             else
             {
-                message = "Forkert brugernavn eller adgangskode.";
+                message = "Forkert brugernavn eller adgangskode."; // 🔐 Login fejlede
             }
         }
         catch (Exception ex)
         {
+            // 🧯 Hvis der sker en fejl i processen, vis den som besked
             message = $"Login-fejl: {ex.Message}";
         }
 
-        isLoading = false;
+        isLoading = false; // 🟢 Aktivér knappen igen efter loginforsøget
     }
+
 }
