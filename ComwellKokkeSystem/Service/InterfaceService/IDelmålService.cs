@@ -2,11 +2,12 @@
 
 public interface IDelmaalService
 {
-    Task<List<Delmål>> GetByPraktikperiodeIdAsync(int praktikperiodeId); // ✅ behold
-    Task UpdateDelmaalAsync(Delmål delmaal);                             // ✅ behold
-    Task AddDelmaalAsync(Delmål delmaal);                                // ✅ behold
-    Task DeleteDelmaalAsync(int id);                                     // ✅ behold
-    Task<Delmål?> GetByIdAsync(int id);                                  // ✅ behold
-    Task<List<Delmål>> GetAllAsync();                                    // ✅ behold
-    Task<List<Delmål>> GetDelmaalMedDeadlineIndenFor14DageAsync();       // ✅ behold
+    //Finder praktikperiode id, og tager delmål udfra den praltikperiode
+    Task<List<Delmål>> GetByPraktikperiodeIdAsync(int praktikperiodeId); 
+    Task UpdateDelmaalAsync(Delmål delmaal);                           
+    Task AddDelmaalAsync(Delmål delmaal);                               
+    Task DeleteDelmaalAsync(int id);                                  
+    Task<Delmål?> GetByIdAsync(int id);                                
+    Task<List<Delmål>> GetAllAsync();                                   
+    Task<List<Delmål>> GetDelmaalMedDeadlineIndenFor14DageAsync();       
 }

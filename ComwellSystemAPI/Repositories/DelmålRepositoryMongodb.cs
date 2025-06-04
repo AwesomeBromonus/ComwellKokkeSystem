@@ -85,13 +85,6 @@ public class DelmålRepository : IDelmål
 
    
 
-   
-    public async Task<List<Delmål>> GetAllForYearAsync(int year)
-    {
-        var allDelmaal = await _collection.Find(_ => true).ToListAsync();
-        return allDelmaal.Where(d => d.Deadline.Year == year).ToList();
-    }
-
     // Henter et enkelt delmål baseret på id
     public async Task<Delmål?> GetByIdAsync(int id)
     {
