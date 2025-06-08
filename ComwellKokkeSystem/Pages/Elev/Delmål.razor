@@ -22,7 +22,7 @@
 <br />
 
 
-
+<!--Indlæser praktikperioder-->
 @if (isLoading)
 {
     <p>⏳ Indlæser praktikperioder...</p>
@@ -33,6 +33,7 @@ else if (praktikperioder == null || !praktikperioder.Any())
 }
 else
 {
+    <!--Viser praktikperioder-->
     <div class="praktikperiode-wrapper">
         @foreach (var periode in praktikperioder)
         {
@@ -42,12 +43,14 @@ else
             : "praktik-btn ikke-valgt";
 
 
+            <!--Viser delmål for hver praktikperioder-->
             <div class="praktikperiode-kort">
                 <button class="@btnClass"
                         @onclick="() => VisDelmaal(periode.Id)">
                     @periode.Navn
                 </button>
 
+                <!--Chekker om du admin og viser status redigering hvis du er-->
                 <select class="form-select form-select-sm mt-1"
                         @onchange="async e => await OpdaterPraktikperiodeStatus(periode, ((ChangeEventArgs)e).Value?.ToString())"
                         disabled="@((UserState.Role?.ToLower() != "admin"))">
@@ -63,6 +66,7 @@ else
 
 
 
+    <!--Viser tilføjdelmål modaldialog hvis man ikke er elev-->
     @if (valgtPraktikId != 0 && UserState.Role?.ToLower() != "elev")
     {
         <button class="btn btn-success mb-3" @onclick="ÅbnModalTilføjDelmaal">➕ Tilføj delmål</button>
@@ -73,6 +77,7 @@ else
         @if (delmaalListe.Any())
         {
             <ul class="list-group">
+                <!--Viser delmålsliste for specifik praktikperiode-->
                 @foreach (var d in delmaalListe)
                 {
                     <li class="list-group-item mb-3">
@@ -83,14 +88,14 @@ else
                                     🗓 Deadline: @d.Deadline.ToString("dd-MM-yyyy")
                                 </small><br />
 
-
+                                <!--Knap som togler underdelmaalvisning-->
                                 <button class="border-0 bg-transparent text-dark p-0"
                                         style="font-size: 1.2rem;"
                                         @onclick="() => ToggleUnderdelmaalVisning(d.Id)">
                                     @(udvidetDelmaalId == d.Id ? "⬇️" : "➡️")
                                 </button>
 
-
+                                <!--Viser underdelmaal for et specifikt delmål og giver admin rettigheder for at redigere, slette og tilføje-->
                                 @if (udvidetDelmaalId == d.Id && underdelmaalMap.ContainsKey(d.Id))
                                 {
                                     <table class="table table-bordered table-sm mt-2">
@@ -182,7 +187,7 @@ else
                          
                         </div>
 
-                        <!-- Kommentar -->
+                        <!--Gemmer Kommentarer til delmål for specifik elev -->
                         <div class="mt-3">
                            
                             <textarea class="form-control"
@@ -225,6 +230,7 @@ else
 }
 
 <!-- Modal komponenter -->
+<!--Tilføj og rediger delmål modal-->
 <Modal Show="visModal" Title="@(redigerMode ? "Rediger delmål" : "Tilføj nyt delmål")" OnClose="LukModal">
     <ChildContent>
         <EditForm Model="nytDelmaal" OnValidSubmit="GemDelmaal">
@@ -254,6 +260,7 @@ else
     </FooterContent>
 </Modal>
 
+<!--Anmodnings modal-->
 <Modal Show="visAnmodningsModal" Title="Anmod om statusændring" OnClose="LukAnmodningsModal">
     <ChildContent>
         <div class="mb-3">
@@ -279,6 +286,7 @@ else
     </FooterContent>
 </Modal>
 
+<!--UnderdelmaalsAnmodninger modal-->
 <Modal Show="visUnderdelmaalAnmodningModal" Title="Anmod om ændring på underdelmål" OnClose="() => visUnderdelmaalAnmodningModal = false">
     <ChildContent>
         <div class="mb-3">
@@ -304,6 +312,7 @@ else
     </FooterContent>
 </Modal>
 
+<!--Tilføj underdelmål og rediger modal-->
 <Modal Show="visUnderdelmaalModal" Title="@((redigererUnderdelmaal ? "Rediger underdelmål" : "Tilføj underdelmål"))" OnClose="LukUnderdelmaalModal">
     <ChildContent>
         <EditForm Model="nyUnderdelmaal" OnValidSubmit="GemUnderdelmaal">
@@ -324,19 +333,28 @@ else
         <button type="button" class="btn btn-secondary" @onclick="LukUnderdelmaalModal">Annuller</button>
     </FooterContent>
 </Modal>
+
+
+
 @code {
+
+    // De defineret variabler og instans variablerne samt parameter
+
+    //Parameter som henter elevplanId fra urlen
     [Parameter] public int elevplanId { get; set; }
 
+    //Praktikperioder
     private List<Modeller.Praktikperiode> praktikperioder = new();
-
-    private List<Modeller.Delmål>? delmaalListe;
     private int valgtPraktikId = 0;
     private bool isLoading = true;
 
+    //Kommentarter 
     private Dictionary<int, string> nyeKommentarer = new();
     private Dictionary<int, List<Modeller.Kommentar>> kommentarer = new();
 
+    //Delmål
     private Modeller.Delmål nytDelmaal = new();
+    private List<Modeller.Delmål>? delmaalListe;
     private bool visModal = false;
     private bool redigerMode = false;
 
@@ -367,6 +385,7 @@ else
     private int valgtDelmaalTilUnderdelmaal = 0;
 
 
+    // Metode som henter elevplan baseret på elevplanid fra urlen, samt praktikperioder.
     protected override async Task OnInitializedAsync()
     {
         try
@@ -397,6 +416,7 @@ else
         isLoading = false;
     }
 
+    //Åben tilføj delmaalmodal 
     private void ÅbenUnderdelmaalModal(int delmaalId)
     {
         valgtDelmaalTilUnderdelmaal = delmaalId;
@@ -405,6 +425,7 @@ else
         visUnderdelmaalModal = true;
     }
 
+    //Metode til at redigerer underdelmaal
     private void RedigerUnderdelmaal(Underdelmaal u)
     {
         nyUnderdelmaal = new Underdelmaal
@@ -420,11 +441,14 @@ else
         visUnderdelmaalModal = true;
     }
 
+    // Luk modal
     private void LukUnderdelmaalModal()
     {
         visUnderdelmaalModal = false;
         nyUnderdelmaal = new();
     }
+
+    // Opdatere eller tilføjer Underdelmaal
     private async Task GemUnderdelmaal()
     {
         if (redigererUnderdelmaal)
@@ -443,7 +467,7 @@ else
         await ToggleUnderdelmaalVisning(valgtDelmaalTilUnderdelmaal);
     }
 
-
+    // Sletter underdelmaal
     private async Task SletUnderdelmaal(int id, int delmaalId)
     {
         await UnderdelmaalService.DeleteAsync(id);
@@ -451,11 +475,7 @@ else
         await ToggleUnderdelmaalVisning(delmaalId);
     }
 
-
-
-
-   
-
+    // Viser delmaal for en specifik praktikperiode baseret på praktikperiodeId
     private async Task VisDelmaal(int praktikperiodeId)
     {
         valgtPraktikId = praktikperiodeId;
@@ -469,6 +489,7 @@ else
         }
     }
 
+    // Opdatere delmål status og tjekker om praktikperiode er fuldført
     private async Task OpdaterStatus(Modeller.Delmål d, string? nyStatus)
     {
         if (!string.IsNullOrEmpty(nyStatus) && d.Status != nyStatus)
@@ -480,8 +501,12 @@ else
             await TjekOgOpdaterPraktikperiodeStatus(d.PraktikperiodeId);
         }
     }
+
+    
     private bool IsSelected(Modeller.Delmål d, string status) => d.Status == status;
 
+
+    // Opretter et kommentar-object til et specifikt delmål
     private async Task GemKommentar(int delmaalId)
     {
         if (!string.IsNullOrWhiteSpace(nyeKommentarer[delmaalId]))
@@ -502,6 +527,8 @@ else
             kommentarer[delmaalId].Add(kommentar);
         }
     }
+
+    //Starter en modal anmodning hvor man kan tilsætte en ønske status og en admin/kok modtager
     private async Task StartAnmodning(int delmaalId)
     {
         valgtDelmaalId = delmaalId;
@@ -522,7 +549,7 @@ else
         visAnmodningsModal = true;
     }
 
-
+    //Opretter et anmodningsobjekt
     private async Task SendAnmodning()
     {
         if (UserState.Id == null || valgtModtagerId == 0)
@@ -547,6 +574,7 @@ else
     private void LukAnmodningsModal() => visAnmodningsModal = false;
     private void Tilbage() => Nav.NavigateTo("/administrator");
 
+    // Åbner modal tilføj delmaal som opretter et delmålobjekt
     private void ÅbnModalTilføjDelmaal()
     {
         nytDelmaal = new Modeller.Delmål
@@ -560,6 +588,7 @@ else
         visModal = true;
     }
 
+    //Metode til at redigerer et delmåls objekt
     private void RedigerDelmaal(Modeller.Delmål d)
     {
         nytDelmaal = new Modeller.Delmål
@@ -575,6 +604,7 @@ else
         visModal = true;
     }
 
+    //Opdatere delmålet med de nye ændringer i databasen samt tilføjer delmålet
     private async Task GemDelmaal()
     {
         if (redigerMode)
@@ -590,12 +620,14 @@ else
         await VisDelmaal(valgtPraktikId);
     }
 
+    // Sletter et delmål i databasen
     private async Task SletDelmaal(int id)
     {
         await DelmaalService.DeleteDelmaalAsync(id);
         await VisDelmaal(valgtPraktikId);
     }
 
+    //Lukker modaldialogen for delmål
     private void LukModal()
     {
         visModal = false;
@@ -603,6 +635,7 @@ else
         nytDelmaal = new();
     }
 
+    // Viser/skjuler underdelmål for et bestemt id
     private async Task ToggleUnderdelmaalVisning(int delmaalId)
     {
         if (udvidetDelmaalId == delmaalId)
@@ -621,6 +654,7 @@ else
         }
     }
 
+    //Viser modaldialog for underdelmaal anmodning
     private async Task StartUnderdelmaalAnmodning(int underdelmaalId)
     {
         valgtUnderdelmaalId = underdelmaalId;
@@ -639,6 +673,7 @@ else
         visUnderdelmaalAnmodningModal = true;
     }
 
+    //Opretter ny anmodnings objekt i databasen
     private async Task SendUnderdelmaalAnmodning()
     {
         if (UserState.Id == null || valgtModtagerId == 0)
@@ -659,6 +694,7 @@ else
         visUnderdelmaalAnmodningModal = false;
     }
   
+    //Opdaterer status på underdelmål i databasen og henter dem igen
     private async Task OpdaterUnderdelmaalStatus(Underdelmaal u, string? nyStatus)
     {
         if (!string.IsNullOrEmpty(nyStatus) && u.Status != nyStatus)
@@ -678,7 +714,7 @@ else
         }
     }
 
-
+    //Henter underdeelmål for delmål i databasen og opdaterer UI
     private async Task GenindlæsUnderdelmaal(int delmaalId)
     {
         var result = await UnderdelmaalService.GetByDelmaalIdAsync(delmaalId);
@@ -686,6 +722,7 @@ else
         StateHasChanged(); // Sørger for at UI opdateres
     }
 
+    //Metode status for praktikperioder opdateres automatisk hvis alle delmål for perioden er fuldført
     private async Task TjekOgOpdaterPraktikperiodeStatus(int praktikperiodeId)
     {
         var delmaal = await DelmaalService.GetByPraktikperiodeIdAsync(praktikperiodeId);
@@ -711,30 +748,7 @@ else
         }
     }
 
-
-    private async Task MarkérPraktikperiodeSomFuldført(Praktikperiode periode)
-    {
-        var delmaal = await DelmaalService.GetByPraktikperiodeIdAsync(periode.Id);
-
-        if (delmaal.All(d => d.Status == "Fuldført"))
-        {
-            periode.Status = "Fuldført";
-            await PraktikperiodeService.UpdateAsync(periode);
-
-            // Opdater lokalt for at få UI til at ændre sig
-            var index = praktikperioder.FindIndex(p => p.Id == periode.Id);
-            if (index >= 0)
-            {
-                praktikperioder[index] = periode;
-            }
-        }
-        else
-        {
-            Console.WriteLine("🚫 Ikke alle delmål er fuldførte.");
-        }
-    }
-
-
+    //Metode hvor man kan opdatere praktikperiode status
     private async Task OpdaterPraktikperiodeStatus(Praktikperiode periode, string? nyStatus)
     {
         if (!string.IsNullOrEmpty(nyStatus) && periode.Status != nyStatus)
