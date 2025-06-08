@@ -113,6 +113,7 @@ else
 <Modal Show="@visUnderdelmaalModal"
        Title="@(redigererUnderdelmaal ? "Rediger underdelmål" : $"Tilføj underdelmål til delmål {valgtDelmaalSkabelonId}")"
        OnClose="LukUnderdelmaalModal">
+
     <ChildContent>
         <EditForm Model="nyUnderdelmaal" OnValidSubmit="GemUnderdelmaalSkabelon">
             <DataAnnotationsValidator />
@@ -122,10 +123,12 @@ else
             <InputDate id="deadlineInput" class="form-control mb-2" @bind-Value="nyUnderdelmaal.Deadline" />
         </EditForm>
     </ChildContent>
+
     <FooterContent>
         <button type="submit" class="btn btn-success">@((redigererUnderdelmaal) ? "Opdater" : "Tilføj")</button>
         <button type="button" class="btn btn-secondary" @onclick="LukUnderdelmaalModal">Annuller</button>
     </FooterContent>
+
 </Modal>
 
 @code {

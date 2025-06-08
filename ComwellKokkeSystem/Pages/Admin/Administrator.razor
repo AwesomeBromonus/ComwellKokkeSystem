@@ -15,7 +15,7 @@
 
 
 <div class="admin-container">
-
+    <!-- Chekker om user er logget ind og chekker for admin-->
     @if (!UserState.IsLoggedInChecked)
     {
         <p>Indlæser brugerstatus...</p>
@@ -30,11 +30,12 @@
     }
     else
     {
+        <!--Hvis admin er logget ind, kommer man ind på administrator dashbord-->
         <div class="admin-header">
             <h2>Administratorpanel</h2>
             <p>Velkommen, <span class="username">@UserState.CurrentUser?.Navn</span></p>
         </div>
-
+        <!--De 3 store knapper der navigere til andre sider-->
         <div class="dashboard-cards">
             <div class="dashboard-card" @onclick="@(() => NavManager.NavigateTo("/opretuser"))">
                 <div class="icon">👤</div>
@@ -50,7 +51,7 @@
                 <p><strong>@anmodningerAntal</strong> afventer</p>
             </div>
         </div>
-
+        <!--Searchbaren som kan søge på roller og navne og hoteller på brugere-->
         <div class="search-section">
             <input class="search-input" placeholder="Søg brugernavn..." @bind="søgeord" />
             <select class="role-filter" @bind="valgtRolle">
@@ -67,7 +68,7 @@
                 }
             </select>
         </div>
-
+        <!-- Viser objeckterne til brugerne og sørge for de kan søges på-->
         <div class="user-grid">
             @foreach (var bruger in brugere.Where(b =>
            (string.IsNullOrWhiteSpace(søgeord) || b.Username.Contains(søgeord, StringComparison.OrdinalIgnoreCase)) &&
@@ -78,6 +79,8 @@
                      @onclick="@(() => VisDetaljer(bruger))"
                      style="background-color: #fff;">
                     <div class="user-text">
+
+                        <!--Viser navn, rolle og knapper på bruger elementerne-->
                         <h5 class="mb-1">@bruger.Navn</h5>
                         <span class="role-tag @GetRoleClass(bruger.Role)">@bruger.Role</span><br />
                         <small class="text-muted">@bruger.HotelNavn</small>
@@ -89,6 +92,7 @@
             }
         </div>
 
+        <!-- Modaldialogen som vi injecter fra modal.razor komponet, som viser en modaldialog-->
         <Modal Show="@(valgtBruger != null)"
                Title="@ModalTitel"
                OnClose="LukDetaljer">
@@ -98,6 +102,7 @@
                 {
                     @if (isEditing)
                     {
+                        <!--Tager forkseliige inputs fra useren og binder dem til et nyt bruger object, hvis man vil redigere-->
                         <label>Navn</label>
                         <InputText class="form-control" @bind-Value="valgtBruger.Navn" />
 
@@ -135,6 +140,7 @@
                     }
                     else
                     {
+                        <!--Viser info hvis man trykker på en bruger-->
                         <p><strong>Navn:</strong> @valgtBruger.Navn</p>
                         <p><strong>Email:</strong> @valgtBruger.Email</p>
                         <p><strong>Telefon:</strong> @valgtBruger.Tlf</p>
@@ -158,7 +164,7 @@
                 }
             </ChildContent>
 
-
+    <!--Tilføjer knapper i bunden af bruger elementet, Redigere, Gemredigering, slet og luk -->
     <FooterContent>
         @if (valgtBruger is not null)
         {
@@ -182,6 +188,7 @@
 </div>
 
 @code {
+    // De defineret variabler og instans variablerne 
     private List<UserModel> brugere = new();
     private UserModel? valgtBruger;
     private bool isEditing = false;
@@ -192,7 +199,7 @@
     private List<Elevplan> elevplaner = new();
     private string ModalTitel => $"Brugerinfo: {valgtBruger?.Navn}";
 
-
+    //Opretter en liste over hoteller der kan tilknyttes en bruger
     private List<string> alleHoteller = new()
     {
         "Aarhus", "Borupgaard", "Bygholm Park", "Centralværkstedet",
@@ -202,6 +209,7 @@
         "Middelfart", "Rebild Bakker", "Roskilde", "Sorø"
     };
 
+    //Metode der kørers når siden starter 
     protected override async Task OnInitializedAsync()
     {
         await LoadUsers();
@@ -211,6 +219,7 @@
         {
             try
             {
+                //Finder elever med elevplaner/elevplanid
                 var plan = await ElevplanService.GetElevplanByIdAsync(elev.ElevplanId.Value);
                 if (plan != null)
                     elevplaner.Add(plan);
@@ -221,32 +230,34 @@
             }
         }
     }
-
+    // Henter alle brugere
     private async Task LoadUsers()
     {
         var users = await UserService.GetAllAsync();
         if (users != null)
             brugere = users;
     }
-
+    //Henter alle anmondinger, og tælller alle anmodninger som af status = afventer
     private async Task HentAntalAnmodninger()
     {
         var liste = await AnmodningService.GetAlleAsync();
         anmodningerAntal = liste?.Count(a => a.Status?.ToLower() == "afventer") ?? 0;
     }
-
+    // Viser detaljer for brugere når man klikker på en bruger
     private void VisDetaljer(UserModel bruger)
     {
         valgtBruger = bruger;
         isEditing = false;
     }
 
+    // Lukker bruger detajlerne
     private void LukDetaljer()
     {
         valgtBruger = null;
         isEditing = false;
     }
 
+    //Opdatere informationen for en bruger
     private async Task GemRedigering()
     {
         if (valgtBruger is not null)
@@ -256,6 +267,7 @@
         }
     }
 
+    //Sletter en bruger baseret på bruger id
     private async Task SletBrugerAsync()
     {
         if (valgtBruger != null)
@@ -266,22 +278,27 @@
         }
     }
 
+    // Navigere ind på delmaal siden, og putter brugeren man trykker pås id og i urlen så man lander på den brugers elevplan
     private void SeElevplan(int elevplanId) => NavManager.NavigateTo($"/delmaal/{elevplanId}");
 
+    //Henter skoleperiode baseret på en brugeres elevplanId
     private string HentSkoleperiode(UserModel bruger)
     {
         var plan = elevplaner.FirstOrDefault(p => p.Id == bruger.ElevplanId);
         return plan?.Skoleperiode ?? "Ikke angivet";
     }
 
+    //Henter skoleforløb baseret på elevplanId
     private string HentSkoleforloeb(UserModel bruger)
     {
         var plan = elevplaner.FirstOrDefault(p => p.Id == bruger.ElevplanId);
         return plan?.SkoleForløb ?? "Ikke angivet";
     }
 
+    //Henter et billede fra mappenuploads
     private string GetImageUrl(int id) => $"https://localhost:7013/uploads/{id}.jpg";
 
+    //Gør det muligt at ændre rolle, så man kan redigere en bruger og lave rollen om
     private string GetRoleClass(string? role) => role?.ToLower() switch
     {
         "admin" => "role-admin",
