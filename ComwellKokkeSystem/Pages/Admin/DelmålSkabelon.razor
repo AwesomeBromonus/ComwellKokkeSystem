@@ -1,10 +1,8 @@
 ﻿@page "/delmaalskabeloner"
 @* KOMPONENT: Blazor Razor Component for delmålsskabeloner *@
-
 @inject IDelmaalSkabelonService DelmaalSkabelonService
 @inject IUnderdelmaalSkabelonService UnderdelmaalSkabelonService
 @using LayoutComponenter
-
 @using Modeller
 @using System.Linq
 <link href="css/modal.css" rel="stylesheet" />
@@ -14,18 +12,23 @@
 
 <h3>🧾 Elevplanskabelon</h3>
 
+<!-- Ser om der er skabeloner-->
 @if (skabeloner == null)
 {
     <p>Indlæser skabeloner...</p>
 }
+
 else
 {
+    <!-- Forloob der tager praktikperioder fra 1 til 3-->
     @for (int periode = 1; periode <= 3; periode++)
     {
+        <!--LinQ hvor vi i listen finder alle praktikperiode nummer og sætter lig med periode i en liste1-->
         var periodeSkabeloner = skabeloner.Where(s => s.PraktikperiodeNummer == periode).ToList();
-
+        
         if (periodeSkabeloner.Any())
         {
+            <!--Laver en tabel for hver praktikperiode med delmål og underdelmål-->
             <div class="border rounded p-3 mb-4 shadow-sm bg-light">
                 <h4 class="mb-3">📌 Praktikperiode @periode</h4>
                 <table class="table table-striped mb-0">
@@ -37,6 +40,7 @@ else
                         </tr>
                     </thead>
                     <tbody>
+                        <!--Viser liste over alle delmål i delmål skabelonen-->
                         @foreach (var s in periodeSkabeloner)
                         {
                             <tr>
@@ -46,12 +50,15 @@ else
                                         @(udvidetDelmaalId == s.Id ? "⬆️ Skjul" : "⬇️ Vis")
                                     </button>
                                 </td>
+                                <!--Knapper til redigering, åbning og sletning-->
                                 <td class="handlinger-col">
                                     <button class="btn btn-sm btn-warning me-1" @onclick="() => RedigerSkabelon(s)">✏️</button>
                                     <button class="btn btn-sm btn-danger me-1" @onclick="() => SletSkabelon(s.Id)">🗑️</button>
                                     <button class="btn btn-sm btn-success" @onclick="() => ÅbenUnderdelmaalModal(s.Id)">➕ Underdelmål</button>
                                 </td>
                             </tr>
+
+                            <!--Viser for alle underdelmålene-->
                             @if (udvidetDelmaalId == s.Id)
                             {
                                 var relevanteUnderdelmaal = underdelmaalListe.Where(u => u.DelmaalSkabelonId == s.Id).ToList();
@@ -68,6 +75,7 @@ else
                                                             <small class="text-muted">🗓 Deadline-dage: @u.Deadline</small>
                                                         </div>
                                                         <div>
+                                                            <!--Knapper til redigering og sletning-->
                                                             <button class="btn btn-sm btn-warning me-1" @onclick="() => RedigerUnderdelmaal(u)">✏️</button>
                                                             <button class="btn btn-sm btn-danger" @onclick="() => SletUnderdelmaal(u.Id, s.Id)">🗑️</button>
                                                         </div>
@@ -134,6 +142,7 @@ else
 @code {
     @* KLASSE: C# kode bag komponenten *@
 
+    //Alle vores instans variabler og defineret variabler
     private List<DelmaalSkabelon>? skabeloner;
     private DelmaalSkabelon nySkabelon = new();
     private bool redigerMode = false;
@@ -145,11 +154,13 @@ else
     private List<UnderdelmaalSkabelon> underdelmaalListe = new();
     private bool redigererUnderdelmaal = false;
 
+    //Metode der henter alle delmål i delmålskabelonen, når siden starter
     protected override async Task OnInitializedAsync()
     {
         skabeloner = await DelmaalSkabelonService.GetAllAsync();
     }
 
+    //Gør det muligt at opdatere delmål og tilføje samt henter alle delmålene
     private async Task GemSkabelon()
     {
         if (redigerMode)
@@ -163,6 +174,7 @@ else
         skabeloner = await DelmaalSkabelonService.GetAllAsync();
     }
 
+    //Metode som gør det muligt at redigere delmål skabeloenen
     private void RedigerSkabelon(DelmaalSkabelon s)
     {
         nySkabelon = new DelmaalSkabelon
@@ -177,15 +189,20 @@ else
         visModal = true;
     }
 
+    //Sletter et delmål og henter alle efter
     private async Task SletSkabelon(int id)
     {
         await DelmaalSkabelonService.DeleteAsync(id);
         skabeloner = await DelmaalSkabelonService.GetAllAsync();
     }
 
+    //Åbner modal
     private void ÅbenTilføjModal() => (nySkabelon, visModal, redigerMode) = (new(), true, false);
+    
+    //Lukker modal
     private void LukModal() => (visModal, redigerMode, nySkabelon) = (false, false, new());
 
+    //Åbner underdelmål modaldialog, for et bestemt delmål
     private void ÅbenUnderdelmaalModal(int delmaalSkabelonId)
     {
         valgtDelmaalSkabelonId = delmaalSkabelonId;
@@ -194,6 +211,7 @@ else
         visUnderdelmaalModal = true;
     }
 
+    //Redigere et underdelmål for et bestemt delmål
     private void RedigerUnderdelmaal(UnderdelmaalSkabelon u)
     {
         nyUnderdelmaal = new UnderdelmaalSkabelon
@@ -208,8 +226,10 @@ else
         visUnderdelmaalModal = true;
     }
 
+    //Lukker undermodal
     private void LukUnderdelmaalModal() => (visUnderdelmaalModal, nyUnderdelmaal) = (false, new());
 
+    //Gemmer ændringer og tilføjelser af undermodel delmål
     private async Task GemUnderdelmaalSkabelon()
     {
         if (redigererUnderdelmaal)
@@ -223,6 +243,7 @@ else
         await ToggleUnderdelmaalVisning(valgtDelmaalSkabelonId);
     }
 
+    //Viser eller skjuler underdelmål for et bestemt delmål i skabelonen
     private async Task ToggleUnderdelmaalVisning(int delmaalSkabelonId)
     {
         if (udvidetDelmaalId == delmaalSkabelonId)
@@ -241,6 +262,7 @@ else
         }
     }
 
+    //Sletter et underdelmål
     private async Task SletUnderdelmaal(int id, int delmaalSkabelonId)
     {
         await UnderdelmaalSkabelonService.DeleteAsync(id);
